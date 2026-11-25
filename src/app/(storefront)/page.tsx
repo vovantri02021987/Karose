@@ -1,5 +1,6 @@
 import { ArrowRight, Droplets, FlaskConical, Leaf } from "lucide-react";
 import Link from "next/link";
+import SafeImage from "@/components/storefront/SafeImage";
 import ProductCard from "@/components/storefront/ProductCard";
 import RatingStars from "@/components/storefront/RatingStars";
 import {
@@ -28,8 +29,10 @@ export default async function HomePage() {
     categories.find((c) => c.slug === slug),
   ).filter((c): c is NonNullable<typeof c> => Boolean(c));
 
-  const featured = products.filter((p) => p.isFeatured).slice(0, 4);
-  const featuredList = featured.length > 0 ? featured : products.slice(0, 4);
+  const featured = products.filter((p) => p.isFeatured).slice(0, 8);
+  const featuredList = featured.length > 0 ? featured : products.slice(0, 8);
+  const heroMain = featuredList[0];
+  const heroSub = featuredList[1];
   const combo = products.find((p) => p.isCombo);
 
   return (
@@ -61,22 +64,47 @@ export default async function HomePage() {
               {combo && (
                 <Link
                   href={`/products/${combo.slug}`}
-                  className="inline-flex items-center rounded-full border border-primary-foreground/50 px-6 py-3 text-sm font-medium transition hover:bg-primary-foreground/10"
+                  className="inline-flex items-center px-2 py-3 text-sm font-medium underline-offset-4 transition hover:underline"
                 >
                   Xem {combo.name}
                 </Link>
               )}
             </div>
           </div>
-          <div
-            className="relative hidden aspect-square rounded-full border border-primary-foreground/20 md:block"
-            aria-hidden="true"
-          >
-            <div className="absolute inset-8 rounded-full border border-primary-foreground/20" />
-            <div className="absolute inset-16 flex items-center justify-center rounded-full bg-background/10">
-              <Leaf size={96} strokeWidth={1} className="opacity-80" />
+          {heroMain && (
+            <div className="relative mx-auto hidden w-full max-w-md md:block">
+              <Link
+                href={`/products/${heroMain.slug}`}
+                className="relative block aspect-square overflow-hidden rounded-[2rem] border border-primary-foreground/20 bg-background"
+              >
+                <SafeImage
+                  src={heroMain.images[0]}
+                  alt={heroMain.name}
+                  sizes="(min-width: 768px) 28rem, 100vw"
+                  priority
+                  className="object-cover"
+                />
+              </Link>
+              {heroSub && (
+                <Link
+                  href={`/products/${heroSub.slug}`}
+                  className="absolute -bottom-6 -left-6 block h-36 w-36 overflow-hidden rounded-2xl border-4 border-primary bg-background shadow-lg"
+                >
+                  <span className="relative block h-full w-full">
+                    <SafeImage
+                      src={heroSub.images[0]}
+                      alt={heroSub.name}
+                      sizes="9rem"
+                      className="object-cover"
+                    />
+                  </span>
+                </Link>
+              )}
+              <p className="mt-4 text-right text-xs text-primary-foreground/70">
+                {heroMain.name}
+              </p>
             </div>
-          </div>
+          )}
         </div>
       </section>
 
@@ -107,7 +135,7 @@ export default async function HomePage() {
       <section className="mx-auto max-w-6xl px-4 pt-24 sm:px-6">
         <div className="flex items-end justify-between gap-4">
           <h2 className="font-serif text-3xl font-semibold md:text-4xl">
-            Sản phẩm nổi bật
+            Sản phẩm bán chạy
           </h2>
           <Link
             href="/products"
@@ -116,7 +144,7 @@ export default async function HomePage() {
             Xem tất cả
           </Link>
         </div>
-        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-10 grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
           {featuredList.map((p, i) => (
             <ProductCard key={p.id} product={p} priority={i < 2} />
           ))}
