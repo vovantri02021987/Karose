@@ -64,7 +64,8 @@ export async function confirmVietQRPayment(params: {
 
   // Chỉ chuyển UNPAID -> PAID một lần (an toàn khi webhook bắn đồng thời).
   const result = await prisma.order.updateMany({
-    where: { id: order.id, paymentStatus: "UNPAID" },
+    // Không ghi PAID lên đơn vừa bị huỷ giữa lúc đọc và lúc cập nhật.
+    where: { id: order.id, paymentStatus: "UNPAID", status: { not: "CANCELLED" } },
     data: {
       paymentStatus: "PAID",
       ...(order.status === "PENDING" ? { status: "CONFIRMED" } : {}),

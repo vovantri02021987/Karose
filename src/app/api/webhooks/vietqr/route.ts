@@ -13,8 +13,10 @@ function safeEqual(a: string, b: string): boolean {
 
 /** Chấp nhận 470000, "470000", "470,000", "470.000 VND" (VND không có phần thập phân). */
 function parseAmount(raw: number | string | undefined): number {
-  if (typeof raw === "number") return Number.isFinite(raw) ? Math.trunc(raw) : 0;
+  if (typeof raw === "number") return Number.isFinite(raw) ? Math.max(0, Math.trunc(raw)) : 0;
   if (typeof raw === "string") {
+    // Số âm (giao dịch chuyển đi) KHÔNG được đọc thành dương: "-470000" → 0.
+    if (/^\s*[-−(]/.test(raw)) return 0;
     const digits = raw.replace(/[^\d]/g, "");
     return digits ? Number(digits) : 0;
   }
@@ -31,6 +33,7 @@ const payloadSchema = z.looseObject({
   referenceCode: z.string().optional(),
   reference: z.string().optional(),
   id: numish.optional(),
+  transferType: z.string().optional(), // SePay/Casso: "in" | "out"
 });
 
 export async function POST(request: Request) {
@@ -56,9 +59,12 @@ export async function POST(request: Request) {
   }
   const p = parsed.data;
 
+  // Chỉ tiền VÀO tài khoản mới xác nhận thanh toán; giao dịch chiều "out" coi như 0đ.
+  const isOutgoing = (p.transferType ?? "").trim().toLowerCase() === "out";
+
   const result = await confirmVietQRPayment({
     content: `${p.content ?? ""} ${p.description ?? ""}`,
-    amount: parseAmount(p.transferAmount ?? p.amount),
+    amount: isOutgoing ? 0 : parseAmount(p.transferAmount ?? p.amount),
     reference:
       p.referenceCode ?? p.reference ?? (p.id !== undefined ? String(p.id) : null),
   });

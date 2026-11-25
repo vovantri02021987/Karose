@@ -2,7 +2,7 @@ import { Prisma } from "@prisma/client";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { calculateOrderPricing, PricingError } from "@/lib/pricing";
-import { reserveStockFEFO, StockError } from "@/lib/fefo";
+import { reserveStockFEFO, StockConflictError, StockError } from "@/lib/fefo";
 import {
   generateOrderCode,
   generateVietQRUrl,
@@ -41,10 +41,23 @@ const orderSchema = z.object({
 function isOrderCodeCollision(e: unknown): boolean {
   if (!(e instanceof Prisma.PrismaClientKnownRequestError)) return false;
   if (e.code !== "P2002") return false;
-  const target = e.meta?.target;
-  return Array.isArray(target)
-    ? target.includes("orderCode")
-    : String(target ?? "").includes("orderCode");
+  // Prisma dùng `meta.target` với engine mặc định, nhưng với driver adapter
+  // (Neon/pg) tên cột nằm ở `meta.driverAdapterError.cause.constraint.fields`.
+  const meta = e.meta as
+    | {
+        target?: unknown;
+        driverAdapterError?: {
+          cause?: { constraint?: unknown; originalMessage?: unknown };
+        };
+      }
+    | undefined;
+  const cause = meta?.driverAdapterError?.cause;
+  const haystack = [
+    JSON.stringify(meta?.target ?? ""),
+    JSON.stringify(cause?.constraint ?? ""),
+    String(cause?.originalMessage ?? ""),
+  ].join(" ");
+  return haystack.includes("orderCode");
 }
 
 export async function POST(request: Request) {
@@ -87,11 +100,16 @@ export async function POST(request: Request) {
 
   try {
     let order: Awaited<ReturnType<typeof createOrder>> | null = null;
+    // Thử lại khi (a) trùng mã đơn, (b) xung đột giữ kho với đơn khác đặt cùng lúc
+    // (lần sau đọc lại tồn mới nhất; nếu thật sự hết hàng sẽ ra StockError 409 thường).
     for (let attempt = 0; attempt < 5 && !order; attempt++) {
       try {
         order = await createOrder(data, generateOrderCode());
       } catch (e) {
-        if (!isOrderCodeCollision(e)) throw e;
+        const retryable =
+          isOrderCodeCollision(e) ||
+          (e instanceof StockConflictError && attempt < 4);
+        if (!retryable) throw e;
       }
     }
     if (!order) {

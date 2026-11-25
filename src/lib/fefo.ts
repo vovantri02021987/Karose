@@ -53,6 +53,17 @@ export class StockError extends Error {
   }
 }
 
+/**
+ * Xung đột ghi khi nhiều đơn giữ cùng một lô đồng thời (dữ liệu tồn đã thay đổi
+ * sau lúc đọc). Có thể thử lại an toàn: lần sau sẽ đọc lại tồn mới nhất.
+ */
+export class StockConflictError extends StockError {
+  constructor(message: string) {
+    super(message);
+    this.name = "StockConflictError";
+  }
+}
+
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
 // ---------------------------------------------------------------------------
@@ -383,23 +394,29 @@ export async function reserveStockFEFO(
   });
 
   // 5) Ghi DB: trừ available, cộng reserved. Điều kiện gte chống bán lố khi
-  //    có đơn khác giữ cùng lô đồng thời.
+  //    có đơn khác giữ cùng lô đồng thời. Các lô được cập nhật theo thứ tự id
+  //    cố định để mọi giao dịch khoá hàng theo CÙNG một thứ tự → không deadlock
+  //    khi hai đơn đặt cùng các sản phẩm theo thứ tự ngược nhau.
+  const writes: { id: string; taken: number; label: string }[] = [];
   for (const [variantId, pool] of poolByVariant) {
     const label = totalNeed.get(variantId)?.label ?? "đã chọn";
     for (const b of pool) {
-      if (b.taken === 0) continue;
-      const updated = await tx.inventoryBatch.updateMany({
-        where: { id: b.id, availableQuantity: { gte: b.taken } },
-        data: {
-          availableQuantity: { decrement: b.taken },
-          reservedQuantity: { increment: b.taken },
-        },
-      });
-      if (updated.count !== 1) {
-        throw new StockError(
-          `Sản phẩm ${label} hiện không đủ số lượng tồn kho khả dụng`,
-        );
-      }
+      if (b.taken > 0) writes.push({ id: b.id, taken: b.taken, label });
+    }
+  }
+  writes.sort((x, y) => (x.id < y.id ? -1 : x.id > y.id ? 1 : 0));
+  for (const w of writes) {
+    const updated = await tx.inventoryBatch.updateMany({
+      where: { id: w.id, availableQuantity: { gte: w.taken } },
+      data: {
+        availableQuantity: { decrement: w.taken },
+        reservedQuantity: { increment: w.taken },
+      },
+    });
+    if (updated.count !== 1) {
+      throw new StockConflictError(
+        `Sản phẩm ${w.label} vừa có thay đổi tồn kho, vui lòng thử lại`,
+      );
     }
   }
 
@@ -445,7 +462,8 @@ async function loadAllocations(
       byBatch.set(a.batchId, (byBatch.get(a.batchId) ?? 0) + a.quantity);
     }
   }
-  return byBatch;
+  // Sắp theo id để hoàn/xuất kho khoá lô cùng thứ tự với lúc giữ hàng (tránh deadlock).
+  return new Map([...byBatch].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)));
 }
 
 /** Đơn bị huỷ: hoàn đúng số lượng về từng lô đã giữ (+available, -reserved). */
