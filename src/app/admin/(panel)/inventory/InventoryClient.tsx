@@ -212,38 +212,42 @@ export default function InventoryClient({
       </div>
 
       <div className="overflow-x-auto rounded-2xl border border-border">
-        <table className="w-full min-w-[960px] text-left text-sm">
+        <table className="w-full min-w-[640px] text-left text-sm">
           <thead className="bg-surface text-xs text-muted-foreground">
             <tr>
-              <th className="px-4 py-3">FEFO</th>
-              <th className="px-4 py-3">Mã lô</th>
-              <th className="px-4 py-3">Sản phẩm</th>
-              <th className="px-4 py-3">NSX</th>
-              <th className="px-4 py-3">HSD</th>
-              <th className="px-4 py-3 text-right">Nhập</th>
-              <th className="px-4 py-3 text-right">Khả dụng</th>
-              <th className="px-4 py-3 text-right">Đang giữ</th>
-              <th className="px-4 py-3">Trạng thái</th>
-              <th className="px-4 py-3" />
+              <th className="px-3 py-3">Lô (FEFO)</th>
+              <th className="px-3 py-3">Sản phẩm</th>
+              <th className="px-3 py-3">Hạn dùng</th>
+              <th className="px-3 py-3 text-right">Khả dụng</th>
+              <th className="px-3 py-3">Trạng thái</th>
+              <th className="px-3 py-3" />
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
             {batches.length === 0 && (
-              <tr><td colSpan={10} className="px-4 py-8 text-center text-muted-foreground">Chưa có lô hàng.</td></tr>
+              <tr><td colSpan={6} className="px-3 py-8 text-center text-muted-foreground">Chưa có lô hàng.</td></tr>
             )}
             {batches.map((b) => (
-              <tr key={b.id}>
-                <td className="px-4 py-3 font-semibold">{b.fefoRank ? `#${b.fefoRank}` : "—"}</td>
-                <td className="px-4 py-3 font-medium">{b.batchCode}</td>
-                <td className="px-4 py-3">{b.productName}<span className="block text-xs text-muted-foreground">{b.variantName} · {b.sku}</span></td>
-                <td className="px-4 py-3">{formatDate(b.manufacturedDate)}</td>
-                <td className="px-4 py-3">{formatDate(b.expiryDate)}</td>
-                <td className="px-4 py-3 text-right">{b.initialQuantity}</td>
-                <td className="px-4 py-3 text-right font-medium">{b.availableQuantity}</td>
-                <td className="px-4 py-3 text-right">{b.reservedQuantity}</td>
-                <td className="px-4 py-3"><span className={`whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-medium ${STATE_TONE[b.state]}`}>{STATE_LABEL[b.state]}</span></td>
-                <td className="px-4 py-3 text-right">
-                  <button type="button" onClick={() => setAdjusting(b)} className="rounded-full border border-border px-3 py-1 text-xs hover:bg-surface">Kiểm kê</button>
+              <tr key={b.id} className="align-top">
+                <td className="px-3 py-3">
+                  <span className="whitespace-nowrap text-xs font-medium">{b.batchCode}</span>
+                  <span className="mt-0.5 block text-xs text-muted-foreground">{b.fefoRank ? `FEFO #${b.fefoRank}` : "Không xuất bán"}</span>
+                </td>
+                <td className="px-3 py-3">
+                  <span className="block max-w-[14rem] font-medium leading-snug">{b.productName}</span>
+                  <span className="block text-xs text-muted-foreground">{b.variantName} · {b.sku}</span>
+                </td>
+                <td className="px-3 py-3 whitespace-nowrap">
+                  {formatDate(b.expiryDate)}
+                  <span className="block text-xs text-muted-foreground">NSX {formatDate(b.manufacturedDate)}</span>
+                </td>
+                <td className="px-3 py-3 text-right whitespace-nowrap">
+                  <span className="font-semibold">{b.availableQuantity}</span>
+                  <span className="block text-xs text-muted-foreground">nhập {b.initialQuantity}{b.reservedQuantity > 0 ? ` · giữ ${b.reservedQuantity}` : ""}</span>
+                </td>
+                <td className="px-3 py-3"><span className={`whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-medium ${STATE_TONE[b.state]}`}>{STATE_LABEL[b.state]}</span></td>
+                <td className="px-3 py-3 text-right">
+                  <button type="button" onClick={() => setAdjusting(b)} className="whitespace-nowrap rounded-full border border-border px-3 py-1.5 text-xs hover:bg-surface">Kiểm kê</button>
                 </td>
               </tr>
             ))}

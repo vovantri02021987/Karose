@@ -5,6 +5,8 @@ import { formatDate, formatDateTime, formatVND, sellableExpiryCutoff } from "@/l
 import { prisma } from "@/lib/prisma";
 import { ORDER_STATUS_LABEL, PAYMENT_STATUS_LABEL } from "@/lib/admin-labels";
 import StatusBadge from "@/components/admin/StatusBadge";
+import { BarList, Columns } from "@/components/admin/charts";
+import { buildDashboardCharts, revenueWindowStart } from "@/lib/dashboard-charts";
 
 function suggestion(daysLeft: number, expired: boolean): string {
   if (expired) return "Biệt lập khỏi khu bán hàng, lập biên bản huỷ";
@@ -20,7 +22,9 @@ export default async function DashboardPage({
   await requireStaffPage();
   const { denied } = await searchParams;
 
-  const [revenue, openOrders, stock, nearExpiry, recent] = await Promise.all([
+  const since = revenueWindowStart();
+
+  const [revenue, openOrders, stock, nearExpiry, recent, liveBatches, recentOrders] = await Promise.all([
     prisma.order.aggregate({
       _sum: { totalAmount: true },
       where: {
@@ -47,13 +51,35 @@ export default async function DashboardPage({
         createdAt: true,
       },
     }),
+    prisma.inventoryBatch.findMany({
+      where: { availableQuantity: { gt: 0 } },
+      select: {
+        availableQuantity: true,
+        expiryDate: true,
+        variant: {
+          select: {
+            price: true,
+            product: { select: { name: true, category: { select: { name: true } } } },
+          },
+        },
+      },
+    }),
+    prisma.order.findMany({
+      where: { createdAt: { gte: since }, status: { notIn: ["CANCELLED", "RETURNED"] } },
+      select: { createdAt: true, totalAmount: true },
+    }),
   ]);
+
+  const { categoryData, productData, expiryData, revenueData, revenue14, stockValue } =
+    buildDashboardCharts(liveBatches, recentOrders);
 
   const cards = [
     { label: "Doanh thu đã thanh toán / hoàn tất", value: formatVND(revenue._sum.totalAmount ?? 0) },
     { label: "Đơn mới & đang xử lý", value: String(openOrders) },
     { label: "Tồn khả dụng bán lẻ (hạn > 30 ngày)", value: String(stock._sum.availableQuantity ?? 0) },
     { label: "Lô cận hạn / hết hạn (≤ 30 ngày)", value: String(nearExpiry.length), warn: nearExpiry.length > 0 },
+    { label: "Giá trị tồn bán lẻ (theo giá bán)", value: formatVND(stockValue) },
+    { label: "Doanh số 14 ngày (đơn chưa huỷ)", value: formatVND(revenue14) },
   ];
 
   return (
@@ -65,7 +91,7 @@ export default async function DashboardPage({
         </p>
       )}
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {cards.map((c) => (
           <div key={c.label} className="rounded-2xl border border-border bg-surface p-5">
             <p className="text-xs text-muted-foreground">{c.label}</p>
@@ -74,6 +100,21 @@ export default async function DashboardPage({
             </p>
           </div>
         ))}
+      </div>
+
+      <div className="grid gap-6 xl:grid-cols-2">
+        <ChartCard title="Tồn khả dụng theo danh mục" note="Chỉ tính lô còn hạn > 30 ngày">
+          <BarList data={categoryData} unit=" sp" ariaLabel="Tồn khả dụng theo danh mục" />
+        </ChartCard>
+        <ChartCard title="Top 10 sản phẩm theo tồn" note="Chỉ tính lô còn hạn > 30 ngày">
+          <BarList data={productData} unit=" sp" ariaLabel="Top 10 sản phẩm theo tồn khả dụng" />
+        </ChartCard>
+        <ChartCard title="Tồn theo thời hạn còn lại" note="Số lượng theo số ngày còn đến hạn dùng; đỏ = cần xử lý">
+          <Columns data={expiryData} ariaLabel="Tồn kho theo thời hạn còn lại" />
+        </ChartCard>
+        <ChartCard title="Doanh số 14 ngày gần nhất" note="Đơn vị: nghìn đồng, đơn chưa huỷ/hoàn">
+          <Columns data={revenueData} ariaLabel="Doanh số theo ngày trong 14 ngày gần nhất" />
+        </ChartCard>
       </div>
 
       <section>
@@ -173,5 +214,23 @@ export default async function DashboardPage({
         </div>
       </section>
     </div>
+  );
+}
+
+function ChartCard({
+  title,
+  note,
+  children,
+}: {
+  title: string;
+  note?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="rounded-2xl border border-border bg-surface/60 p-5">
+      <h2 className="font-serif text-xl font-semibold">{title}</h2>
+      {note && <p className="mt-1 text-xs text-muted-foreground">{note}</p>}
+      <div className="mt-4">{children}</div>
+    </section>
   );
 }

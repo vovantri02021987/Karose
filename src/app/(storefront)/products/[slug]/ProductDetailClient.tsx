@@ -299,7 +299,12 @@ export default function ProductDetailClient({
             </li>
             <li className="flex items-center gap-2.5">
               <ShieldCheck size={16} className="shrink-0 text-primary" aria-hidden />
-              Chỉ bán hàng còn hạn dùng trên 30 ngày
+              <span>
+                Chỉ bán hàng còn hạn dùng trên 30 ngày ·{" "}
+                <Link href="/chinh-sach-doi-tra" className="text-primary underline">
+                  Chính sách đổi trả
+                </Link>
+              </span>
             </li>
             <li className="flex items-center gap-2.5">
               <PackageSearch size={16} className="shrink-0 text-primary" aria-hidden />

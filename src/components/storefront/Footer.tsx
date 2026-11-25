@@ -78,7 +78,11 @@ export default function Footer({
                 Journal chăm sóc da
               </Link>
             </li>
-            <li>Chính sách đổi trả: đang được cập nhật</li>
+            <li>
+              <Link href="/chinh-sach-doi-tra" className="inline-block py-1.5 hover:text-primary">
+                Chính sách đổi trả
+              </Link>
+            </li>
             <li>
               <a
                 href="https://shopee.vn/karose.01"
