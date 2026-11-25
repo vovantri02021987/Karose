@@ -16,7 +16,7 @@ export default async function ProductsPage() {
   const categories = await getCategorySummaries(products);
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+    <div className="mx-auto max-w-[96rem] px-4 py-12 sm:px-6 lg:px-8">
       <h1 className="type-page-title">Sản phẩm</h1>
       <p className="mt-2 text-muted-foreground">
         Chọn theo danh mục, loại da hoặc công dụng bạn quan tâm.

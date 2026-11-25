@@ -286,14 +286,15 @@ export default function CheckoutClient() {
     }
   };
 
-  const wrapper = "mx-auto max-w-6xl px-4 py-12 tabular-nums sm:px-6";
+  const wrapperBase = "mx-auto px-4 py-12 tabular-nums sm:px-6 lg:px-8";
+  const wrapper = `${wrapperBase} max-w-[96rem]`;
 
   // ---- Sau khi đặt hàng ----
   if (placed) {
     const trackingHref = `/tracking?orderCode=${encodeURIComponent(placed.orderCode)}&phone=${encodeURIComponent(placed.phone)}`;
     const showQR = placed.paymentMethod === "VIETQR" && !placed.paid && placed.vietqrUrl;
     return (
-      <div className={`${wrapper} max-w-3xl`}>
+      <div className={`${wrapperBase} max-w-3xl`}>
         <div className="text-center">
           <CheckCircle2 className="mx-auto text-primary" size={48} />
           <h1 className="type-page-title mt-3">

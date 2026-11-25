@@ -185,7 +185,7 @@ export default function ProductCatalogClient({
           ))}
         </div>
       </div>
-    <div className="mt-6 grid gap-10 lg:grid-cols-[260px_1fr]">
+    <div className="mt-6 grid gap-10 lg:grid-cols-[260px_1fr] xl:grid-cols-[280px_1fr]">
       <aside
         className={`space-y-7 ${drawerOpen ? "block" : "hidden"} lg:block`}
         aria-label="Bộ lọc sản phẩm"
@@ -328,7 +328,7 @@ export default function ProductCatalogClient({
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3">
+            <div className="grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
               {page.map((p, i) => (
                 <ProductCard key={p.id} product={p} priority={i < 3} />
               ))}

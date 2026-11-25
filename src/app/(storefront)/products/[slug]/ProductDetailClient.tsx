@@ -101,7 +101,7 @@ export default function ProductDetailClient({
   ];
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 tabular-nums sm:px-6">
+    <div className="mx-auto max-w-[96rem] px-4 py-10 tabular-nums sm:px-6 lg:px-8">
       <nav
         aria-label="Đường dẫn"
         className="mb-8 text-sm text-muted-foreground"
@@ -532,7 +532,7 @@ export default function ProductDetailClient({
 
       {variant && (
         <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/95 px-4 py-3 backdrop-blur md:hidden">
-          <div className="mx-auto flex max-w-6xl items-center gap-4">
+          <div className="mx-auto flex max-w-[96rem] items-center gap-4">
             <p className="text-xl font-semibold text-primary">
               {formatVND(variant.price)}
             </p>

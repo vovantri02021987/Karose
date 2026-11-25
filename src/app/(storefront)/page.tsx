@@ -39,7 +39,7 @@ export default async function HomePage() {
     <>
       {/* Hero */}
       <section className="bg-primary text-primary-foreground">
-        <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-20 sm:px-6 md:grid-cols-2 md:py-28">
+        <div className="mx-auto grid max-w-[96rem] items-center gap-10 px-4 py-20 sm:px-6 lg:px-8 md:grid-cols-2 md:py-28">
           <div>
             <p className="text-sm uppercase tracking-[0.25em] text-primary-foreground/70">
               Mỹ phẩm thiên nhiên
@@ -110,7 +110,7 @@ export default async function HomePage() {
 
       {/* Danh mục */}
       {homeCategories.length > 0 && (
-        <section className="mx-auto max-w-6xl px-4 pt-20 sm:px-6">
+        <section className="mx-auto max-w-[96rem] px-4 pt-20 sm:px-6 lg:px-8">
           <h2 className="type-section text-center">
             Danh mục nổi bật
           </h2>
@@ -144,7 +144,7 @@ export default async function HomePage() {
       )}
 
       {/* Sản phẩm nổi bật */}
-      <section className="mx-auto max-w-6xl px-4 pt-24 sm:px-6">
+      <section className="mx-auto max-w-[96rem] px-4 pt-24 sm:px-6 lg:px-8">
         <div className="flex items-end justify-between gap-4">
           <h2 className="type-section">
             Sản phẩm bán chạy
@@ -156,7 +156,7 @@ export default async function HomePage() {
             Xem tất cả
           </Link>
         </div>
-        <div className="mt-10 grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-4">
+        <div className="mt-10 grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-4 2xl:grid-cols-5">
           {featuredList.map((p, i) => (
             <ProductCard key={p.id} product={p} priority={i < 2} />
           ))}
@@ -165,7 +165,7 @@ export default async function HomePage() {
 
       {/* Câu chuyện thương hiệu */}
       <section className="mt-24 bg-surface">
-        <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
+        <div className="mx-auto max-w-[96rem] px-4 py-20 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
             <p className="text-sm uppercase tracking-[0.25em] text-brand-accent">
               Farm to Bottle
@@ -220,7 +220,7 @@ export default async function HomePage() {
 
       {/* Đánh giá */}
       {reviews.length > 0 && (
-        <section className="mx-auto max-w-6xl px-4 pt-24 sm:px-6">
+        <section className="mx-auto max-w-[96rem] px-4 pt-24 sm:px-6 lg:px-8">
           <h2 className="type-section text-center">
             Khách hàng nói về KAROSE
           </h2>
