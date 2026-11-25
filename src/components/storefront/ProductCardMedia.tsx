@@ -6,10 +6,14 @@ import SafeImage from "./SafeImage";
 
 const CYCLE_MS = 10000;
 
-/** Chọn ngẫu nhiên 1 ảnh khác `current` trong `pool` (pool có ≥ 2 ảnh). */
-function pickRandomOther(pool: string[], current: string): string {
-  const others = pool.filter((src) => src !== current);
-  return others[Math.floor(Math.random() * others.length)] ?? current;
+/** Xáo trộn ngẫu nhiên (Fisher–Yates) trên bản sao của mảng. */
+function shuffle(items: string[]): string[] {
+  const out = [...items];
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
 }
 
 /**
@@ -32,23 +36,40 @@ export default function ProductCardMedia({
   children?: ReactNode;
 }) {
   const pool = useMemo(() => Array.from(new Set(images.filter(Boolean))), [images]);
-  const [hoverSrc, setHoverSrc] = useState<string | null>(null);
+  // `cur` là ảnh đang hiện mờ lên; `prev` là ảnh nằm bên dưới (ảnh trước đó).
+  const [shown, setShown] = useState<{ prev: string | null; cur: string | null }>({
+    prev: null,
+    cur: null,
+  });
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
+  const queue = useRef<string[]>([]);
   const canSwap = pool.length > 1;
 
   const stop = () => {
     if (timer.current) clearInterval(timer.current);
     timer.current = null;
-    setHoverSrc(null);
+    queue.current = [];
+    setShown({ prev: null, cur: null });
+  };
+
+  /** Mọi lần chuyển (1→2, 2→3, 3→4...) dùng chung một cách: ảnh mới mờ dần đè lên ảnh trước. */
+  const advance = () => {
+    setShown((s) => {
+      const current = s.cur ?? pool[0];
+      if (queue.current.length === 0) {
+        // Đi hết lượt các ảnh khác (thứ tự ngẫu nhiên) rồi mới lặp lại.
+        queue.current = shuffle(pool.filter((src) => src !== current));
+      }
+      const next = queue.current.shift() ?? current;
+      return { prev: current, cur: next };
+    });
   };
 
   const start = () => {
     if (!canSwap) return;
-    setHoverSrc((cur) => pickRandomOther(pool, cur ?? pool[0]));
+    advance();
     if (timer.current) clearInterval(timer.current);
-    timer.current = setInterval(() => {
-      setHoverSrc((cur) => pickRandomOther(pool, cur ?? pool[0]));
-    }, CYCLE_MS);
+    timer.current = setInterval(advance, CYCLE_MS);
   };
 
   useEffect(
@@ -72,10 +93,19 @@ export default function ProductCardMedia({
         priority={priority}
         className="object-cover transition duration-500 group-hover:scale-[1.03]"
       />
-      {hoverSrc && (
-        <div key={hoverSrc} className="karose-fade-in absolute inset-0">
+      {shown.prev && shown.prev !== pool[0] && (
+        <div key={`prev-${shown.prev}`} className="absolute inset-0">
           <SafeImage
-            src={hoverSrc}
+            src={shown.prev}
+            alt=""
+            className="object-cover transition duration-500 group-hover:scale-[1.03]"
+          />
+        </div>
+      )}
+      {shown.cur && (
+        <div key={`cur-${shown.cur}-${shown.prev}`} className="karose-fade-in absolute inset-0">
+          <SafeImage
+            src={shown.cur}
             alt=""
             priority
             className="object-cover transition duration-500 group-hover:scale-[1.03]"
