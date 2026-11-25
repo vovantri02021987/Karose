@@ -156,7 +156,7 @@ export default async function HomePage() {
             Xem tất cả
           </Link>
         </div>
-        <div className="mt-10 grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
+        <div className="mt-10 grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-4">
           {featuredList.map((p, i) => (
             <ProductCard key={p.id} product={p} priority={i < 2} />
           ))}

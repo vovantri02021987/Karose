@@ -37,7 +37,7 @@ export default function Footer({
               <li key={c.slug}>
                 <Link
                   href={`/products?category=${c.slug}`}
-                  className="hover:text-primary"
+                  className="inline-block py-1.5 hover:text-primary"
                 >
                   {c.name}
                 </Link>
@@ -64,17 +64,17 @@ export default function Footer({
           </h2>
           <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
             <li>
-              <Link href="/tracking" className="hover:text-primary">
+              <Link href="/tracking" className="inline-block py-1.5 hover:text-primary">
                 Tra cứu đơn hàng
               </Link>
             </li>
             <li>
-              <Link href="/journal#bao-quan" className="hover:text-primary">
+              <Link href="/journal#bao-quan" className="inline-block py-1.5 hover:text-primary">
                 Hướng dẫn bảo quản
               </Link>
             </li>
             <li>
-              <Link href="/journal" className="hover:text-primary">
+              <Link href="/journal" className="inline-block py-1.5 hover:text-primary">
                 Journal chăm sóc da
               </Link>
             </li>
@@ -84,7 +84,7 @@ export default function Footer({
                 href="https://shopee.vn/karose.01"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-primary"
+                className="inline-block py-1.5 hover:text-primary"
               >
                 KaRose trên Shopee
               </a>

@@ -51,6 +51,7 @@ export default function Navbar() {
 
         <Link
           href="/"
+          aria-label="KaRose – Trang chủ"
           className="flex items-center gap-2 font-serif text-2xl font-semibold tracking-wide text-primary"
         >
           <Image
@@ -61,18 +62,18 @@ export default function Navbar() {
             className="h-11 w-11 rounded-full mix-blend-multiply"
             priority
           />
-          KaRose
+          <span className="md:hidden lg:inline">KaRose</span>
         </Link>
 
         <nav
-          className="ml-6 hidden items-center gap-6 md:flex"
+          className="ml-2 hidden items-center gap-5 md:flex lg:ml-6 lg:gap-6"
           aria-label="Điều hướng chính"
         >
           {NAV_LINKS.map((l) => (
             <Link
               key={l.href}
               href={l.href}
-              className={`whitespace-nowrap text-sm transition hover:text-primary ${
+              className={`whitespace-nowrap py-2 text-sm transition hover:text-primary ${
                 isActive(l.href)
                   ? "font-semibold text-primary"
                   : "text-muted-foreground"
@@ -137,7 +138,7 @@ export default function Navbar() {
                 key={l.href}
                 href={l.href}
                 onClick={() => setMenuOpen(false)}
-                className={`py-2.5 text-sm ${
+                className={`py-3 text-sm ${
                   isActive(l.href)
                     ? "font-semibold text-primary"
                     : "text-muted-foreground"

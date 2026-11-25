@@ -2,7 +2,7 @@
 
 import { SlidersHorizontal, Search, X } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ProductCard from "@/components/storefront/ProductCard";
 import { normalizeText } from "@/lib/text";
 import {
@@ -130,6 +130,13 @@ export default function ProductCatalogClient({
   const hasSkinData = SKIN_TYPES.some((s) => (skinCounts[s.value] ?? 0) > 0);
 
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const chipRowRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const active = chipRowRef.current?.querySelector<HTMLElement>(
+      '[data-active="true"]',
+    );
+    active?.scrollIntoView({ inline: "center", block: "nearest" });
+  }, [category]);
   const filterKey = searchParams.toString();
   const [shown, setShown] = useState({ key: filterKey, n: PAGE_SIZE });
   const limit = shown.key === filterKey ? shown.n : PAGE_SIZE;
@@ -146,11 +153,18 @@ export default function ProductCatalogClient({
 
   return (
     <>
-      <div className="mt-8 -mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0" role="group" aria-label="Danh mục">
+      <div
+        ref={chipRowRef}
+        className="no-scrollbar mt-8 -mx-4 overflow-x-auto px-4 [mask-image:linear-gradient(to_right,black_calc(100%-40px),transparent)] sm:mx-0 sm:px-0"
+        role="group"
+        aria-label="Danh mục"
+      >
         <div className="flex w-max gap-2 pb-1">
           <button
             type="button"
             className={chip(!category)}
+            data-active={!category}
+            aria-pressed={!category}
             onClick={() => setParams({ category: null })}
           >
             Tất cả
@@ -159,6 +173,8 @@ export default function ProductCatalogClient({
             <button
               key={c.slug}
               type="button"
+              data-active={category === c.slug}
+              aria-pressed={category === c.slug}
               className={`${chip(category === c.slug)} whitespace-nowrap`}
               onClick={() =>
                 setParams({ category: category === c.slug ? null : c.slug })
@@ -312,7 +328,7 @@ export default function ProductCatalogClient({
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-2 gap-4 sm:gap-6 xl:grid-cols-3">
+            <div className="grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3">
               {page.map((p, i) => (
                 <ProductCard key={p.id} product={p} priority={i < 3} />
               ))}

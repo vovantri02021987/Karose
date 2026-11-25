@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Minus, Plus } from "lucide-react";
+import { Check, Minus, PackageSearch, Plus, ShieldCheck, Wallet } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -82,6 +82,12 @@ export default function ProductDetailClient({
       .getElementById("tab-inci")
       ?.scrollIntoView({ behavior: "smooth", block: "center" });
   }
+
+  // Mô tả đã có mục "Công dụng nổi bật" thì không lặp lại danh sách thẻ công dụng.
+  const showBenefitTags =
+    product.benefits.length > 0 &&
+    !product.description.includes("Công dụng nổi bật");
+  const hasSide = product.skinTypes.length > 0 || showBenefitTags;
 
   const tabs: { key: TabKey; label: string }[] = [
     { key: "overview", label: "Mô tả & Công dụng" },
@@ -285,6 +291,26 @@ export default function ProductDetailClient({
           >
             Mua ngay
           </button>
+
+          <ul className="mt-6 space-y-2.5 text-sm text-muted-foreground">
+            <li className="flex items-center gap-2.5">
+              <Wallet size={16} className="shrink-0 text-primary" aria-hidden />
+              Thanh toán khi nhận hàng (COD) hoặc chuyển khoản VietQR
+            </li>
+            <li className="flex items-center gap-2.5">
+              <ShieldCheck size={16} className="shrink-0 text-primary" aria-hidden />
+              Chỉ bán hàng còn hạn dùng trên 30 ngày
+            </li>
+            <li className="flex items-center gap-2.5">
+              <PackageSearch size={16} className="shrink-0 text-primary" aria-hidden />
+              <span>
+                Theo dõi đơn bằng mã đơn tại{" "}
+                <Link href="/tracking" className="text-primary underline">
+                  Tra cứu đơn hàng
+                </Link>
+              </span>
+            </li>
+          </ul>
         </div>
       </div>
 
@@ -322,7 +348,9 @@ export default function ProductDetailClient({
           className="py-8"
         >
           {tab === "overview" && (
-            <div className="grid gap-10 md:grid-cols-[2fr_1fr]">
+            <div
+              className={`grid gap-10 ${hasSide ? "md:grid-cols-[2fr_1fr]" : ""}`}
+            >
               <div>
                 <RichText text={product.description} />
                 {product.isCombo && product.comboComponents.length > 0 && (
@@ -363,6 +391,7 @@ export default function ProductDetailClient({
                   </div>
                 )}
               </div>
+              {hasSide && (
               <div className="space-y-6 text-sm">
                 {product.skinTypes.length > 0 && (
                 <div>
@@ -379,7 +408,7 @@ export default function ProductDetailClient({
                   </ul>
                 </div>
                 )}
-                {product.benefits.length > 0 && (
+                {showBenefitTags && (
                 <div>
                   <h2 className="mb-2 font-semibold">Công dụng</h2>
                     <ul className="space-y-1.5">
@@ -393,6 +422,7 @@ export default function ProductDetailClient({
                 </div>
                 )}
               </div>
+              )}
             </div>
           )}
 
@@ -482,6 +512,24 @@ export default function ProductDetailClient({
           )}
         </div>
       </div>
+
+      {variant && (
+        <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/95 px-4 py-3 backdrop-blur md:hidden">
+          <div className="mx-auto flex max-w-6xl items-center gap-4">
+            <p className="text-xl font-semibold text-primary">
+              {formatVND(variant.price)}
+            </p>
+            <div className="flex-1">
+              <AddToCartButton
+                product={product}
+                variant={variant}
+                quantity={quantity}
+                label="Thêm vào giỏ hàng"
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

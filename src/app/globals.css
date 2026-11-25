@@ -102,3 +102,12 @@
     @apply font-serif tracking-tight;
   }
 }
+
+
+/* Ẩn thanh cuộn ngang mặc định (thanh chip danh mục) nhưng vẫn cuộn được */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}

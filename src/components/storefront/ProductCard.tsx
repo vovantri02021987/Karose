@@ -7,17 +7,23 @@ import SafeImage from "./SafeImage";
 export function StockBadge({ stock }: { stock: number }) {
   if (stock <= 0) {
     return (
-      <span className="text-xs font-medium text-destructive">Hết hàng</span>
+      <span className="text-[13px] font-medium text-destructive">Hết hàng</span>
     );
   }
   if (stock <= 5) {
     return (
-      <span className="text-xs font-medium text-brand-accent">
+      <span className="text-[13px] font-medium text-brand-accent">
         Chỉ còn {stock}
       </span>
     );
   }
-  return <span className="text-xs text-muted-foreground">Còn hàng</span>;
+  return <span className="text-[13px] font-medium text-brand-accent">Còn hàng</span>;
+}
+
+/** Rút quy cách ngắn (vd. "100ml", "110g") từ tên biến thể; không có thì bỏ qua. */
+function shortSpec(name: string): string | null {
+  const m = name.match(/\d+(?:[.,]\d+)?\s?(?:ml|g|gr|kg)\b(?:\s?[/-]\s?\d+(?:[.,]\d+)?\s?(?:ml|g|gr|kg)\b)?/i);
+  return m ? m[0].replace(/\s+/g, "") : null;
 }
 
 export default function ProductCard({
@@ -30,6 +36,10 @@ export default function ProductCard({
   const soldOut = product.stock <= 0;
   const hasManyVariants = product.variants.length > 1;
   const firstInStock = product.variants.find((v) => v.stock > 0);
+  const spec =
+    !product.isCombo && product.variants.length === 1
+      ? shortSpec(product.variants[0].name)
+      : null;
   const hasRange =
     hasManyVariants &&
     product.variants.some((v) => v.price !== product.minPrice);
@@ -51,6 +61,11 @@ export default function ProductCard({
             Hết hàng
           </span>
         )}
+        {product.isFeatured && !product.isCombo && !soldOut && (
+          <span className="absolute left-3 top-3 rounded-full bg-brand-accent px-3 py-1 text-xs font-medium text-white">
+            Bán chạy
+          </span>
+        )}
         {product.isCombo && !soldOut && (
           <span className="absolute left-3 top-3 rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground">
             Combo
@@ -58,9 +73,10 @@ export default function ProductCard({
         )}
       </Link>
 
-      <div className="flex flex-1 flex-col gap-2 p-4">
+      <div className="flex flex-1 flex-col gap-1.5 p-3 sm:p-4">
         <p className="text-xs uppercase tracking-wider text-muted-foreground">
           {product.categoryName}
+          {spec ? ` · ${spec}` : ""}
         </p>
         <h3 className="font-serif text-lg font-semibold leading-snug">
           <Link
