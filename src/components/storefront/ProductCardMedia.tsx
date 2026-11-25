@@ -16,7 +16,7 @@ function pickRandomOther(pool: string[], current: string): string {
  * Khung ảnh thẻ sản phẩm (1:1). Rê chuột vào thẻ: ảnh đổi ngẫu nhiên giữa các
  * ảnh liên quan của sản phẩm (hiện mờ chuyển tiếp), đổi tiếp sau mỗi ~1,4 giây
  * khi chuột còn ở trên thẻ; rời chuột thì về ảnh chính. Sản phẩm chỉ có 1 ảnh
- * hoặc người dùng bật "giảm chuyển động" thì không đổi ảnh.
+ * thì không đổi. Chế độ "giảm chuyển động": vẫn đổi ảnh nhưng không hiện mờ (CSS).
  */
 export default function ProductCardMedia({
   href,
@@ -44,7 +44,6 @@ export default function ProductCardMedia({
 
   const start = () => {
     if (!canSwap) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     setHoverSrc((cur) => pickRandomOther(pool, cur ?? pool[0]));
     if (timer.current) clearInterval(timer.current);
     timer.current = setInterval(() => {
@@ -78,6 +77,7 @@ export default function ProductCardMedia({
           <SafeImage
             src={hoverSrc}
             alt=""
+            priority
             className="object-cover transition duration-500 group-hover:scale-[1.03]"
           />
         </div>
