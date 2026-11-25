@@ -119,12 +119,24 @@ export default async function HomePage() {
               <Link
                 key={c.slug}
                 href={`/products?category=${c.slug}`}
-                className="group flex aspect-[4/3] flex-col justify-end rounded-xl border border-border bg-surface p-5 transition hover:border-primary/50 hover:bg-primary hover:text-primary-foreground"
+                className="group relative flex aspect-[4/3] flex-col justify-end overflow-hidden rounded-xl border border-border bg-surface p-5 text-primary-foreground transition hover:border-primary/50"
               >
-                <h3 className="font-serif text-xl font-semibold">{c.name}</h3>
-                <p className="mt-1 text-xs text-muted-foreground group-hover:text-primary-foreground/80">
-                  {c.count} sản phẩm
-                </p>
+                <SafeImage
+                  src={c.image}
+                  alt=""
+                  sizes="(min-width: 768px) 25vw, 50vw"
+                  className="object-cover transition duration-500 group-hover:scale-105"
+                />
+                <span
+                  className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/40 to-transparent"
+                  aria-hidden="true"
+                />
+                <div className="relative">
+                  <h3 className="font-serif text-xl font-semibold">{c.name}</h3>
+                  <p className="mt-1 text-xs text-primary-foreground/80">
+                    {c.count} sản phẩm
+                  </p>
+                </div>
               </Link>
             ))}
           </div>

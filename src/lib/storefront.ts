@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { sellableExpiryCutoff } from "@/lib/format";
 import { getSellableStockForVariants } from "@/lib/fefo";
 import { normalizeText } from "@/lib/text";
 import type {
@@ -98,10 +99,17 @@ export async function getCategorySummaries(
     orderBy: { createdAt: "asc" },
     select: { id: true, name: true, slug: true },
   });
-  return categories.map((c) => ({
-    ...c,
-    count: products.filter((p) => p.categoryId === c.id).length,
-  }));
+  return categories.map((c) => {
+    const inCategory = products.filter((p) => p.categoryId === c.id);
+    const cover =
+      inCategory.find((p) => p.stock > 0 && p.images[0]) ??
+      inCategory.find((p) => p.images[0]);
+    return {
+      ...c,
+      count: inCategory.length,
+      image: cover?.images[0] ?? null,
+    };
+  });
 }
 
 export async function getHomeReviews(limit = 6): Promise<HomeReview[]> {
@@ -155,6 +163,24 @@ export async function getProductDetail(
   ];
   const stockMap = await getSellableStockForVariants(variantIds);
   const productComboStock = p.isCombo ? comboStock(p.comboItems, stockMap) : 0;
+
+  const expiryByVariant: Record<string, string> = {};
+  if (!p.isCombo && p.variants.length > 0) {
+    const expiryRows = await prisma.inventoryBatch.groupBy({
+      by: ["variantId"],
+      where: {
+        variantId: { in: p.variants.map((v) => v.id) },
+        availableQuantity: { gt: 0 },
+        expiryDate: { gt: sellableExpiryCutoff(new Date()) },
+      },
+      _min: { expiryDate: true },
+    });
+    for (const r of expiryRows) {
+      if (r._min.expiryDate) {
+        expiryByVariant[r.variantId] = r._min.expiryDate.toISOString();
+      }
+    }
+  }
 
   const variants = p.variants.map((v) => ({
     id: v.id,
@@ -215,5 +241,6 @@ export async function getProductDetail(
     reviews,
     ratingAverage,
     ratingCount,
+    expiryByVariant,
   };
 }

@@ -63,6 +63,25 @@ export default function ProductDetailClient({
     router.push("/checkout");
   }
 
+  const hasText = (t: string | null | undefined): t is string =>
+    Boolean(t && t.trim() && t.trim() !== PENDING_TEXT);
+  const mainIngredients = hasText(product.ingredientsInci)
+    ? product.ingredientsInci.replace(/\s+/g, " ").trim().slice(0, 110) +
+      (product.ingredientsInci.length > 110 ? "…" : "")
+    : null;
+  const expiryIso = variant ? product.expiryByVariant[variant.id] : undefined;
+  const expiry = expiryIso
+    ? new Date(expiryIso).toLocaleDateString("vi-VN", {
+        timeZone: "Asia/Ho_Chi_Minh",
+      })
+    : null;
+  function showIngredients() {
+    setTab("inci");
+    document
+      .getElementById("tab-inci")
+      ?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
   const tabs: { key: TabKey; label: string }[] = [
     { key: "overview", label: "Mô tả & Công dụng" },
     { key: "inci", label: "Thành phần (INCI)" },
@@ -158,6 +177,40 @@ export default function ProductDetailClient({
             </p>
           )}
 
+          {variant && (
+            <dl className="mt-5 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 rounded-lg border border-border bg-surface/60 p-4 text-sm">
+              <dt className="text-muted-foreground">Dung tích / Quy cách</dt>
+              <dd className="font-medium">{variant.name}</dd>
+              {mainIngredients && (
+                <>
+                  <dt className="text-muted-foreground">Thành phần chính</dt>
+                  <dd>
+                    {mainIngredients}{" "}
+                    <button
+                      type="button"
+                      onClick={showIngredients}
+                      className="text-primary underline"
+                    >
+                      Xem đầy đủ
+                    </button>
+                  </dd>
+                </>
+              )}
+              {expiry && (
+                <>
+                  <dt className="text-muted-foreground">Hạn dùng (lô gần nhất)</dt>
+                  <dd>{expiry}</dd>
+                </>
+              )}
+              <dt className="text-muted-foreground">Mã SKU</dt>
+              <dd>{variant.sku}</dd>
+              <dt className="text-muted-foreground">Tình trạng</dt>
+              <dd>
+                <StockBadge stock={variant.stock} />
+              </dd>
+            </dl>
+          )}
+
           {product.variants.length > 1 && (
             <fieldset className="mt-6">
               <legend className="mb-2 text-sm font-semibold">
@@ -182,21 +235,6 @@ export default function ProductDetailClient({
                 ))}
               </div>
             </fieldset>
-          )}
-
-          {variant && (
-            <dl className="mt-6 grid grid-cols-[auto_1fr] gap-x-6 gap-y-1.5 text-sm">
-              <dt className="text-muted-foreground">Phân loại</dt>
-              <dd>{variant.name}</dd>
-              <dt className="text-muted-foreground">Mã SKU</dt>
-              <dd>{variant.sku}</dd>
-              <dt className="text-muted-foreground">Khối lượng</dt>
-              <dd>{variant.weightGram} g</dd>
-              <dt className="text-muted-foreground">Tình trạng</dt>
-              <dd>
-                <StockBadge stock={variant.stock} />
-              </dd>
-            </dl>
           )}
 
           <div className="mt-8 flex flex-wrap items-center gap-4">
@@ -323,10 +361,10 @@ export default function ProductDetailClient({
                 )}
               </div>
               <div className="space-y-6 text-sm">
+                {product.skinTypes.length > 0 && (
                 <div>
                   <h2 className="mb-2 font-semibold">Loại da phù hợp</h2>
-                  {product.skinTypes.length > 0 ? (
-                    <ul className="flex flex-wrap gap-2">
+                  <ul className="flex flex-wrap gap-2">
                       {product.skinTypes.map((s) => (
                         <li
                           key={s}
@@ -335,14 +373,12 @@ export default function ProductDetailClient({
                           {skinTypeLabel(s)}
                         </li>
                       ))}
-                    </ul>
-                  ) : (
-                    <p className="text-muted-foreground">{PENDING_TEXT}</p>
-                  )}
+                  </ul>
                 </div>
+                )}
+                {product.benefits.length > 0 && (
                 <div>
                   <h2 className="mb-2 font-semibold">Công dụng</h2>
-                  {product.benefits.length > 0 ? (
                     <ul className="space-y-1.5">
                       {product.benefits.map((b) => (
                         <li key={b} className="flex items-center gap-2">
@@ -351,10 +387,8 @@ export default function ProductDetailClient({
                         </li>
                       ))}
                     </ul>
-                  ) : (
-                    <p className="text-muted-foreground">{PENDING_TEXT}</p>
-                  )}
                 </div>
+                )}
               </div>
             </div>
           )}

@@ -90,6 +90,8 @@ export interface ProductDetail extends CatalogProduct {
   reviews: PublicReview[];
   ratingAverage: number;
   ratingCount: number;
+  /** Hạn dùng gần nhất (ISO) của lô còn bán được, theo biến thể. Combo: rỗng. */
+  expiryByVariant: Record<string, string>;
 }
 
 export interface CategorySummary {
@@ -97,6 +99,8 @@ export interface CategorySummary {
   name: string;
   slug: string;
   count: number;
+  /** Ảnh đại diện danh mục (ảnh đầu tiên của sản phẩm còn hàng, nếu có). */
+  image: string | null;
 }
 
 export interface CartItem {
