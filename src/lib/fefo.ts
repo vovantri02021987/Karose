@@ -113,6 +113,31 @@ export async function getSellableStock(variantId: string): Promise<number> {
   return sumSellableForVariant(prisma, variantId, now);
 }
 
+/**
+ * Tồn khả dụng cho nhiều biến thể trong MỘT truy vấn (dùng cho trang danh sách).
+ * Cùng quy tắc FEFO: expiryDate > now + 30 ngày và availableQuantity > 0.
+ * Biến thể không có lô hợp lệ trả về 0.
+ */
+export async function getSellableStockForVariants(
+  variantIds: string[],
+): Promise<Map<string, number>> {
+  const result = new Map<string, number>(variantIds.map((id) => [id, 0]));
+  if (variantIds.length === 0) return result;
+  const rows = await prisma.inventoryBatch.groupBy({
+    by: ["variantId"],
+    where: {
+      variantId: { in: variantIds },
+      availableQuantity: { gt: 0 },
+      expiryDate: { gt: sellableExpiryCutoff(new Date()) },
+    },
+    _sum: { availableQuantity: true },
+  });
+  for (const r of rows) {
+    result.set(r.variantId, r._sum.availableQuantity ?? 0);
+  }
+  return result;
+}
+
 /** Tồn khả dụng của cả sản phẩm (tổng các biến thể; combo = min theo thành phần). */
 export async function getProductSellableStock(
   productId: string,

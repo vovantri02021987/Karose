@@ -2,7 +2,8 @@ import type { NextConfig } from "next";
 import { initOpenNextCloudflareForDev } from "@opennextjs/cloudflare";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Ảnh sản phẩm là file tĩnh trong /public: bỏ tối ưu hoá để chạy ổn trên Cloudflare Workers.
+  images: { unoptimized: true },
   turbopack: {
     rules: {
       "*.css": {

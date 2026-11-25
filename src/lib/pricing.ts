@@ -1,5 +1,6 @@
 import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { FREE_SHIPPING_THRESHOLD } from "@/lib/constants";
 
 /**
  * Tính giá đơn hàng phía server. Đơn giá luôn lấy từ bảng ProductVariant,
@@ -8,7 +9,7 @@ import { prisma } from "@/lib/prisma";
 
 type DbClient = Prisma.TransactionClient | typeof prisma;
 
-export const FREE_SHIPPING_THRESHOLD = 500_000;
+export { FREE_SHIPPING_THRESHOLD };
 export const SHIPPING_FEE_BIG_CITY = 20_000;
 export const SHIPPING_FEE_OTHER = 30_000;
 
