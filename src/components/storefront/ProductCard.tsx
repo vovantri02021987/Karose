@@ -76,7 +76,7 @@ export default function ProductCard({
       <div className="flex flex-1 flex-col gap-1.5 p-3 sm:p-4">
         <p className="text-xs uppercase tracking-wider text-muted-foreground">
           {product.categoryName}
-          {spec ? ` · ${spec}` : ""}
+          {spec && <span className="normal-case"> · {spec}</span>}
         </p>
         <h3 className="font-serif text-lg font-semibold leading-snug">
           <Link

@@ -15,7 +15,7 @@ const LINKS = [
 export default function AdminNav() {
   const pathname = usePathname();
   return (
-    <nav className="flex gap-1 overflow-x-auto lg:flex-col">
+    <nav className="no-scrollbar flex gap-1 overflow-x-auto lg:flex-col">
       {LINKS.map(({ href, label, icon: Icon }) => {
         const active = pathname === href || pathname.startsWith(`${href}/`);
         return (
