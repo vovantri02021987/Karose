@@ -217,13 +217,13 @@ function createOrder(data: OrderInput, orderCode: string) {
           shippingFee: pricing.shippingFee,
           discountAmount: pricing.discountAmount,
           totalAmount: pricing.totalAmount,
-          deliveryMinDays: pricing.delivery.minDays,
-          deliveryMaxDays: pricing.delivery.maxDays,
-          estimatedDeliveryText: pricing.delivery.text,
+          deliveryMinDays: pricing.estimatedDelivery.minDays,
+          deliveryMaxDays: pricing.estimatedDelivery.maxDays,
+          estimatedDeliveryText: pricing.estimatedDelivery.text,
           voucherId: pricing.voucher?.id,
           paymentMethod: data.paymentMethod,
           items: {
-            create: pricing.lines.map((line, idx) => ({
+            create: pricing.items.map((line, idx) => ({
               variant: { connect: { id: line.variantId } },
               quantity: line.quantity,
               unitPrice: line.unitPrice,

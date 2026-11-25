@@ -47,6 +47,11 @@ export function isBigCity(province: string): boolean {
   );
 }
 
+/** Tỉnh/thành "trục chính" (TP.HCM, Hà Nội) có thời gian giao ngắn nhất. */
+export function isCoreHubProvince(province: string): boolean {
+  return isBigCity(province);
+}
+
 /** Đưa khung về giá trị hợp lệ: số nguyên, min ≥ 1, max ≥ min. */
 function sanitize(minDays: number, maxDays: number): DeliveryWindow {
   const min = Math.max(1, Math.floor(Number.isFinite(minDays) ? minDays : DEFAULT_DELIVERY_MIN_DAYS));
@@ -91,8 +96,11 @@ export function estimateDelivery(
   windows: DeliveryWindow[],
   province: string,
 ): DeliveryEstimate {
-  return deliveryWindowForRegion(slowestWindow(windows), isBigCity(province));
+  return deliveryWindowForRegion(slowestWindow(windows), isCoreHubProvince(province));
 }
+
+/** Tên chính thức: dự kiến giao theo tỉnh/thành cho khung của các sản phẩm trong giỏ. */
+export const calculateEstimatedDelivery = estimateDelivery;
 
 /** Cả hai khu vực — dùng khi chưa biết tỉnh/thành (PDP, giỏ trượt). */
 export function estimateDeliveryBothRegions(windows: DeliveryWindow[]): {

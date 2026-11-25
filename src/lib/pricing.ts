@@ -2,9 +2,9 @@ import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { FREE_SHIPPING_THRESHOLD } from "@/lib/constants";
 import {
-  estimateDelivery,
+  calculateEstimatedDelivery,
   estimateDeliveryBothRegions,
-  isBigCity,
+  isCoreHubProvince,
   type DeliveryEstimate,
 } from "@/lib/delivery";
 
@@ -15,7 +15,7 @@ import {
 
 type DbClient = Prisma.TransactionClient | typeof prisma;
 
-export { FREE_SHIPPING_THRESHOLD, isBigCity };
+export { FREE_SHIPPING_THRESHOLD, calculateEstimatedDelivery, isCoreHubProvince };
 export const SHIPPING_FEE_BIG_CITY = 20_000;
 export const SHIPPING_FEE_OTHER = 30_000;
 
@@ -45,7 +45,7 @@ export interface PricingParams {
   voucherCode?: string | null;
 }
 
-export interface PricedLine {
+export interface PricedLineItem {
   variantId: string;
   productId: string;
   sku: string;
@@ -54,11 +54,16 @@ export interface PricedLine {
   quantity: number;
   unitPrice: number;
   lineTotal: number;
+  /** Phần giảm giá voucher phân bổ cho dòng này (tổng các dòng = discountAmount). */
+  lineDiscount: number;
+  lineFinalAmount: number;
+  /** Dòng này có thuộc phạm vi áp dụng của voucher đang dùng không. */
+  eligibleForVoucher: boolean;
   deliveryMinDays: number;
   deliveryMaxDays: number;
 }
 
-export interface AppliedVoucher {
+export interface AppliedVoucherSummary {
   id: string;
   code: string;
   discountType: string;
@@ -72,15 +77,18 @@ export interface AppliedVoucher {
   appliedProductNames: string[];
 }
 
-export interface OrderPricing {
-  lines: PricedLine[];
+export interface CalculatePricingResult {
+  items: PricedLineItem[];
   subtotal: number;
   discountAmount: number;
   shippingFee: number;
   totalAmount: number;
-  voucher: AppliedVoucher | null;
+  voucher: AppliedVoucherSummary | null;
+  freeShipThreshold: number;
+  /** Số tiền cần mua thêm để được miễn phí ship (0 nếu đã đủ). */
+  amountNeededForFreeShip: number;
   /** Dự kiến giao theo tỉnh/thành (nếu chưa chọn tỉnh: mức của "tỉnh khác"). */
-  delivery: DeliveryEstimate;
+  estimatedDelivery: DeliveryEstimate;
   /** Dự kiến theo từng khu vực, dùng khi chưa biết tỉnh/thành. */
   deliveryByRegion: { bigCity: DeliveryEstimate; other: DeliveryEstimate };
 }
@@ -91,13 +99,13 @@ export function calculateShippingFee(
   province: string,
 ): number {
   if (amountAfterDiscount >= FREE_SHIPPING_THRESHOLD) return 0;
-  return isBigCity(province) ? SHIPPING_FEE_BIG_CITY : SHIPPING_FEE_OTHER;
+  return isCoreHubProvince(province) ? SHIPPING_FEE_BIG_CITY : SHIPPING_FEE_OTHER;
 }
 
 export async function calculateOrderPricing(
   params: PricingParams,
   db: DbClient = prisma,
-): Promise<OrderPricing> {
+): Promise<CalculatePricingResult> {
   const { items, province } = params;
   if (items.length === 0) {
     throw new PricingError("Giỏ hàng đang trống");
@@ -129,7 +137,7 @@ export async function calculateOrderPricing(
   });
   const map = new Map(variants.map((v) => [v.id, v]));
 
-  const lines: PricedLine[] = items.map((it) => {
+  const lines: PricedLineItem[] = items.map((it) => {
     const v = map.get(it.variantId);
     if (!v || !v.product.isActive) {
       throw new PricingError(
@@ -145,6 +153,9 @@ export async function calculateOrderPricing(
       quantity: it.quantity,
       unitPrice: v.price,
       lineTotal: v.price * it.quantity,
+      lineDiscount: 0,
+      lineFinalAmount: v.price * it.quantity,
+      eligibleForVoucher: false,
       deliveryMinDays: v.product.deliveryMinDays,
       deliveryMaxDays: v.product.deliveryMaxDays,
     };
@@ -153,7 +164,7 @@ export async function calculateOrderPricing(
   const subtotal = lines.reduce((s, l) => s + l.lineTotal, 0);
 
   let discountAmount = 0;
-  let voucher: AppliedVoucher | null = null;
+  let voucher: AppliedVoucherSummary | null = null;
   const code = params.voucherCode?.trim().toUpperCase();
 
   if (code) {
@@ -211,6 +222,20 @@ export async function calculateOrderPricing(
     // Không bao giờ vượt phần tiền hàng hợp lệ.
     discountAmount = Math.max(0, Math.min(discountAmount, eligibleSubtotal));
 
+    // Phân bổ giảm giá theo tỷ lệ tiền hàng của các dòng hợp lệ; dòng cuối nhận phần dư
+    // để tổng các dòng luôn đúng bằng discountAmount (số nguyên VND).
+    let remaining = discountAmount;
+    eligibleLines.forEach((line, idx) => {
+      const share =
+        idx === eligibleLines.length - 1
+          ? remaining
+          : Math.floor((discountAmount * line.lineTotal) / eligibleSubtotal);
+      line.lineDiscount = share;
+      line.lineFinalAmount = line.lineTotal - share;
+      line.eligibleForVoucher = true;
+      remaining -= share;
+    });
+
     voucher = {
       id: v.id,
       code: v.code,
@@ -235,13 +260,15 @@ export async function calculateOrderPricing(
   const shippingFee = calculateShippingFee(afterDiscount, province);
 
   return {
-    lines,
+    items: lines,
     subtotal,
     discountAmount,
     shippingFee,
     totalAmount: afterDiscount + shippingFee,
     voucher,
-    delivery: estimateDelivery(windows, province),
+    freeShipThreshold: FREE_SHIPPING_THRESHOLD,
+    amountNeededForFreeShip: Math.max(0, FREE_SHIPPING_THRESHOLD - afterDiscount),
+    estimatedDelivery: calculateEstimatedDelivery(windows, province),
     deliveryByRegion: estimateDeliveryBothRegions(windows),
   };
 }

@@ -25,28 +25,40 @@ interface PreviewLine {
   quantity: number;
   unitPrice: number;
   lineTotal: number;
+  lineDiscount: number;
+  lineFinalAmount: number;
+  eligibleForVoucher: boolean;
+}
+
+interface AppliedVoucherInfo {
+  id: string;
+  code: string;
+  discountAmount: number;
+  scope: "ORDER" | "PRODUCT";
+  eligibleSubtotal: number;
+  appliedProductNames: string[];
 }
 
 interface PreviewResult {
-  lines: PreviewLine[];
+  items: PreviewLine[];
   subtotal: number;
   discountAmount: number;
   shippingFee: number;
   totalAmount: number;
-  voucher: {
-    valid: boolean;
-    code: string;
-    discountAmount: number;
-    message: string;
-    scope?: "ORDER" | "PRODUCT";
-    eligibleSubtotal?: number;
-    appliedProductNames?: string[];
-  } | null;
-  delivery?: { minDays: number; maxDays: number; text: string };
-  deliveryByRegion?: {
+  freeShipThreshold: number;
+  amountNeededForFreeShip: number;
+  voucher: { code: string; applied: AppliedVoucherInfo | null; error: string | null } | null;
+  estimatedDelivery: { minDays: number; maxDays: number; text: string };
+  deliveryByRegion: {
     bigCity: { text: string };
     other: { text: string };
   };
+}
+
+function voucherSuccessText(v: AppliedVoucherInfo): string {
+  return v.scope === "PRODUCT"
+    ? `Đã áp dụng mã ${v.code} cho: ${v.appliedProductNames.join(", ")}`
+    : `Đã áp dụng mã ${v.code}`;
 }
 
 interface PlacedOrder {
@@ -146,9 +158,9 @@ export default function CheckoutClient() {
         const data = await callPreview(appliedVoucher, controller.signal);
         if (!data) return;
         setPreview(data);
-        if (appliedVoucher && data.voucher && !data.voucher.valid) {
+        if (appliedVoucher && data.voucher && !data.voucher.applied) {
           setAppliedVoucher("");
-          setVoucherMessage({ ok: false, text: data.voucher.message });
+          setVoucherMessage({ ok: false, text: data.voucher.error ?? "Mã giảm giá không còn hợp lệ" });
         }
       } catch {
         /* huỷ hoặc lỗi mạng: giữ số liệu cũ */
@@ -177,12 +189,12 @@ export default function CheckoutClient() {
         return;
       }
       setPreview(data);
-      if (data.voucher?.valid) {
-        setAppliedVoucher(data.voucher.code);
-        setVoucherInput(data.voucher.code);
-        setVoucherMessage({ ok: true, text: data.voucher.message });
+      if (data.voucher?.applied) {
+        setAppliedVoucher(data.voucher.applied.code);
+        setVoucherInput(data.voucher.applied.code);
+        setVoucherMessage({ ok: true, text: voucherSuccessText(data.voucher.applied) });
       } else {
-        setVoucherMessage({ ok: false, text: data.voucher?.message ?? "Mã giảm giá không hợp lệ" });
+        setVoucherMessage({ ok: false, text: data.voucher?.error ?? "Mã giảm giá không hợp lệ" });
       }
     } catch {
       setVoucherMessage({ ok: false, text: "Không kiểm tra được mã lúc này, vui lòng thử lại" });
@@ -519,7 +531,7 @@ export default function CheckoutClient() {
           <h2 className="type-card-editorial">Đơn hàng của bạn</h2>
           <ul className="mt-4 divide-y divide-border">
             {items.map((item) => {
-              const line = preview?.lines.find((l) => l.variantId === item.variantId);
+              const line = preview?.items.find((l) => l.variantId === item.variantId);
               const unit = line?.unitPrice ?? item.price;
               return (
                 <li key={item.variantId} className="flex gap-3 py-3">
@@ -532,7 +544,18 @@ export default function CheckoutClient() {
                       {item.variantName} × {item.quantity}
                     </p>
                   </div>
-                  <p className="text-sm font-semibold">{formatVND(unit * item.quantity)}</p>
+                  <div className="shrink-0 text-right">
+                    <p className="text-sm font-semibold">{formatVND(line?.lineFinalAmount ?? unit * item.quantity)}</p>
+                    {line && line.lineDiscount > 0 && (
+                      <>
+                        <p className="text-xs text-muted-foreground line-through">{formatVND(line.lineTotal)}</p>
+                        <p className="text-xs text-primary">Voucher -{formatVND(line.lineDiscount)}</p>
+                      </>
+                    )}
+                    {line && !line.eligibleForVoucher && preview?.voucher?.applied?.scope === "PRODUCT" && (
+                      <p className="text-xs text-muted-foreground">Không thuộc mã</p>
+                    )}
+                  </div>
                 </li>
               );
             })}
@@ -594,18 +617,16 @@ export default function CheckoutClient() {
               <div className="text-primary">
                 <div className="flex justify-between">
                   <dt>
-                    Giảm giá{preview?.voucher?.valid ? (
-                      <> (<span className="type-code">{preview.voucher.code}</span>)</>
+                    Giảm giá{preview?.voucher?.applied ? (
+                      <> (<span className="type-code">{preview.voucher.applied.code}</span>)</>
                     ) : null}
                   </dt>
                   <dd>-{formatVND(discount)}</dd>
                 </div>
-                {preview?.voucher?.valid && preview.voucher.scope === "PRODUCT" && (
+                {preview?.voucher?.applied?.scope === "PRODUCT" && (
                   <p className="mt-0.5 text-xs">
-                    Áp dụng cho: {(preview.voucher.appliedProductNames ?? []).join(", ")}
-                    {preview.voucher.eligibleSubtotal !== undefined && (
-                      <> · tiền hàng được giảm {formatVND(preview.voucher.eligibleSubtotal)}</>
-                    )}
+                    Áp dụng cho: {preview.voucher.applied.appliedProductNames.join(", ")} · tiền hàng được giảm{" "}
+                    {formatVND(preview.voucher.applied.eligibleSubtotal)}
                   </p>
                 )}
               </div>
@@ -623,13 +644,18 @@ export default function CheckoutClient() {
                   ? preview?.deliveryByRegion
                     ? `${preview.deliveryByRegion.bigCity.text} (TP.HCM & Hà Nội) · ${preview.deliveryByRegion.other.text} (tỉnh khác)`
                     : "—"
-                  : (preview?.delivery?.text ?? "—")}
+                  : (preview?.estimatedDelivery.text ?? "—")}
               </dd>
             </div>
             {!provinceChosen && (
               <p className="text-xs text-muted-foreground">
                 Chọn tỉnh/thành để tính phí vận chuyển. Miễn phí cho đơn từ{" "}
                 {formatVND(FREE_SHIPPING_THRESHOLD)}.
+              </p>
+            )}
+            {provinceChosen && preview && preview.amountNeededForFreeShip > 0 && (
+              <p className="text-xs text-muted-foreground">
+                Mua thêm {formatVND(preview.amountNeededForFreeShip)} để được miễn phí vận chuyển.
               </p>
             )}
             <div className="flex items-baseline justify-between border-t border-border pt-3">

@@ -3,7 +3,7 @@ import {
   calculateOrderPricing,
   PricingError,
   VoucherError,
-  type OrderPricing,
+  type CalculatePricingResult,
 } from "@/lib/pricing";
 
 const previewSchema = z.object({
@@ -20,24 +20,30 @@ const previewSchema = z.object({
   voucherCode: z.string().trim().max(50).optional(),
 });
 
-function body(pricing: OrderPricing, provinceProvided: boolean) {
+function body(pricing: CalculatePricingResult, provinceProvided: boolean) {
   return {
-    lines: pricing.lines.map((l) => ({
+    items: pricing.items.map((l) => ({
       variantId: l.variantId,
+      productId: l.productId,
       productName: l.productName,
       variantName: l.variantName,
       quantity: l.quantity,
       unitPrice: l.unitPrice,
       lineTotal: l.lineTotal,
+      lineDiscount: l.lineDiscount,
+      lineFinalAmount: l.lineFinalAmount,
+      eligibleForVoucher: l.eligibleForVoucher,
     })),
     subtotal: pricing.subtotal,
     discountAmount: pricing.discountAmount,
     shippingFee: pricing.shippingFee,
     totalAmount: pricing.totalAmount,
+    freeShipThreshold: pricing.freeShipThreshold,
+    amountNeededForFreeShip: pricing.amountNeededForFreeShip,
     // Chưa chọn tỉnh/thành thì phí ship chỉ là tạm tính (mức 30.000 ₫ nếu chưa đủ freeship).
     shippingEstimated: !provinceProvided,
     // Dự kiến giao: theo tỉnh đã chọn; chưa chọn thì client hiển thị cả hai khu vực.
-    delivery: pricing.delivery,
+    estimatedDelivery: pricing.estimatedDelivery,
     deliveryByRegion: pricing.deliveryByRegion,
   };
 }
@@ -73,19 +79,8 @@ export async function POST(request: Request) {
       });
       return Response.json({
         ...body(pricing, provinceProvided),
-        voucher: pricing.voucher
-          ? {
-              valid: true,
-              code: pricing.voucher.code,
-              discountAmount: pricing.voucher.discountAmount,
-              scope: pricing.voucher.scope,
-              eligibleSubtotal: pricing.voucher.eligibleSubtotal,
-              appliedProductNames: pricing.voucher.appliedProductNames,
-              message:
-                pricing.voucher.scope === "PRODUCT"
-                  ? `Đã áp dụng mã ${pricing.voucher.code} cho: ${pricing.voucher.appliedProductNames.join(", ")}`
-                  : `Đã áp dụng mã ${pricing.voucher.code}`,
-            }
+        voucher: voucherCode
+          ? { code: pricing.voucher?.code ?? voucherCode, applied: pricing.voucher, error: null }
           : null,
       });
     } catch (e) {
@@ -93,7 +88,7 @@ export async function POST(request: Request) {
       const pricing = await calculateOrderPricing({ items, province });
       return Response.json({
         ...body(pricing, provinceProvided),
-        voucher: { valid: false, code: voucherCode ?? "", discountAmount: 0, message: e.message },
+        voucher: { code: voucherCode ?? "", applied: null, error: e.message },
       });
     }
   } catch (e) {
