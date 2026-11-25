@@ -12,6 +12,16 @@ function safeEqual(a: string, b: string): boolean {
   return diff === 0;
 }
 
+/** Chấp nhận 470000, "470000", "470,000", "470.000 VND" (VND không có phần thập phân). */
+function parseAmount(raw: number | string | undefined): number {
+  if (typeof raw === "number") return Number.isFinite(raw) ? Math.trunc(raw) : 0;
+  if (typeof raw === "string") {
+    const digits = raw.replace(/[^\d]/g, "");
+    return digits ? Number(digits) : 0;
+  }
+  return 0;
+}
+
 const numish = z.union([z.number(), z.string()]);
 
 const payloadSchema = z.looseObject({
@@ -48,7 +58,7 @@ export async function POST(request: Request) {
   const p = parsed.data;
 
   const text = `${p.content ?? ""} ${p.description ?? ""}`;
-  const amount = Number(p.transferAmount ?? p.amount ?? 0);
+  const amount = parseAmount(p.transferAmount ?? p.amount);
   const ref =
     p.referenceCode ?? p.reference ?? (p.id !== undefined ? String(p.id) : null);
 
@@ -65,10 +75,11 @@ export async function POST(request: Request) {
       orderCode: true,
       status: true,
       paymentStatus: true,
+      paymentMethod: true,
       totalAmount: true,
     },
   });
-  if (!order) {
+  if (!order || order.paymentMethod !== "VIETQR") {
     return Response.json({ success: true, matched: false, reason: "ORDER_NOT_FOUND" });
   }
 
@@ -92,7 +103,7 @@ export async function POST(request: Request) {
     });
   }
 
-  if (!Number.isFinite(amount) || amount < order.totalAmount) {
+  if (amount < order.totalAmount) {
     return Response.json({
       success: true,
       matched: true,
@@ -100,7 +111,7 @@ export async function POST(request: Request) {
       updated: false,
       reason: "INSUFFICIENT_AMOUNT",
       expected: order.totalAmount,
-      received: Number.isFinite(amount) ? amount : 0,
+      received: amount,
     });
   }
 
