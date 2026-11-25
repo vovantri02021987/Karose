@@ -1,6 +1,7 @@
 "use client";
 
 import { Menu, Search, ShoppingBag, X } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
@@ -50,8 +51,16 @@ export default function Navbar() {
 
         <Link
           href="/"
-          className="font-serif text-2xl font-semibold tracking-wide text-primary"
+          className="flex items-center gap-2 font-serif text-2xl font-semibold tracking-wide text-primary"
         >
+          <Image
+            src="/images/logo-karose.jpg"
+            alt=""
+            width={44}
+            height={44}
+            className="h-11 w-11 rounded-full mix-blend-multiply"
+            priority
+          />
           KaRose
         </Link>
 

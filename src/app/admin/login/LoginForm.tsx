@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -41,8 +42,15 @@ export default function LoginForm({ isDev }: { isDev: boolean }) {
 
   return (
     <form onSubmit={submit} className="w-full max-w-sm rounded-2xl border border-border bg-surface p-6 sm:p-8">
-      <h1 className="font-serif text-3xl font-semibold text-primary">KaRose Admin</h1>
-      <p className="mt-1 text-sm text-muted-foreground">Đăng nhập dành cho quản trị viên và nhân viên.</p>
+      <Image
+        src="/images/logo-karose.jpg"
+        alt="KaRose"
+        width={96}
+        height={96}
+        className="mx-auto mb-2 h-24 w-24 rounded-full mix-blend-multiply"
+      />
+      <h1 className="text-center font-serif text-3xl font-semibold text-primary">KaRose Admin</h1>
+      <p className="mt-1 text-center text-sm text-muted-foreground">Đăng nhập dành cho quản trị viên và nhân viên.</p>
 
       <div className="mt-6 space-y-4">
         <label className="block">

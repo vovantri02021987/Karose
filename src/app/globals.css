@@ -3,18 +3,19 @@
 
 /*
  * KaRose — Botanical Minimalist design tokens (CLAUDE.md §3)
- *   #FAF8F5 background  | #F2EFE9 surface   | #2C4A3E primary (botanical green)
- *   #C67D53 accent      | #1F2421 text      | #5C6660 muted text | #E2DDD5 border
+ * Palette extracted from the Karose logo:
+ *   #F5F1E5 cream background | #EDE7D6 surface | #682934 primary (rose burgundy)
+ *   #204029 accent (leaf green) | #2A1F22 text | #6B5E5F muted text | #DDD5C0 border
  */
 :root {
   /* Brand tokens */
-  --kr-background: #faf8f5;
-  --kr-surface: #f2efe9;
-  --kr-primary: #2c4a3e;
-  --kr-accent: #c67d53;
-  --kr-text: #1f2421;
-  --kr-text-muted: #5c6660;
-  --kr-border: #e2ddd5;
+  --kr-background: #f5f1e5;
+  --kr-surface: #ede7d6;
+  --kr-primary: #682934;
+  --kr-accent: #204029;
+  --kr-text: #2a1f22;
+  --kr-text-muted: #6b5e5f;
+  --kr-border: #ddd5c0;
 
   /* shadcn/ui semantic variables mapped to brand tokens */
   --radius: 0.5rem;
@@ -25,22 +26,22 @@
   --popover: var(--kr-background);
   --popover-foreground: var(--kr-text);
   --primary: var(--kr-primary);
-  --primary-foreground: #faf8f5;
+  --primary-foreground: #f5f1e5;
   --secondary: var(--kr-surface);
   --secondary-foreground: var(--kr-primary);
   --muted: var(--kr-surface);
   --muted-foreground: var(--kr-text-muted);
-  /* shadcn "accent" = hover/selected surface; the terracotta brand accent is --kr-accent */
+  /* shadcn "accent" = hover/selected surface; the leaf-green brand accent is --kr-accent */
   --accent: var(--kr-surface);
   --accent-foreground: var(--kr-primary);
-  --destructive: #b3402f;
+  --destructive: #c0392b;
   --border: var(--kr-border);
   --input: var(--kr-border);
   --ring: var(--kr-primary);
   --chart-1: var(--kr-primary);
   --chart-2: var(--kr-accent);
-  --chart-3: #7a9a8a;
-  --chart-4: #d9a98a;
+  --chart-3: #5f8a6a;
+  --chart-4: #c9a0a8;
   --chart-5: var(--kr-text-muted);
 }
 

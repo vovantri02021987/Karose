@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { CategorySummary } from "@/types/product";
 
@@ -10,7 +11,14 @@ export default function Footer({
     <footer className="mt-24 border-t border-border bg-surface">
       <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-4">
         <div className="md:col-span-1">
-          <p className="font-serif text-2xl font-semibold text-primary">
+          <p className="flex items-center gap-2 font-serif text-2xl font-semibold text-primary">
+            <Image
+              src="/images/logo-karose.jpg"
+              alt=""
+              width={56}
+              height={56}
+              className="h-14 w-14 rounded-full mix-blend-multiply"
+            />
             KaRose
           </p>
           <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
