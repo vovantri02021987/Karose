@@ -119,7 +119,7 @@ export default function ProductDetailClient({
             <SafeImage
               key={images[imageIndex] ?? "placeholder"}
               src={images[imageIndex]}
-              alt={product.name}
+              alt={imageIndex > 0 ? `${product.name} – ảnh ${imageIndex + 1}` : product.name}
               priority
               sizes="(min-width: 768px) 50vw, 100vw"
             />
@@ -137,7 +137,11 @@ export default function ProductDetailClient({
                       i === imageIndex ? "border-primary" : "border-border"
                     }`}
                   >
-                    <SafeImage src={img} alt="" sizes="100px" />
+                    <SafeImage
+                      src={img}
+                      alt={`${product.name} – ảnh ${i + 1}`}
+                      sizes="100px"
+                    />
                   </button>
                 </li>
               ))}

@@ -244,3 +244,25 @@ export async function getProductDetail(
     expiryByVariant,
   };
 }
+
+/**
+ * Gợi ý sản phẩm liên quan (cross-sell): ưu tiên còn hàng, cùng danh mục,
+ * trùng công dụng; bổ sung bằng sản phẩm bán chạy nếu chưa đủ.
+ */
+export async function getRelatedProducts(
+  slug: string,
+  limit = 4,
+): Promise<CatalogProduct[]> {
+  const all = await getCatalogProducts();
+  const current = all.find((p) => p.slug === slug);
+  if (!current) return [];
+  const score = (p: CatalogProduct): number =>
+    (p.categoryId === current.categoryId ? 10 : 0) +
+    p.benefits.filter((b) => current.benefits.includes(b)).length * 2 +
+    (p.isFeatured ? 1 : 0) -
+    (p.isCombo !== current.isCombo ? 1 : 0);
+  return all
+    .filter((p) => p.slug !== slug && p.stock > 0)
+    .sort((a, b) => score(b) - score(a))
+    .slice(0, limit);
+}
