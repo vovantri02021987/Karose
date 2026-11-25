@@ -39,7 +39,7 @@ interface VariantSpec {
   name: string;
   price: number;
   compareAtPrice?: number;
-  weightGram: number;
+  weightGram?: number;
   batches: BatchSpec[];
 }
 
@@ -51,10 +51,9 @@ interface ProductSpec {
   description: string;
   ingredientsInci: string;
   usageGuide: string;
-  storageGuide: string;
+  storageGuide: string | null;
   skinTypes: string[];
   benefits: string[];
-  images: string[];
   isFeatured: boolean;
   /** Shelf life in days from the manufacture date (unopened). */
   shelfLifeDays: number;
@@ -65,79 +64,109 @@ interface ProductSpec {
 /* Catalogue data                                                             */
 /* -------------------------------------------------------------------------- */
 
+/**
+ * Nguồn dữ liệu chuẩn: "Danh mục sản phẩm Karose" (docs/danh-muc-san-pham-karose.md).
+ * Tên, SKU, dung tích, thành phần chính, công dụng, giá và đường dẫn ảnh lấy NGUYÊN VĂN từ tài liệu đó.
+ * Không bịa thêm: những trường tài liệu chưa cung cấp (INCI đầy đủ, hướng dẫn sử dụng, bảo quản,
+ * loại da, cân nặng) để trống hoặc dùng văn bản "đang cập nhật".
+ */
+const PENDING_TEXT = "Thông tin đang được cập nhật.";
+
 const CATEGORIES = [
   {
     name: "Chăm sóc da mặt",
     slug: "cham-soc-da-mat",
-    description:
-      "Nước hoa hồng, tẩy trang và tinh chất từ thảo mộc, giúp da cân bằng và khỏe tự nhiên.",
-    imageUrl: "/images/categories/cham-soc-da-mat.webp",
+    description: "Nước hoa hồng và dầu dưỡng da mặt từ hoa hồng nhung cổ hữu cơ.",
+    imageUrl: null,
   },
   {
-    name: "Chăm sóc cơ thể",
-    slug: "cham-soc-co-the",
-    description:
-      "Xà phòng thủ công và sản phẩm dưỡng thể làm từ dầu bơ thực vật, dịu nhẹ cho làn da nhạy cảm.",
-    imageUrl: "/images/categories/cham-soc-co-the.webp",
+    name: "Làm sạch da",
+    slug: "lam-sach-da",
+    description: "Sản phẩm làm sạch dịu nhẹ từ thảo mộc.",
+    imageUrl: null,
+  },
+  {
+    name: "Chăm sóc môi",
+    slug: "cham-soc-moi",
+    description: "Son dưỡng môi từ sáp ong, bơ hạt mỡ và hoa hồng.",
+    imageUrl: null,
   },
   {
     name: "Chăm sóc tóc",
     slug: "cham-soc-toc",
-    description:
-      "Dầu gội và dưỡng tóc từ bồ kết, sả, vỏ bưởi — làm sạch dịu nhẹ, nuôi dưỡng chân tóc.",
-    imageUrl: "/images/categories/cham-soc-toc.webp",
+    description: "Dầu gội thảo dược và xịt dưỡng tóc tinh dầu thiên nhiên.",
+    imageUrl: null,
+  },
+  {
+    name: "Chăm sóc cơ thể",
+    slug: "cham-soc-co-the",
+    description: "Xà phòng tắm thủ công từ dầu oliu, dầu dừa và hoa hồng.",
+    imageUrl: null,
+  },
+  {
+    name: "Thực phẩm / Trà",
+    slug: "thuc-pham-tra",
+    description: "Trà hoa hồng hữu cơ sấy lạnh.",
+    imageUrl: null,
   },
   {
     name: "Bộ sản phẩm & quà tặng",
     slug: "bo-san-pham-qua-tang",
-    description:
-      "Các bộ sản phẩm được phối sẵn và set quà tặng tinh tế, tiết kiệm hơn khi mua lẻ.",
-    imageUrl: "/images/categories/bo-san-pham-qua-tang.webp",
+    description: "Các bộ sản phẩm được phối sẵn từ danh mục Karose.",
+    imageUrl: null,
   },
 ];
 
 const PRODUCTS: ProductSpec[] = [
   {
-    name: "Nước hoa hồng chưng cất Damask",
-    slug: "nuoc-hoa-hong-chung-cat-damask",
+    name: "Nước hoa hồng Karose (Karose Toner)",
+    slug: "nuoc-hoa-hong-karose",
     categorySlug: "cham-soc-da-mat",
     shortDescription:
-      "Nước hoa hồng chưng cất hơi nước từ cánh hoa hồng Damask, cấp ẩm và làm dịu da tức thì.",
+      "Cân bằng độ pH, cấp ẩm dịu nhẹ, làm dịu da, se khít lỗ chân lông.",
     description:
-      "Được chưng cất hơi nước từ cánh hoa hồng Damask thu hoạch vào buổi sáng sớm, nước hoa hồng KaRose giữ trọn hương thơm tự nhiên và các hoạt chất dịu nhẹ của hoa. Công thức không cồn, không hương liệu tổng hợp, bổ sung Hyaluronic Acid và Panthenol giúp da căng mịn, cân bằng độ pH sau bước làm sạch.",
-    ingredientsInci:
-      "Rosa Damascena Flower Water, Aloe Barbadensis Leaf Juice, Glycerin, Sodium Hyaluronate, Panthenol, Betaine, Sodium Benzoate, Potassium Sorbate, Citric Acid.",
-    usageGuide:
-      "1. Sau bước tẩy trang và rửa mặt, thấm một lượng vừa đủ ra bông cotton hoặc ra lòng bàn tay.\n2. Vỗ nhẹ lên mặt và cổ cho đến khi thẩm thấu.\n3. Tiếp tục với serum và kem dưỡng. Dùng sáng và tối; có thể xịt khoáng giữa ngày.",
-    storageGuide:
-      "Bảo quản nơi khô ráo, thoáng mát, tránh ánh nắng trực tiếp. Hạn sử dụng 18 tháng kể từ ngày sản xuất; sau khi mở nắp nên dùng trong vòng 12 tháng.",
-    skinTypes: ["MOI_LOAI_DA", "DA_KHO", "DA_NHAY_CAM"],
+      "Chai thủy tinh 100ml, vòi xịt phun sương. Thành phần chính: nước cất hoa hồng nhung cổ hữu cơ 100%. Công dụng: cân bằng độ pH, cấp ẩm dịu nhẹ, làm dịu da, se khít lỗ chân lông.",
+    ingredientsInci: "Nước cất hoa hồng nhung cổ hữu cơ 100%.",
+    usageGuide: PENDING_TEXT,
+    storageGuide: null,
+    skinTypes: [],
     benefits: ["CAP_AM", "LAM_DIU"],
-    images: [
-      "/images/products/nuoc-hoa-hong-damask-1.webp",
-      "/images/products/nuoc-hoa-hong-damask-2.webp",
+    isFeatured: true,
+    shelfLifeDays: 365,
+    variants: [
+      {
+        sku: "KR-TN-01",
+        name: "Chai thủy tinh 100ml",
+        price: 250000,
+        batches: [
+          // Cận hạn: còn ~20 ngày → loại khỏi tồn bán lẻ, cảnh báo ở Admin
+          { manufacturedDaysAgo: 345, initialQuantity: 30, availableQuantity: 24 },
+          { manufacturedDaysAgo: 120, initialQuantity: 100, availableQuantity: 80 },
+          { manufacturedDaysAgo: 15, initialQuantity: 150, availableQuantity: 150 },
+        ],
+      },
     ],
+  },
+  {
+    name: "Dầu dưỡng da Karose (Karose Face Oil / Serum)",
+    slug: "dau-duong-da-karose",
+    categorySlug: "cham-soc-da-mat",
+    shortDescription:
+      "Dưỡng ẩm sâu, chống lão hóa, phục hồi hàng rào bảo vệ da.",
+    description:
+      "Chai thủy tinh 30ml, nhỏ giọt (pipette). Thành phần chính: dầu hạt nho, dầu tầm xuân, tinh dầu hoa hồng. Công dụng: dưỡng ẩm sâu, chống lão hóa, phục hồi hàng rào bảo vệ da.",
+    ingredientsInci: "Dầu hạt nho, dầu tầm xuân, tinh dầu hoa hồng.",
+    usageGuide: PENDING_TEXT,
+    storageGuide: null,
+    skinTypes: [],
+    benefits: ["CAP_AM", "CHONG_LAO_HOA", "PHUC_HOI"],
     isFeatured: true,
     shelfLifeDays: 540,
     variants: [
       {
-        sku: "KR-TONER-100",
-        name: "Chai 100ml",
-        price: 180000,
-        weightGram: 220,
-        batches: [
-          // Cận hạn: còn ~20 ngày → bị loại khỏi tồn bán lẻ
-          { manufacturedDaysAgo: 520, initialQuantity: 30, availableQuantity: 24 },
-          { manufacturedDaysAgo: 150, initialQuantity: 120, availableQuantity: 96 },
-          { manufacturedDaysAgo: 20, initialQuantity: 150, availableQuantity: 150 },
-        ],
-      },
-      {
-        sku: "KR-TONER-250",
-        name: "Chai 250ml",
-        price: 350000,
-        compareAtPrice: 390000,
-        weightGram: 420,
+        sku: "KR-SR-01",
+        name: "Chai thủy tinh 30ml",
+        price: 380000,
         batches: [
           // Còn ~60 ngày: hợp lệ bán lẻ, được xuất trước (FEFO)
           { manufacturedDaysAgo: 480, initialQuantity: 40, availableQuantity: 28 },
@@ -147,189 +176,170 @@ const PRODUCTS: ProductSpec[] = [
     ],
   },
   {
-    name: "Dầu tẩy trang thảo mộc",
-    slug: "dau-tay-trang-thao-moc",
-    categorySlug: "cham-soc-da-mat",
+    name: "Sữa rửa mặt thảo mộc Karose",
+    slug: "sua-rua-mat-thao-moc-karose",
+    categorySlug: "lam-sach-da",
     shortDescription:
-      "Dầu tẩy trang từ jojoba và hoa cúc, làm sạch lớp trang điểm mà không làm khô da.",
+      "Làm sạch dịu nhẹ, không chứa sulfate, không gây khô căng.",
     description:
-      "Dầu tẩy trang KaRose kết hợp dầu jojoba, dầu hướng dương và chiết xuất calendula, hoa cúc La Mã. Dầu nhũ hóa nhanh khi gặp nước, cuốn trôi lớp trang điểm, kem chống nắng và bã nhờn mà vẫn giữ lại lớp màng ẩm tự nhiên cho da.",
-    ingredientsInci:
-      "Simmondsia Chinensis (Jojoba) Seed Oil, Caprylic/Capric Triglyceride, Helianthus Annuus (Sunflower) Seed Oil, Polyglyceryl-4 Oleate, Calendula Officinalis Flower Extract, Chamomilla Recutita (Matricaria) Flower Extract, Rosmarinus Officinalis (Rosemary) Leaf Extract, Tocopherol.",
-    usageGuide:
-      "1. Lấy 2–3 lần bơm ra lòng bàn tay khô.\n2. Massage nhẹ nhàng lên mặt khô khoảng 1 phút, chú ý vùng mắt và môi.\n3. Thêm một ít nước để nhũ hóa, massage thêm 30 giây rồi rửa sạch bằng nước ấm.\n4. Tiếp tục với sữa rửa mặt nếu cần.",
-    storageGuide:
-      "Đậy kín nắp sau khi dùng, để nơi mát, tránh nắng. Hạn sử dụng 18 tháng kể từ ngày sản xuất; dùng trong 12 tháng sau khi mở nắp.",
-    skinTypes: ["DA_DAU", "HON_HOP", "MOI_LOAI_DA"],
-    benefits: ["LAM_SACH", "LAM_DIU"],
-    images: [
-      "/images/products/dau-tay-trang-1.webp",
-      "/images/products/dau-tay-trang-2.webp",
-    ],
-    isFeatured: true,
+      "Chai 100ml, vòi nhấn (pump). Thành phần chính: chiết xuất bồ hòn, nước hoa hồng, tinh dầu thiên nhiên. Công dụng: làm sạch dịu nhẹ, không chứa sulfate, không gây khô căng.",
+    ingredientsInci: "Chiết xuất bồ hòn, nước hoa hồng, tinh dầu thiên nhiên.",
+    usageGuide: PENDING_TEXT,
+    storageGuide: null,
+    skinTypes: [],
+    benefits: ["LAM_SACH"],
+    isFeatured: false,
     shelfLifeDays: 540,
     variants: [
       {
-        sku: "KR-OIL-100",
+        sku: "KR-CL-01",
         name: "Chai 100ml",
         price: 220000,
-        weightGram: 240,
         batches: [
           { manufacturedDaysAgo: 300, initialQuantity: 80, availableQuantity: 55 },
           { manufacturedDaysAgo: 30, initialQuantity: 120, availableQuantity: 120 },
         ],
       },
-      {
-        sku: "KR-OIL-200",
-        name: "Chai 200ml",
-        price: 390000,
-        compareAtPrice: 440000,
-        weightGram: 400,
-        batches: [
-          // Cận hạn: chỉ còn ~5 ngày
-          { manufacturedDaysAgo: 535, initialQuantity: 15, availableQuantity: 9 },
-          { manufacturedDaysAgo: 90, initialQuantity: 60, availableQuantity: 60 },
-        ],
-      },
     ],
   },
   {
-    name: "Serum phục hồi rau má & B5",
-    slug: "serum-phuc-hoi-rau-ma-b5",
-    categorySlug: "cham-soc-da-mat",
-    shortDescription:
-      "Tinh chất phục hồi hàng rào bảo vệ da với rau má, Panthenol và Niacinamide.",
+    name: "Son dưỡng môi hoa hồng Karose",
+    slug: "son-duong-moi-hoa-hong-karose",
+    categorySlug: "cham-soc-moi",
+    shortDescription: "Dưỡng ẩm môi, giảm thâm, làm mềm môi nứt nẻ.",
     description:
-      "Serum KaRose tập trung vào phục hồi: chiết xuất rau má (Centella Asiatica) làm dịu vùng da kích ứng, Panthenol (B5) và Allantoin hỗ trợ làm lành, Niacinamide cùng Squalane giúp da săn chắc và mịn màng hơn theo thời gian. Kết cấu mỏng nhẹ, thẩm thấu nhanh, không gây bết dính.",
-    ingredientsInci:
-      "Aqua, Centella Asiatica Extract, Glycerin, Panthenol, Niacinamide, Sodium Hyaluronate, Squalane, Betaine, Allantoin, Xanthan Gum, Sodium Benzoate, Potassium Sorbate, Citric Acid.",
-    usageGuide:
-      "1. Sau toner, nhỏ 3–4 giọt serum ra lòng bàn tay.\n2. Ấn nhẹ lên da mặt và cổ, tránh vùng mắt.\n3. Dùng sáng và tối trước kem dưỡng. Ban ngày nên kết hợp kem chống nắng.\n4. Thử trước ở vùng da nhỏ nếu da rất nhạy cảm.",
-    storageGuide:
-      "Bảo quản ở nhiệt độ dưới 25°C, tránh ánh sáng. Hạn sử dụng 12 tháng kể từ ngày sản xuất; dùng trong 6 tháng sau khi mở nắp.",
-    skinTypes: ["DA_NHAY_CAM", "DA_KHO", "MOI_LOAI_DA"],
-    benefits: ["PHUC_HOI", "LAM_DIU", "CHONG_LAO_HOA"],
-    images: [
-      "/images/products/serum-rau-ma-1.webp",
-      "/images/products/serum-rau-ma-2.webp",
-    ],
-    isFeatured: true,
-    shelfLifeDays: 365,
-    variants: [
-      {
-        sku: "KR-SERUM-30",
-        name: "Chai 30ml",
-        price: 450000,
-        compareAtPrice: 490000,
-        weightGram: 120,
-        batches: [
-          // Cận hạn (~20 ngày) → cảnh báo ở Admin
-          { manufacturedDaysAgo: 345, initialQuantity: 30, availableQuantity: 18 },
-          { manufacturedDaysAgo: 200, initialQuantity: 70, availableQuantity: 40 },
-          { manufacturedDaysAgo: 15, initialQuantity: 100, availableQuantity: 100 },
-        ],
-      },
-      {
-        sku: "KR-SERUM-50",
-        name: "Chai 50ml",
-        price: 690000,
-        weightGram: 180,
-        batches: [
-          // Lô đã bán hết (availableQuantity = 0) → không xuất hiện ở storefront
-          { manufacturedDaysAgo: 300, initialQuantity: 20, availableQuantity: 0 },
-          { manufacturedDaysAgo: 120, initialQuantity: 50, availableQuantity: 50 },
-          { manufacturedDaysAgo: 10, initialQuantity: 40, availableQuantity: 40 },
-        ],
-      },
-    ],
-  },
-  {
-    name: "Xà phòng thủ công bơ hạt mỡ & oải hương",
-    slug: "xa-phong-thu-cong-bo-hat-mo-oai-huong",
-    categorySlug: "cham-soc-co-the",
-    shortDescription:
-      "Xà phòng handmade nấu lạnh từ dầu ô liu, dầu dừa và bơ hạt mỡ, hương oải hương thư giãn.",
-    description:
-      "Mỗi bánh xà phòng KaRose được nấu lạnh (cold process) và ủ khoảng 6 tuần để xà phòng chín hoàn toàn. Dầu ô liu và bơ hạt mỡ dưỡng ẩm, dầu dừa tạo bọt mịn, tinh dầu oải hương mang lại cảm giác thư thái. Giữ lại glycerin tự nhiên nên da không bị khô căng sau khi tắm.",
-    ingredientsInci:
-      "Sodium Olivate, Sodium Cocoate, Sodium Shea Butterate, Aqua, Glycerin, Lavandula Angustifolia (Lavender) Oil, Butyrospermum Parkii (Shea) Butter, Sodium Chloride.",
-    usageGuide:
-      "1. Làm ướt bánh xà phòng và tạo bọt giữa hai bàn tay hoặc bằng bông tắm.\n2. Massage lên cơ thể, tránh vùng mắt, rồi rửa sạch với nước.\n3. Để xà phòng ở khay có khe thoát nước để bánh xà phòng luôn khô ráo.",
-    storageGuide:
-      "Để nơi khô ráo, thoáng khí, không để ngâm nước. Hạn sử dụng 24 tháng kể từ ngày sản xuất; hương thơm có thể nhạt dần theo thời gian nhưng chất lượng không đổi.",
-    skinTypes: ["MOI_LOAI_DA", "DA_KHO", "DA_NHAY_CAM"],
-    benefits: ["CAP_AM", "LAM_SACH"],
-    images: [
-      "/images/products/xa-phong-oai-huong-1.webp",
-      "/images/products/xa-phong-oai-huong-2.webp",
-    ],
+      "Thỏi 5g. Thành phần chính: sáp ong, bơ hạt mỡ, dầu dừa, chiết xuất cánh hoa hồng. Công dụng: dưỡng ẩm môi, giảm thâm, làm mềm môi nứt nẻ.",
+    ingredientsInci: "Sáp ong, bơ hạt mỡ, dầu dừa, chiết xuất cánh hoa hồng.",
+    usageGuide: PENDING_TEXT,
+    storageGuide: null,
+    skinTypes: [],
+    benefits: ["CAP_AM"],
     isFeatured: false,
     shelfLifeDays: 730,
     variants: [
       {
-        sku: "KR-SOAP-100",
-        name: "Bánh 100g",
-        price: 95000,
-        weightGram: 110,
+        sku: "KR-LP-01",
+        name: "Thỏi 5g",
+        price: 120000,
         batches: [
-          { manufacturedDaysAgo: 650, initialQuantity: 90, availableQuantity: 64 },
-          { manufacturedDaysAgo: 100, initialQuantity: 200, availableQuantity: 200 },
-        ],
-      },
-      {
-        sku: "KR-SOAP-3PK",
-        name: "Gói 3 bánh",
-        price: 270000,
-        compareAtPrice: 285000,
-        weightGram: 340,
-        batches: [
-          { manufacturedDaysAgo: 40, initialQuantity: 60, availableQuantity: 60 },
+          // Cận hạn: còn ~15 ngày
+          { manufacturedDaysAgo: 715, initialQuantity: 40, availableQuantity: 22 },
+          { manufacturedDaysAgo: 150, initialQuantity: 200, availableQuantity: 180 },
         ],
       },
     ],
   },
   {
-    name: "Dầu gội thảo mộc bồ kết & sả",
-    slug: "dau-goi-thao-moc-bo-ket-sa",
+    name: "Dầu gội thảo dược Karose",
+    slug: "dau-goi-thao-duoc-karose",
     categorySlug: "cham-soc-toc",
     shortDescription:
-      "Dầu gội làm sạch dịu nhẹ từ bồ kết và sả chanh, giảm dầu và làm thơm mát da đầu.",
+      "Làm sạch gàu, giảm rụng tóc, kích thích mọc tóc tự nhiên.",
     description:
-      "Dầu gội KaRose dùng chiết xuất bồ kết truyền thống kết hợp tinh dầu sả chanh, chất làm sạch gốc dừa nên làm sạch dầu thừa mà không gây khô xơ. Panthenol giúp tóc mềm mượt, hương sả thơm nhẹ lưu lại sau khi gội.",
-    ingredientsInci:
-      "Aqua, Sodium Cocoyl Isethionate, Cocamidopropyl Betaine, Gleditsia Sinensis Fruit Extract, Glycerin, Panthenol, Cymbopogon Citratus (Lemongrass) Leaf Oil, Sodium Benzoate, Potassium Sorbate, Citric Acid.",
-    usageGuide:
-      "1. Làm ướt tóc và da đầu.\n2. Lấy một lượng vừa đủ, massage da đầu 2–3 phút để tạo bọt rồi xả sạch.\n3. Với tóc nhiều dầu, có thể gội lần hai. Dùng 2–3 lần mỗi tuần hoặc theo nhu cầu.",
-    storageGuide:
-      "Bảo quản nơi thoáng mát, tránh nắng, đậy kín nắp. Hạn sử dụng 24 tháng kể từ ngày sản xuất; dùng trong 12 tháng sau khi mở nắp.",
-    skinTypes: ["DA_DAU", "HON_HOP", "MOI_LOAI_DA"],
-    benefits: ["LAM_SACH", "PHUC_HOI"],
-    images: [
-      "/images/products/dau-goi-bo-ket-1.webp",
-      "/images/products/dau-goi-bo-ket-2.webp",
-    ],
+      "Chai 250ml / 500ml. Thành phần chính: bồ kết, hương nhu, vỏ bưởi, sả chanh, cỏ mần trầu. Công dụng: làm sạch gàu, giảm rụng tóc, kích thích mọc tóc tự nhiên.",
+    ingredientsInci: "Bồ kết, hương nhu, vỏ bưởi, sả chanh, cỏ mần trầu.",
+    usageGuide: PENDING_TEXT,
+    storageGuide: null,
+    skinTypes: [],
+    benefits: ["LAM_SACH"],
     isFeatured: true,
     shelfLifeDays: 730,
     variants: [
       {
-        sku: "KR-SHAMPOO-250",
-        name: "Chai 250ml",
-        price: 195000,
-        weightGram: 300,
+        // Tài liệu chỉ có một mức giá cho "Chai 250ml / 500ml" nên giữ một biến thể.
+        sku: "KR-HC-01",
+        name: "Chai 250ml / 500ml",
+        price: 240000,
         batches: [
-          // Cận hạn (~20 ngày)
+          // Cận hạn: còn ~20 ngày
           { manufacturedDaysAgo: 710, initialQuantity: 30, availableQuantity: 18 },
           { manufacturedDaysAgo: 200, initialQuantity: 150, availableQuantity: 130 },
         ],
       },
+    ],
+  },
+  {
+    name: "Xịt dưỡng tóc tinh dầu bưởi & hoa hồng",
+    slug: "xit-duong-toc-tinh-dau-buoi-hoa-hong",
+    categorySlug: "cham-soc-toc",
+    shortDescription:
+      "Giảm xơ rối, nuôi dưỡng nang tóc, tạo hương thơm tự nhiên.",
+    description:
+      "Chai xịt 100ml, phun sương. Thành phần chính: nước cất hoa hồng, tinh dầu vỏ bưởi. Công dụng: giảm xơ rối, nuôi dưỡng nang tóc, tạo hương thơm tự nhiên.",
+    ingredientsInci: "Nước cất hoa hồng, tinh dầu vỏ bưởi.",
+    usageGuide: PENDING_TEXT,
+    storageGuide: null,
+    skinTypes: [],
+    benefits: [],
+    isFeatured: false,
+    shelfLifeDays: 365,
+    variants: [
       {
-        sku: "KR-SHAMPOO-500",
-        name: "Chai 500ml",
-        price: 340000,
-        compareAtPrice: 380000,
-        weightGram: 560,
+        sku: "KR-HC-02",
+        name: "Chai xịt 100ml",
+        price: 180000,
         batches: [
-          { manufacturedDaysAgo: 90, initialQuantity: 80, availableQuantity: 80 },
+          // Cận hạn: còn ~25 ngày
+          { manufacturedDaysAgo: 340, initialQuantity: 20, availableQuantity: 12 },
+          { manufacturedDaysAgo: 40, initialQuantity: 80, availableQuantity: 80 },
+        ],
+      },
+    ],
+  },
+  {
+    name: "Xà phòng tắm thủ công Karose (Handmade Soap)",
+    slug: "xa-phong-tam-thu-cong-karose",
+    categorySlug: "cham-soc-co-the",
+    shortDescription:
+      "Làm sạch da cơ thể, dưỡng ẩm, giữ mùi hương thư giãn.",
+    description:
+      "Bánh 100g. Thành phần chính: dầu oliu, dầu dừa, nước cốt hoa hồng, cánh hoa hồng khô. Công dụng: làm sạch da cơ thể, dưỡng ẩm, giữ mùi hương thư giãn.",
+    ingredientsInci:
+      "Dầu oliu, dầu dừa, nước cốt hoa hồng, cánh hoa hồng khô.",
+    usageGuide: PENDING_TEXT,
+    storageGuide: null,
+    skinTypes: [],
+    benefits: ["LAM_SACH", "CAP_AM"],
+    isFeatured: false,
+    shelfLifeDays: 730,
+    variants: [
+      {
+        sku: "KR-BD-01",
+        name: "Bánh 100g",
+        price: 110000,
+        batches: [
+          // Lô đã bán hết (availableQuantity = 0) → không xuất hiện ở storefront
+          { manufacturedDaysAgo: 300, initialQuantity: 50, availableQuantity: 0 },
+          { manufacturedDaysAgo: 650, initialQuantity: 90, availableQuantity: 64 },
+          { manufacturedDaysAgo: 100, initialQuantity: 200, availableQuantity: 200 },
+        ],
+      },
+    ],
+  },
+  {
+    name: "Trà hoa hồng hữu cơ Karose",
+    slug: "tra-hoa-hong-huu-co-karose",
+    categorySlug: "thuc-pham-tra",
+    shortDescription:
+      "Thanh nhiệt, đẹp da, giảm căng thẳng, hỗ trợ tiêu hóa.",
+    description:
+      "Hộp / Lọ 30g - 50g. Thành phần chính: nụ hoa hồng nhung cổ sấy lạnh hữu cơ 100%. Công dụng: thanh nhiệt, đẹp da, giảm căng thẳng, hỗ trợ tiêu hóa.",
+    ingredientsInci: "Nụ hoa hồng nhung cổ sấy lạnh hữu cơ 100%.",
+    usageGuide: PENDING_TEXT,
+    storageGuide: null,
+    skinTypes: [],
+    benefits: [],
+    isFeatured: true,
+    shelfLifeDays: 540,
+    variants: [
+      {
+        // Tài liệu chỉ có một mức giá cho "Hộp / Lọ 30g - 50g" nên giữ một biến thể.
+        sku: "KR-TR-01",
+        name: "Hộp / Lọ 30g - 50g",
+        price: 190000,
+        batches: [
+          { manufacturedDaysAgo: 100, initialQuantity: 120, availableQuantity: 120 },
+          { manufacturedDaysAgo: 20, initialQuantity: 90, availableQuantity: 90 },
         ],
       },
     ],
@@ -344,75 +354,39 @@ interface ComboSpec {
   description: string;
   ingredientsInci: string;
   usageGuide: string;
-  storageGuide: string;
+  storageGuide: string | null;
   skinTypes: string[];
   benefits: string[];
-  images: string[];
   isFeatured: boolean;
-  variant: { sku: string; name: string; price: number; compareAtPrice: number; weightGram: number };
+  variant: { sku: string; name: string; price: number; compareAtPrice?: number };
   items: { childSku: string; quantity: number }[];
 }
 
+/**
+ * Combo thử nghiệm logic tách combo (CLAUDE.md §4A). Không có trong tài liệu danh mục:
+ * giá = tổng giá các sản phẩm lẻ (250.000 + 380.000 + 220.000), không giảm giá tự đặt.
+ */
 const COMBOS: ComboSpec[] = [
   {
-    name: "Bộ chăm sóc da mặt thiết yếu",
-    slug: "bo-cham-soc-da-mat-thiet-yeu",
+    name: "Bộ chăm sóc da mặt Karose",
+    slug: "bo-cham-soc-da-mat-karose",
     categorySlug: "bo-san-pham-qua-tang",
     shortDescription:
-      "Bộ 3 bước gồm nước hoa hồng, dầu tẩy trang và serum phục hồi — tiết kiệm 60.000đ so với mua lẻ.",
+      "Bộ gồm nước hoa hồng, dầu dưỡng da và sữa rửa mặt thảo mộc Karose.",
     description:
-      "Quy trình dưỡng da tối giản gồm ba bước: tẩy trang bằng dầu thảo mộc, cân bằng với nước hoa hồng Damask và phục hồi bằng serum rau má & B5. Phù hợp để bắt đầu hành trình chăm sóc da tự nhiên hoặc làm quà tặng.",
+      "Bộ 3 sản phẩm: Nước hoa hồng Karose 100ml, Dầu dưỡng da Karose 30ml và Sữa rửa mặt thảo mộc Karose 100ml.",
     ingredientsInci:
-      "Nước hoa hồng chưng cất Damask 100ml: Rosa Damascena Flower Water, Aloe Barbadensis Leaf Juice, Glycerin, Sodium Hyaluronate, Panthenol, Betaine, Sodium Benzoate, Potassium Sorbate, Citric Acid.\nDầu tẩy trang thảo mộc 100ml: Simmondsia Chinensis (Jojoba) Seed Oil, Caprylic/Capric Triglyceride, Helianthus Annuus (Sunflower) Seed Oil, Polyglyceryl-4 Oleate, Calendula Officinalis Flower Extract, Chamomilla Recutita (Matricaria) Flower Extract, Rosmarinus Officinalis (Rosemary) Leaf Extract, Tocopherol.\nSerum phục hồi rau má & B5 30ml: Aqua, Centella Asiatica Extract, Glycerin, Panthenol, Niacinamide, Sodium Hyaluronate, Squalane, Betaine, Allantoin, Xanthan Gum, Sodium Benzoate, Potassium Sorbate, Citric Acid.",
-    usageGuide:
-      "Bước 1: Tẩy trang bằng dầu tẩy trang thảo mộc, rửa sạch với nước ấm.\nBước 2: Vỗ nước hoa hồng lên da còn hơi ẩm.\nBước 3: Thoa 3–4 giọt serum, sau đó dưỡng ẩm và chống nắng vào ban ngày.",
-    storageGuide:
-      "Bảo quản từng sản phẩm nơi khô ráo, tránh nắng. Hạn sử dụng của bộ được tính theo sản phẩm có hạn ngắn nhất (xem nhãn từng chai).",
-    skinTypes: ["MOI_LOAI_DA", "DA_NHAY_CAM", "DA_KHO"],
-    benefits: ["LAM_SACH", "CAP_AM", "PHUC_HOI"],
-    images: ["/images/products/bo-da-mat-thiet-yeu-1.webp"],
-    isFeatured: true,
-    variant: {
-      sku: "KR-COMBO-FACE",
-      name: "Bộ 3 sản phẩm",
-      price: 790000,
-      compareAtPrice: 850000,
-      weightGram: 600,
-    },
-    items: [
-      { childSku: "KR-TONER-100", quantity: 1 },
-      { childSku: "KR-OIL-100", quantity: 1 },
-      { childSku: "KR-SERUM-30", quantity: 1 },
-    ],
-  },
-  {
-    name: "Set quà tặng Thảo mộc dịu nhẹ",
-    slug: "set-qua-tang-thao-moc-diu-nhe",
-    categorySlug: "bo-san-pham-qua-tang",
-    shortDescription:
-      "Set quà gồm 2 bánh xà phòng oải hương và 1 chai dầu gội bồ kết sả 250ml, đóng hộp giấy kraft.",
-    description:
-      "Set quà dành cho những ai yêu mùi hương thảo mộc: hai bánh xà phòng thủ công oải hương và một chai dầu gội bồ kết & sả. Hộp giấy kraft tái chế, kèm thiệp viết tay theo yêu cầu.",
-    ingredientsInci:
-      "Xà phòng thủ công bơ hạt mỡ & oải hương: Sodium Olivate, Sodium Cocoate, Sodium Shea Butterate, Aqua, Glycerin, Lavandula Angustifolia (Lavender) Oil, Butyrospermum Parkii (Shea) Butter, Sodium Chloride.\nDầu gội thảo mộc bồ kết & sả 250ml: Aqua, Sodium Cocoyl Isethionate, Cocamidopropyl Betaine, Gleditsia Sinensis Fruit Extract, Glycerin, Panthenol, Cymbopogon Citratus (Lemongrass) Leaf Oil, Sodium Benzoate, Potassium Sorbate, Citric Acid.",
-    usageGuide:
-      "Xà phòng: tạo bọt với nước, massage lên cơ thể rồi xả sạch.\nDầu gội: massage da đầu 2–3 phút rồi xả sạch với nước.",
-    storageGuide:
-      "Để nơi khô ráo, thoáng mát. Hạn sử dụng theo từng sản phẩm trong set (xem nhãn).",
-    skinTypes: ["MOI_LOAI_DA"],
-    benefits: ["LAM_SACH", "CAP_AM"],
-    images: ["/images/products/set-qua-thao-moc-1.webp"],
+      "Nước hoa hồng Karose: nước cất hoa hồng nhung cổ hữu cơ 100%.\nDầu dưỡng da Karose: dầu hạt nho, dầu tầm xuân, tinh dầu hoa hồng.\nSữa rửa mặt thảo mộc Karose: chiết xuất bồ hòn, nước hoa hồng, tinh dầu thiên nhiên.",
+    usageGuide: PENDING_TEXT,
+    storageGuide: null,
+    skinTypes: [],
+    benefits: ["CAP_AM", "LAM_DIU", "LAM_SACH", "PHUC_HOI", "CHONG_LAO_HOA"],
     isFeatured: false,
-    variant: {
-      sku: "KR-COMBO-GIFT",
-      name: "Set quà 3 món",
-      price: 349000,
-      compareAtPrice: 385000,
-      weightGram: 560,
-    },
+    variant: { sku: "KR-CB-01", name: "Bộ 3 sản phẩm", price: 850000 },
     items: [
-      { childSku: "KR-SOAP-100", quantity: 2 },
-      { childSku: "KR-SHAMPOO-250", quantity: 1 },
+      { childSku: "KR-TN-01", quantity: 1 },
+      { childSku: "KR-SR-01", quantity: 1 },
+      { childSku: "KR-CL-01", quantity: 1 },
     ],
   },
 ];
@@ -474,6 +448,7 @@ const VOUCHERS = [
   },
 ];
 
+// Đánh giá mẫu để thử giao diện, gắn với sản phẩm trong danh mục Karose.
 const REVIEWS: {
   productSlug: string;
   authorName: string;
@@ -483,89 +458,89 @@ const REVIEWS: {
   daysAgo: number;
 }[] = [
   {
-    productSlug: "nuoc-hoa-hong-chung-cat-damask",
+    productSlug: "nuoc-hoa-hong-karose",
     authorName: "Nguyễn Thu Hà",
     rating: 5,
     comment:
-      "Mùi hoa hồng rất dịu, không nồng. Da mình khô và hay đỏ nhưng dùng một tuần đã thấy mềm hơn hẳn, không hề châm chích.",
+      "Mùi hoa hồng rất dịu, xịt lên da thấy mát và mềm. Da mình hay khô nhưng dùng không bị châm chích.",
     isApproved: true,
     daysAgo: 12,
   },
   {
-    productSlug: "nuoc-hoa-hong-chung-cat-damask",
+    productSlug: "nuoc-hoa-hong-karose",
     authorName: "Trần Minh Anh",
     rating: 4,
     comment:
-      "Cấp ẩm tốt, thấm nhanh. Chai 250ml dùng được lâu. Mong có thêm đầu xịt phun sương cho tiện.",
+      "Vòi xịt phun sương mịn, tiện dùng. Chai thủy tinh nhìn rất đẹp, mong có thêm dung tích lớn hơn.",
     isApproved: true,
     daysAgo: 30,
   },
   {
-    productSlug: "dau-tay-trang-thao-moc",
+    productSlug: "dau-duong-da-karose",
     authorName: "Lê Phương Linh",
     rating: 5,
     comment:
-      "Tẩy trang sạch cả mascara chống nước mà không cay mắt. Rửa lại bằng nước thấy da không bị căng.",
+      "Chỉ cần vài giọt là đủ cho cả mặt, da mềm hơn vào sáng hôm sau. Mùi hoa hồng nhẹ, dễ chịu.",
     isApproved: true,
     daysAgo: 8,
   },
   {
-    productSlug: "dau-tay-trang-thao-moc",
+    productSlug: "sua-rua-mat-thao-moc-karose",
     authorName: "Phạm Quỳnh Như",
     rating: 4,
     comment:
-      "Nhũ hóa nhanh, mùi thảo mộc dễ chịu. Da dầu như mình dùng xong vẫn cần rửa mặt thêm một lần.",
+      "Rửa xong da sạch mà không bị căng. Vòi nhấn tiện, một lượng nhỏ là tạo đủ bọt nhẹ.",
     isApproved: true,
     daysAgo: 45,
   },
   {
-    productSlug: "serum-phuc-hoi-rau-ma-b5",
+    productSlug: "son-duong-moi-hoa-hong-karose",
     authorName: "Đặng Hoài Thu",
     rating: 5,
     comment:
-      "Da mình bị kích ứng sau khi đi nắng, dùng serum này khoảng 10 ngày thì đỡ đỏ rõ rệt. Kết cấu mỏng, không bết.",
+      "Môi mình hay nứt nẻ khi trời hanh, dùng vài ngày thấy mềm hơn. Chất son hồng nhạt rất tự nhiên.",
     isApproved: true,
     daysAgo: 5,
   },
   {
-    productSlug: "serum-phuc-hoi-rau-ma-b5",
-    authorName: "Võ Ngọc Bích",
-    rating: 5,
-    comment:
-      "Mua lần thứ hai rồi. Thích nhất là bảng thành phần rõ ràng, dễ kiểm tra từng chất.",
-    isApproved: true,
-    daysAgo: 21,
-  },
-  {
-    productSlug: "xa-phong-thu-cong-bo-hat-mo-oai-huong",
-    authorName: "Hoàng Gia Hân",
-    rating: 5,
-    comment:
-      "Bọt mịn, mùi oải hương thơm nhẹ, tắm xong da không bị khô. Gói 3 bánh rất đáng tiền.",
-    isApproved: true,
-    daysAgo: 16,
-  },
-  {
-    productSlug: "dau-goi-thao-moc-bo-ket-sa",
+    productSlug: "dau-goi-thao-duoc-karose",
     authorName: "Bùi Thanh Tâm",
     rating: 4,
     comment:
-      "Gội xong da đầu sạch và mát, mùi sả thơm. Tuần đầu tóc hơi xơ một chút, sau đó thì mượt dần.",
+      "Gội xong da đầu sạch và mát, mùi thảo mộc dễ chịu. Màu nâu đặc trưng của thảo dược nấu rất đúng như mô tả.",
     isApproved: true,
     daysAgo: 25,
   },
   {
-    productSlug: "bo-cham-soc-da-mat-thiet-yeu",
+    productSlug: "xit-duong-toc-tinh-dau-buoi-hoa-hong",
+    authorName: "Võ Ngọc Bích",
+    rating: 5,
+    comment:
+      "Xịt lên tóc thấy đỡ rối và thơm mùi bưởi nhẹ, không bết tóc.",
+    isApproved: true,
+    daysAgo: 21,
+  },
+  {
+    productSlug: "xa-phong-tam-thu-cong-karose",
+    authorName: "Hoàng Gia Hân",
+    rating: 5,
+    comment:
+      "Bánh xà phòng có cánh hoa khô rất xinh, tạo bọt tốt, tắm xong da không bị khô.",
+    isApproved: true,
+    daysAgo: 16,
+  },
+  {
+    productSlug: "tra-hoa-hong-huu-co-karose",
     authorName: "Ngô Thùy Dương",
     rating: 5,
     comment:
-      "Mua làm quà cho mẹ, mẹ rất thích. Đóng gói cẩn thận, có ghi rõ hạn sử dụng trên từng chai.",
+      "Nụ hoa hồng khô nguyên bông, pha lên thơm dịu. Uống buổi tối thấy dễ chịu.",
     isApproved: true,
     daysAgo: 9,
   },
   {
     // Chưa duyệt → không hiển thị ở storefront, hiển thị ở Admin chờ duyệt
-    productSlug: "serum-phuc-hoi-rau-ma-b5",
+    productSlug: "dau-duong-da-karose",
     authorName: "Khách ẩn danh",
     rating: 3,
     comment: "Sản phẩm ổn nhưng giao hàng hơi chậm so với dự kiến.",
@@ -651,7 +626,7 @@ async function seedCatalogue() {
         storageGuide: spec.storageGuide,
         skinTypes: spec.skinTypes,
         benefits: spec.benefits,
-        images: spec.images,
+        images: [`/images/products/${spec.variants[0].sku}.jpg`],
         isFeatured: spec.isFeatured,
         isActive: true,
         isCombo: false,
@@ -714,7 +689,7 @@ async function seedCatalogue() {
         storageGuide: combo.storageGuide,
         skinTypes: combo.skinTypes,
         benefits: combo.benefits,
-        images: combo.images,
+        images: [],
         isFeatured: combo.isFeatured,
         isActive: true,
         isCombo: true,
@@ -725,8 +700,7 @@ async function seedCatalogue() {
               sku: combo.variant.sku,
               name: combo.variant.name,
               price: combo.variant.price,
-              compareAtPrice: combo.variant.compareAtPrice,
-              weightGram: combo.variant.weightGram,
+              compareAtPrice: combo.variant.compareAtPrice ?? null,
             },
           ],
         },
