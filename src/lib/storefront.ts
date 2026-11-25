@@ -8,6 +8,7 @@ import type {
   ComboComponent,
   HomeReview,
   ProductDetail,
+  ProductVoucherHint,
   PublicReview,
 } from "@/types/product";
 
@@ -79,6 +80,8 @@ export async function getCatalogProducts(): Promise<CatalogProduct[]> {
       images: p.images,
       isFeatured: p.isFeatured,
       isCombo: p.isCombo,
+      deliveryMinDays: p.deliveryMinDays,
+      deliveryMaxDays: p.deliveryMaxDays,
       skinTypes: p.skinTypes,
       benefits: p.benefits,
       variants,
@@ -224,6 +227,8 @@ export async function getProductDetail(
     images: p.images,
     isFeatured: p.isFeatured,
     isCombo: p.isCombo,
+    deliveryMinDays: p.deliveryMinDays,
+    deliveryMaxDays: p.deliveryMaxDays,
     skinTypes: p.skinTypes,
     benefits: p.benefits,
     variants,
@@ -242,7 +247,44 @@ export async function getProductDetail(
     ratingAverage,
     ratingCount,
     expiryByVariant,
+    vouchers: await getProductVoucherHints(p.id),
   };
+}
+
+function voucherDiscountLabel(v: {
+  discountType: string;
+  discountValue: number;
+  maxDiscount: number | null;
+}): string {
+  const money = (n: number) => `${n.toLocaleString("vi-VN")} ₫`;
+  const isPercent = v.discountType === "PERCENT" || v.discountType === "PERCENTAGE";
+  return isPercent
+    ? `Giảm ${v.discountValue}%${v.maxDiscount ? ` (tối đa ${money(v.maxDiscount)})` : ""}`
+    : `Giảm ${money(v.discountValue)}`;
+}
+
+/** Voucher theo sản phẩm đang hoạt động (đúng thời gian, còn lượt) áp dụng cho sản phẩm này. */
+async function getProductVoucherHints(productId: string): Promise<ProductVoucherHint[]> {
+  const now = new Date();
+  const rows = await prisma.voucher.findMany({
+    where: {
+      isActive: true,
+      scope: "PRODUCT",
+      startDate: { lte: now },
+      endDate: { gte: now },
+      products: { some: { productId } },
+    },
+    orderBy: { endDate: "asc" },
+  });
+  return rows
+    .filter((v) => v.usageLimit === null || v.usedCount < v.usageLimit)
+    .map((v) => ({
+      code: v.code,
+      description: v.description ?? "",
+      discountLabel: voucherDiscountLabel(v),
+      minOrderAmount: v.minOrderAmount,
+      endDate: v.endDate.toISOString(),
+    }));
 }
 
 /**

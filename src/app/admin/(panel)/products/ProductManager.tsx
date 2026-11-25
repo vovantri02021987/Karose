@@ -31,6 +31,8 @@ export interface AdminProduct {
   isFeatured: boolean;
   isActive: boolean;
   isCombo: boolean;
+  deliveryMinDays: number;
+  deliveryMaxDays: number;
   stock: number;
   variants: AdminVariant[];
   comboItems: { childVariantId: string; quantity: number }[];

@@ -391,7 +391,24 @@ const COMBOS: ComboSpec[] = [
   },
 ];
 
-const VOUCHERS = [
+interface VoucherSeed {
+  code: string;
+  description: string;
+  discountType: string;
+  discountValue: number;
+  minOrderAmount: number;
+  maxDiscount: number | null;
+  usageLimit: number | null;
+  usedCount: number;
+  startDate: Date;
+  endDate: Date;
+  isActive: boolean;
+  scope?: "ORDER" | "PRODUCT";
+  /** Slug sản phẩm được áp mã (chỉ dùng khi scope = PRODUCT). */
+  productSlugs?: string[];
+}
+
+const VOUCHERS: VoucherSeed[] = [
   {
     code: "KAROSE10",
     description: "Giảm 10% cho đơn từ 300.000đ (tối đa 100.000đ)",
@@ -431,6 +448,38 @@ const VOUCHERS = [
     startDate: addDays(NOW, -20),
     endDate: addDays(NOW, 40),
     isActive: true,
+  },
+  {
+    // Voucher theo sản phẩm (scope PRODUCT): giảm cố định trên đúng sản phẩm được chọn.
+    code: "ROSE20K",
+    description: "Giảm 20.000đ cho Nước hoa hồng cổ",
+    discountType: "FIXED",
+    discountValue: 20000,
+    minOrderAmount: 0,
+    maxDiscount: null,
+    usageLimit: 300,
+    usedCount: 0,
+    startDate: addDays(NOW, -7),
+    endDate: addDays(NOW, 90),
+    isActive: true,
+    scope: "PRODUCT",
+    productSlugs: ["nuoc-hoa-hong-karose"],
+  },
+  {
+    // Voucher theo sản phẩm theo phần trăm, có trần giảm.
+    code: "DAUDUONG10",
+    description: "Giảm 10% (tối đa 30.000đ) cho Dầu dưỡng da",
+    discountType: "PERCENT",
+    discountValue: 10,
+    minOrderAmount: 0,
+    maxDiscount: 30000,
+    usageLimit: null,
+    usedCount: 0,
+    startDate: addDays(NOW, -7),
+    endDate: addDays(NOW, 90),
+    isActive: true,
+    scope: "PRODUCT",
+    productSlugs: ["dau-duong-da-karose"],
   },
   {
     // Đã hết hạn → test validate endDate
@@ -559,6 +608,7 @@ async function resetDatabase() {
     prisma.orderItem.deleteMany(),
     prisma.order.deleteMany(),
     prisma.review.deleteMany(),
+    prisma.voucherProduct.deleteMany(),
     prisma.comboItem.deleteMany(),
     prisma.inventoryBatch.deleteMany(),
     prisma.productVariant.deleteMany(),
@@ -713,8 +763,21 @@ async function seedCatalogue() {
   return { productIdBySlug, batchCount };
 }
 
-async function seedVouchers() {
-  await prisma.voucher.createMany({ data: VOUCHERS });
+async function seedVouchers(productIdBySlug: Map<string, string>) {
+  for (const { productSlugs, ...data } of VOUCHERS) {
+    const productIds = (productSlugs ?? []).map((slug) => {
+      const id = productIdBySlug.get(slug);
+      if (!id) throw new Error(`Seed voucher ${data.code}: không tìm thấy sản phẩm "${slug}"`);
+      return id;
+    });
+    await prisma.voucher.create({
+      data: {
+        ...data,
+        scope: data.scope ?? "ORDER",
+        products: { create: productIds.map((productId) => ({ productId })) },
+      },
+    });
+  }
 }
 
 async function seedReviews(productIdBySlug: Map<string, string>) {
@@ -755,7 +818,7 @@ async function main() {
   const { productIdBySlug, batchCount } = await seedCatalogue();
 
   console.log("🎟️  Tạo voucher...");
-  await seedVouchers();
+  await seedVouchers(productIdBySlug);
 
   console.log("⭐ Tạo đánh giá...");
   await seedReviews(productIdBySlug);

@@ -4,8 +4,15 @@ import PromotionsClient, { type ReviewRow, type VoucherRow } from "./PromotionsC
 
 export default async function PromotionsPage() {
   const user = await requireStaffPage();
-  const [vouchers, reviews] = await Promise.all([
-    prisma.voucher.findMany({ orderBy: { endDate: "desc" } }),
+  const [vouchers, products, reviews] = await Promise.all([
+    prisma.voucher.findMany({
+      orderBy: { endDate: "desc" },
+      include: { products: { select: { product: { select: { id: true, name: true } } } } },
+    }),
+    prisma.product.findMany({
+      orderBy: { name: "asc" },
+      select: { id: true, name: true, isCombo: true, isActive: true },
+    }),
     prisma.review.findMany({
       orderBy: [{ isApproved: "asc" }, { createdAt: "desc" }],
       take: 100,
@@ -27,6 +34,8 @@ export default async function PromotionsPage() {
     startDate: v.startDate.toISOString(),
     endDate: v.endDate.toISOString(),
     isActive: v.isActive,
+    scope: v.scope,
+    products: v.products.map((vp) => vp.product),
     state: !v.isActive
       ? "Đã tắt"
       : v.endDate.getTime() < nowMs
@@ -45,5 +54,5 @@ export default async function PromotionsPage() {
     createdAt: r.createdAt.toISOString(),
   }));
 
-  return <PromotionsClient vouchers={voucherRows} reviews={reviewRows} canEdit={user.role === "ADMIN"} />;
+  return <PromotionsClient vouchers={voucherRows} products={products} reviews={reviewRows} canEdit={user.role === "ADMIN"} />;
 }

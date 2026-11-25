@@ -103,6 +103,10 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
             <p className="mt-2 font-medium">{order.customerName} · {order.customerPhone}</p>
             {order.customerEmail && <p className="text-muted-foreground">{order.customerEmail}</p>}
             <p className="mt-1">{order.shippingAddress}, {order.ward}, {order.district}, {order.province}</p>
+            <p className="mt-2 text-muted-foreground">
+              Giao dự kiến (đã cam kết khi đặt):{" "}
+              <span className="font-medium text-foreground">{order.estimatedDeliveryText ?? "Đơn cũ — chưa lưu"}</span>
+            </p>
             {order.note && <p className="mt-2 text-muted-foreground">Ghi chú: {order.note}</p>}
             {order.paymentRef && <p className="mt-2 text-xs text-muted-foreground">Mã giao dịch: {order.paymentRef}</p>}
           </section>

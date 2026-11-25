@@ -33,7 +33,20 @@ interface PreviewResult {
   discountAmount: number;
   shippingFee: number;
   totalAmount: number;
-  voucher: { valid: boolean; code: string; discountAmount: number; message: string } | null;
+  voucher: {
+    valid: boolean;
+    code: string;
+    discountAmount: number;
+    message: string;
+    scope?: "ORDER" | "PRODUCT";
+    eligibleSubtotal?: number;
+    appliedProductNames?: string[];
+  } | null;
+  delivery?: { minDays: number; maxDays: number; text: string };
+  deliveryByRegion?: {
+    bigCity: { text: string };
+    other: { text: string };
+  };
 }
 
 interface PlacedOrder {
@@ -44,6 +57,7 @@ interface PlacedOrder {
   vietqrUrl: string | null;
   bankInfo: VietQRBank | null;
   paid: boolean;
+  estimatedDeliveryText: string | null;
 }
 
 interface SubmitError {
@@ -223,7 +237,7 @@ export default function CheckoutClient() {
       });
       const data = (await res.json().catch(() => null)) as {
         error?: string;
-        order?: { orderCode: string; totalAmount: number; paymentMethod: PaymentMethod };
+        order?: { orderCode: string; totalAmount: number; paymentMethod: PaymentMethod; estimatedDeliveryText?: string | null };
         vietqrUrl?: string | null;
         bankInfo?: VietQRBank | null;
       } | null;
@@ -249,6 +263,7 @@ export default function CheckoutClient() {
         vietqrUrl: data.vietqrUrl ?? null,
         bankInfo: data.bankInfo ?? null,
         paid: false,
+        estimatedDeliveryText: data.order.estimatedDeliveryText ?? null,
       });
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch {
@@ -283,6 +298,11 @@ export default function CheckoutClient() {
           <p className="text-sm text-muted-foreground">
             Tổng thanh toán: <span className="type-price font-semibold">{formatVND(placed.totalAmount)}</span>
           </p>
+          {placed.estimatedDeliveryText && (
+            <p className="mt-1 text-sm text-muted-foreground">
+              Giao dự kiến: <span className="font-medium text-foreground">{placed.estimatedDeliveryText}</span>
+            </p>
+          )}
         </div>
 
         {showQR && placed.vietqrUrl && (
@@ -571,15 +591,39 @@ export default function CheckoutClient() {
               <dd>{formatVND(subtotal)}</dd>
             </div>
             {discount > 0 && (
-              <div className="flex justify-between text-primary">
-                <dt>Giảm giá</dt>
-                <dd>-{formatVND(discount)}</dd>
+              <div className="text-primary">
+                <div className="flex justify-between">
+                  <dt>
+                    Giảm giá{preview?.voucher?.valid ? (
+                      <> (<span className="type-code">{preview.voucher.code}</span>)</>
+                    ) : null}
+                  </dt>
+                  <dd>-{formatVND(discount)}</dd>
+                </div>
+                {preview?.voucher?.valid && preview.voucher.scope === "PRODUCT" && (
+                  <p className="mt-0.5 text-xs">
+                    Áp dụng cho: {(preview.voucher.appliedProductNames ?? []).join(", ")}
+                    {preview.voucher.eligibleSubtotal !== undefined && (
+                      <> · tiền hàng được giảm {formatVND(preview.voucher.eligibleSubtotal)}</>
+                    )}
+                  </p>
+                )}
               </div>
             )}
             <div className="flex justify-between">
               <dt className="text-muted-foreground">Phí vận chuyển</dt>
               <dd>
                 {!provinceChosen ? "—" : freeShip ? <span className="text-primary">Miễn phí</span> : formatVND(shippingFee)}
+              </dd>
+            </div>
+            <div className="flex justify-between gap-4">
+              <dt className="text-muted-foreground">Giao dự kiến</dt>
+              <dd className="text-right">
+                {!provinceChosen
+                  ? preview?.deliveryByRegion
+                    ? `${preview.deliveryByRegion.bigCity.text} (TP.HCM & Hà Nội) · ${preview.deliveryByRegion.other.text} (tỉnh khác)`
+                    : "—"
+                  : (preview?.delivery?.text ?? "—")}
               </dd>
             </div>
             {!provinceChosen && (

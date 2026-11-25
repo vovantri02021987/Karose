@@ -12,6 +12,13 @@ export async function POST(request: Request) {
     return Response.json({ error: parsed.error.issues[0]?.message ?? "Dữ liệu không hợp lệ" }, { status: 400 });
   }
   const d = parsed.data;
+  const productIds = d.scope === "PRODUCT" ? [...new Set(d.productIds)] : [];
+  if (productIds.length > 0) {
+    const found = await prisma.product.count({ where: { id: { in: productIds } } });
+    if (found !== productIds.length) {
+      return Response.json({ error: "Có sản phẩm được chọn không còn tồn tại" }, { status: 400 });
+    }
+  }
   try {
     const voucher = await prisma.voucher.create({
       data: {
@@ -26,6 +33,8 @@ export async function POST(request: Request) {
         // Kết thúc vào cuối ngày được chọn.
         endDate: new Date(`${d.endDate}T23:59:59.999Z`),
         isActive: true,
+        scope: d.scope,
+        products: { create: productIds.map((productId) => ({ productId })) },
       },
       select: { id: true, code: true },
     });

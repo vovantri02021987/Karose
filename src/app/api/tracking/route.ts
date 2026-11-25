@@ -81,6 +81,9 @@ export async function POST(request: Request) {
           discountAmount: order.discountAmount,
           shippingFee: order.shippingFee,
           totalAmount: order.totalAmount,
+          estimatedDeliveryText: order.estimatedDeliveryText,
+          deliveryMinDays: order.deliveryMinDays,
+          deliveryMaxDays: order.deliveryMaxDays,
           items: order.items.map((i) => ({
             id: i.id,
             productName: i.variant.product.name,

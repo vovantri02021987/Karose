@@ -36,6 +36,8 @@ export default async function AdminProductsPage() {
     isFeatured: p.isFeatured,
     isActive: p.isActive,
     isCombo: p.isCombo,
+    deliveryMinDays: p.deliveryMinDays,
+    deliveryMaxDays: p.deliveryMaxDays,
     stock: stocks[i],
     variants: p.variants.map((v) => ({
       id: v.id,

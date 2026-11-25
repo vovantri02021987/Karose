@@ -1,8 +1,13 @@
 "use client";
 
-import { Minus, Plus, Trash2, X } from "lucide-react";
+import { Minus, Plus, Trash2, Truck, X } from "lucide-react";
 import Link from "next/link";
 import { useEffect } from "react";
+import {
+  DEFAULT_DELIVERY_MAX_DAYS,
+  DEFAULT_DELIVERY_MIN_DAYS,
+  deliverySummaryText,
+} from "@/lib/delivery";
 import { FREE_SHIPPING_THRESHOLD } from "@/lib/constants";
 import { formatVND } from "@/lib/format";
 import {
@@ -206,7 +211,19 @@ export default function SlideCart() {
               </span>
             </div>
             <p className="mt-1 text-xs text-muted-foreground">
-              Phí vận chuyển và mã giảm giá được tính ở bước thanh toán.
+              Phí vận chuyển và mã giảm giá (kể cả mã theo từng sản phẩm) được tính ở bước thanh toán.
+            </p>
+            <p className="mt-2 flex items-start gap-2 text-xs text-muted-foreground">
+              <Truck size={14} className="mt-0.5 shrink-0 text-primary" aria-hidden />
+              <span>
+                {deliverySummaryText(
+                  items.map((i) => ({
+                    minDays: i.deliveryMinDays ?? DEFAULT_DELIVERY_MIN_DAYS,
+                    maxDays: i.deliveryMaxDays ?? DEFAULT_DELIVERY_MAX_DAYS,
+                  })),
+                )}
+                . Khung giao chính xác theo tỉnh/thành bạn chọn ở bước thanh toán.
+              </span>
             </p>
             <Link
               href="/checkout"

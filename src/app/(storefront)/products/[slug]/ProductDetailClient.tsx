@@ -9,6 +9,8 @@ import RatingStars from "@/components/storefront/RatingStars";
 import RichText from "@/components/storefront/RichText";
 import SafeImage from "@/components/storefront/SafeImage";
 import { StockBadge } from "@/components/storefront/ProductCard";
+import VoucherHint from "@/components/storefront/VoucherHint";
+import { deliverySummaryText } from "@/lib/delivery";
 import { PENDING_TEXT } from "@/lib/constants";
 import { formatVND } from "@/lib/format";
 import { useCartStore } from "@/store/useCartStore";
@@ -58,6 +60,8 @@ export default function ProductDetailClient({
         image: product.images[0] ?? null,
         maxStock: variant.stock,
         isCombo: product.isCombo,
+        deliveryMinDays: product.deliveryMinDays,
+        deliveryMaxDays: product.deliveryMaxDays,
       },
       quantity,
     );
@@ -219,8 +223,16 @@ export default function ProductDetailClient({
               <dd>
                 <StockBadge stock={variant.stock} />
               </dd>
+              <dt className="text-muted-foreground">Giao hàng</dt>
+              <dd>
+                {deliverySummaryText([
+                  { minDays: product.deliveryMinDays, maxDays: product.deliveryMaxDays },
+                ])}
+              </dd>
             </dl>
           )}
+
+          <VoucherHint vouchers={product.vouchers} />
 
           {product.variants.length > 1 && (
             <fieldset className="mt-6">

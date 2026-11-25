@@ -64,6 +64,8 @@ export default function ProductForm({
   const [isFeatured, setIsFeatured] = useState(product?.isFeatured ?? false);
   const [isActive, setIsActive] = useState(product?.isActive ?? true);
   const [isCombo, setIsCombo] = useState(product?.isCombo ?? false);
+  const [deliveryMinDays, setDeliveryMinDays] = useState(String(product?.deliveryMinDays ?? 2));
+  const [deliveryMaxDays, setDeliveryMaxDays] = useState(String(product?.deliveryMaxDays ?? 4));
   const [variants, setVariants] = useState<VariantState[]>(
     product?.variants.length
       ? product.variants.map((v) => ({
@@ -103,6 +105,8 @@ export default function ProductForm({
       isFeatured,
       isActive,
       isCombo,
+      deliveryMinDays: Number(deliveryMinDays),
+      deliveryMaxDays: Number(deliveryMaxDays),
       variants: variants.map((v) => ({
         ...(v.id ? { id: v.id } : {}),
         sku: v.sku,
@@ -185,6 +189,17 @@ export default function ProductForm({
             <label className="flex items-center gap-2"><input type="checkbox" checked={isFeatured} onChange={(e) => setIsFeatured(e.target.checked)} /> Nổi bật</label>
             <label className="flex items-center gap-2"><input type="checkbox" checked={isCombo} onChange={(e) => setIsCombo(e.target.checked)} /> Là combo</label>
           </div>
+        </div>
+
+        <div className="rounded-lg border border-border p-3">
+          <p className="text-sm font-medium">Thời gian giao hàng chuẩn (ngày làm việc)</p>
+          <div className="mt-2 grid gap-3 sm:grid-cols-2">
+            <Label text="Tối thiểu *"><input className={inputClass} inputMode="numeric" value={deliveryMinDays} onChange={(e) => setDeliveryMinDays(e.target.value.replace(/\D/g, ""))} /></Label>
+            <Label text="Tối đa *"><input className={inputClass} inputMode="numeric" value={deliveryMaxDays} onChange={(e) => setDeliveryMaxDays(e.target.value.replace(/\D/g, ""))} /></Label>
+          </div>
+          <p className="mt-2 text-xs text-muted-foreground">
+            Mặc định 2–4 ngày → khách ở TP.HCM/Hà Nội thấy {Math.max(1, Number(deliveryMinDays) - 1)}–{Math.max(Math.max(1, Number(deliveryMinDays) - 1), Number(deliveryMaxDays) - 2)} ngày, tỉnh khác thấy {Number(deliveryMinDays) + 1}–{Number(deliveryMaxDays) + 1} ngày. Tăng số ngày nếu sản phẩm cần bảo quản mát hoặc pha chế theo lô.
+          </p>
         </div>
 
         <Label text="Mô tả ngắn *"><input className={inputClass} value={shortDescription} onChange={(e) => setShortDescription(e.target.value)} maxLength={300} /></Label>

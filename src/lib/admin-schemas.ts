@@ -56,6 +56,8 @@ export const productInputSchema = z
     isFeatured: z.boolean(),
     isActive: z.boolean(),
     isCombo: z.boolean(),
+    deliveryMinDays: z.number({ error: "Số ngày giao tối thiểu phải là số" }).int("Số ngày giao phải là số nguyên").min(1, "Giao tối thiểu 1 ngày").max(30, "Tối đa 30 ngày"),
+    deliveryMaxDays: z.number({ error: "Số ngày giao tối đa phải là số" }).int("Số ngày giao phải là số nguyên").min(1, "Giao tối thiểu 1 ngày").max(30, "Tối đa 30 ngày"),
     variants: z.array(variantInputSchema).min(1, "Cần ít nhất một biến thể").max(20),
     comboItems: z
       .array(
@@ -67,6 +69,9 @@ export const productInputSchema = z
       .max(30),
   })
   .superRefine((v, ctx) => {
+    if (v.deliveryMaxDays < v.deliveryMinDays) {
+      ctx.addIssue({ code: "custom", path: ["deliveryMaxDays"], message: "Số ngày giao tối đa phải từ số ngày tối thiểu trở lên" });
+    }
     const skus = new Set<string>();
     v.variants.forEach((variant, idx) => {
       if (skus.has(variant.sku)) {
@@ -128,8 +133,13 @@ export const voucherInputSchema = z
     usageLimit: z.number().int().min(1).max(1_000_000).nullable().optional(),
     startDate: z.iso.date("Ngày bắt đầu không hợp lệ"),
     endDate: z.iso.date("Ngày kết thúc không hợp lệ"),
+    scope: z.enum(["ORDER", "PRODUCT"]).optional().default("ORDER"),
+    productIds: z.array(z.string().min(1)).max(200).optional().default([]),
   })
   .superRefine((v, ctx) => {
+    if (v.scope === "PRODUCT" && v.productIds.length === 0) {
+      ctx.addIssue({ code: "custom", path: ["productIds"], message: "Chọn ít nhất một sản phẩm được áp dụng" });
+    }
     if (v.discountType === "PERCENT" && v.discountValue > 100) {
       ctx.addIssue({ code: "custom", path: ["discountValue"], message: "Phần trăm giảm tối đa 100" });
     }

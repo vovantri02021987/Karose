@@ -19,6 +19,16 @@ Website bán mỹ phẩm thiên nhiên KaRose (Storefront + Admin/OMS).
 - Test: `npm test` (vitest, Postgres thật qua `TEST_DATABASE_URL`). Xem `tests/README.md`.
 - Trước khi commit: `npx next typegen && npx tsc --noEmit`, `npx eslint`, `npm test`.
 
+### 2.1 Voucher theo phạm vi & thời gian giao hàng
+
+- `Voucher.scope`: `ORDER` (giảm trên toàn bộ tiền hàng) hoặc `PRODUCT` (chỉ giảm trên tiền hàng của các sản phẩm trong bảng `VoucherProduct`).
+- Voucher `PRODUCT`: `minOrderAmount` và mức giảm đều tính trên **phần tiền hàng thuộc sản phẩm áp dụng**; `discountAmount` không vượt phần đó. Combo là một sản phẩm riêng, chỉ được giảm khi chính combo được chọn (không bung theo thành phần con). Giỏ không có sản phẩm hợp lệ → `VoucherError`.
+- Phí ship vẫn xét trên `subtotal - discountAmount` (≥ 500.000 ₫ → 0; HCM/HN 20.000; tỉnh khác 30.000).
+- Giao hàng dự kiến (`src/lib/delivery.ts`, thuần hàm, dùng được ở Client): mỗi sản phẩm có khung chuẩn `deliveryMinDays/deliveryMaxDays` (mặc định 2–4 ngày làm việc). HCM/Hà Nội: min−1, max−2 (→ 1–2); tỉnh khác: min+1, max+1 (→ 3–5). Giỏ nhiều sản phẩm lấy khung chậm nhất. Sản phẩm cần bảo quản mát/pha theo lô: Admin tăng khung của sản phẩm.
+- Đơn hàng chốt cam kết tại lúc đặt: `Order.deliveryMinDays/deliveryMaxDays/estimatedDeliveryText` (đơn cũ để null). `POST /api/checkout/preview`, `POST /api/orders`, `POST /api/tracking` đều trả thông tin này.
+- Admin: `/admin/promotions` (tạo/sửa/bật-tắt/xoá voucher; voucher đã gắn vào đơn thì chỉ được tắt) và `/admin/products` (ô ngày giao). API: `/api/admin/vouchers` (POST) và `/api/admin/vouchers/[id]` (PATCH bật/tắt, PUT sửa, DELETE).
+- Cập nhật DB: `npx prisma db push` (dev) hoặc, trên DB đang có dữ liệu thật, chạy `prisma/sql/2026-11-voucher-scope-delivery.sql` (chỉ thêm cột/bảng, chạy lại an toàn) rồi mới deploy. `npx prisma db seed` XOÁ toàn bộ dữ liệu — chỉ dùng cho DB trống/dev (seed có sẵn voucher theo sản phẩm `ROSE20K`, `DAUDUONG10`).
+
 ## 3. DESIGN SYSTEM
 
 Phong cách Organic & Minimalist: nhiều khoảng trắng, mộc mạc, rõ từng thông số (thành phần, cách dùng, bảo quản).

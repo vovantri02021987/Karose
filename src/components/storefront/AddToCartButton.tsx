@@ -8,7 +8,7 @@ import type { CatalogProduct, CatalogVariant } from "@/types/product";
 interface AddToCartButtonProps {
   product: Pick<
     CatalogProduct,
-    "id" | "slug" | "name" | "images" | "isCombo"
+    "id" | "slug" | "name" | "images" | "isCombo" | "deliveryMinDays" | "deliveryMaxDays"
   >;
   variant: CatalogVariant;
   quantity?: number;
@@ -49,6 +49,8 @@ export default function AddToCartButton({
         image: product.images[0] ?? null,
         maxStock: variant.stock,
         isCombo: product.isCombo,
+        deliveryMinDays: product.deliveryMinDays,
+        deliveryMaxDays: product.deliveryMaxDays,
       },
       quantity,
     );

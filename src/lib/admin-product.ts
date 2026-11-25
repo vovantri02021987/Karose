@@ -62,6 +62,8 @@ export async function createProduct(input: ProductInput) {
         isFeatured: input.isFeatured,
         isActive: input.isActive,
         isCombo: input.isCombo,
+        deliveryMinDays: input.deliveryMinDays,
+        deliveryMaxDays: input.deliveryMaxDays,
         variants: {
           create: input.variants.map((v) => ({
             sku: v.sku,
@@ -150,6 +152,8 @@ export async function updateProduct(id: string, input: ProductInput) {
         isFeatured: input.isFeatured,
         isActive: input.isActive,
         isCombo: input.isCombo,
+        deliveryMinDays: input.deliveryMinDays,
+        deliveryMaxDays: input.deliveryMaxDays,
       },
     });
 

@@ -36,6 +36,9 @@ function body(pricing: OrderPricing, provinceProvided: boolean) {
     totalAmount: pricing.totalAmount,
     // Chưa chọn tỉnh/thành thì phí ship chỉ là tạm tính (mức 30.000 ₫ nếu chưa đủ freeship).
     shippingEstimated: !provinceProvided,
+    // Dự kiến giao: theo tỉnh đã chọn; chưa chọn thì client hiển thị cả hai khu vực.
+    delivery: pricing.delivery,
+    deliveryByRegion: pricing.deliveryByRegion,
   };
 }
 
@@ -75,7 +78,13 @@ export async function POST(request: Request) {
               valid: true,
               code: pricing.voucher.code,
               discountAmount: pricing.voucher.discountAmount,
-              message: `Đã áp dụng mã ${pricing.voucher.code}`,
+              scope: pricing.voucher.scope,
+              eligibleSubtotal: pricing.voucher.eligibleSubtotal,
+              appliedProductNames: pricing.voucher.appliedProductNames,
+              message:
+                pricing.voucher.scope === "PRODUCT"
+                  ? `Đã áp dụng mã ${pricing.voucher.code} cho: ${pricing.voucher.appliedProductNames.join(", ")}`
+                  : `Đã áp dụng mã ${pricing.voucher.code}`,
             }
           : null,
       });

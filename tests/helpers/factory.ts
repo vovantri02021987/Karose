@@ -29,6 +29,8 @@ export async function makeVariant(opts: {
   name?: string;
   isActive?: boolean;
   isCombo?: boolean;
+  deliveryMinDays?: number;
+  deliveryMaxDays?: number;
 } = {}): Promise<TestVariant> {
   const tag = next();
   const product = await prisma.product.create({
@@ -44,6 +46,8 @@ export async function makeVariant(opts: {
       images: [],
       isActive: opts.isActive ?? true,
       isCombo: opts.isCombo ?? false,
+      ...(opts.deliveryMinDays !== undefined ? { deliveryMinDays: opts.deliveryMinDays } : {}),
+      ...(opts.deliveryMaxDays !== undefined ? { deliveryMaxDays: opts.deliveryMaxDays } : {}),
       categoryId: await ensureCategory(),
       variants: {
         create: {
@@ -128,12 +132,21 @@ export async function makeVoucher(opts: {
   usageLimit?: number | null;
   usedCount?: number;
   discountValue?: number;
+  discountType?: string;
+  minOrderAmount?: number;
+  maxDiscount?: number | null;
+  scope?: "ORDER" | "PRODUCT";
+  productIds?: string[];
 }) {
   return prisma.voucher.create({
     data: {
       code: `${RUN}V${++seq}`,
-      discountType: "FIXED_AMOUNT",
+      discountType: opts.discountType ?? "FIXED_AMOUNT",
       discountValue: opts.discountValue ?? 10_000,
+      minOrderAmount: opts.minOrderAmount ?? 0,
+      maxDiscount: opts.maxDiscount ?? null,
+      scope: opts.scope ?? "ORDER",
+      products: { create: (opts.productIds ?? []).map((productId) => ({ productId })) },
       usageLimit: opts.usageLimit ?? null,
       usedCount: opts.usedCount ?? 0,
       startDate: new Date(Date.now() - DAY),

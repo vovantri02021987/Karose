@@ -46,6 +46,9 @@ export interface CatalogProduct {
   images: string[];
   isFeatured: boolean;
   isCombo: boolean;
+  /** Khung giao hàng chuẩn của sản phẩm (ngày làm việc). */
+  deliveryMinDays: number;
+  deliveryMaxDays: number;
   skinTypes: string[];
   benefits: string[];
   variants: CatalogVariant[];
@@ -81,6 +84,16 @@ export interface HomeReview extends PublicReview {
   productSlug: string;
 }
 
+/** Voucher theo sản phẩm đang chạy, gợi ý trên trang chi tiết. */
+export interface ProductVoucherHint {
+  code: string;
+  description: string;
+  /** Ví dụ "Giảm 20.000 ₫" hoặc "Giảm 10% (tối đa 30.000 ₫)". */
+  discountLabel: string;
+  minOrderAmount: number;
+  endDate: string;
+}
+
 export interface ProductDetail extends CatalogProduct {
   description: string;
   ingredientsInci: string;
@@ -92,6 +105,7 @@ export interface ProductDetail extends CatalogProduct {
   ratingCount: number;
   /** Hạn dùng gần nhất (ISO) của lô còn bán được, theo biến thể. Combo: rỗng. */
   expiryByVariant: Record<string, string>;
+  vouchers: ProductVoucherHint[];
 }
 
 export interface CategorySummary {
@@ -117,4 +131,7 @@ export interface CartItem {
   /** Tồn khả dụng FEFO tại thời điểm thêm vào giỏ. */
   maxStock: number;
   isCombo: boolean;
+  /** Khung giao hàng chuẩn của sản phẩm; giỏ cũ trong localStorage có thể không có (mặc định 2–4). */
+  deliveryMinDays?: number;
+  deliveryMaxDays?: number;
 }

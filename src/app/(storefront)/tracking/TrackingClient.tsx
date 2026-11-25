@@ -30,6 +30,7 @@ interface TrackedOrder {
   note: string | null;
   trackingCode: string | null;
   shippingPartner: string | null;
+  estimatedDeliveryText?: string | null;
   subtotal: number;
   discountAmount: number;
   shippingFee: number;
@@ -217,6 +218,11 @@ export default function TrackingClient() {
             <div className="mt-6">
               <Timeline status={order.status} />
             </div>
+            {order.estimatedDeliveryText && (
+              <p className="mt-4 rounded-lg bg-surface p-3 text-sm">
+                Giao dự kiến: <b>{order.estimatedDeliveryText}</b> kể từ khi đơn được xác nhận
+              </p>
+            )}
             {(order.trackingCode || order.shippingPartner) && (
               <p className="mt-4 rounded-lg bg-surface p-3 text-sm">
                 {order.shippingPartner && <>Đơn vị vận chuyển: <b>{order.shippingPartner}</b></>}

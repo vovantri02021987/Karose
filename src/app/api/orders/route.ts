@@ -139,6 +139,9 @@ export async function POST(request: Request) {
           discountAmount: order.discountAmount,
           shippingFee: order.shippingFee,
           totalAmount: order.totalAmount,
+          estimatedDeliveryText: order.estimatedDeliveryText,
+          deliveryMinDays: order.deliveryMinDays,
+          deliveryMaxDays: order.deliveryMaxDays,
           items: order.items.map((i) => ({
             variantId: i.variantId,
             quantity: i.quantity,
@@ -214,6 +217,9 @@ function createOrder(data: OrderInput, orderCode: string) {
           shippingFee: pricing.shippingFee,
           discountAmount: pricing.discountAmount,
           totalAmount: pricing.totalAmount,
+          deliveryMinDays: pricing.delivery.minDays,
+          deliveryMaxDays: pricing.delivery.maxDays,
+          estimatedDeliveryText: pricing.delivery.text,
           voucherId: pricing.voucher?.id,
           paymentMethod: data.paymentMethod,
           items: {
