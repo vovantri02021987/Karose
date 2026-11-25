@@ -8,7 +8,7 @@ export default async function PanelLayout({ children }: { children: React.ReactN
   return (
     <div className="mx-auto flex min-h-screen max-w-[1400px] flex-col lg:flex-row">
       <aside className="shrink-0 border-b border-border bg-surface p-4 lg:w-64 lg:border-b-0 lg:border-r">
-        <p className="flex items-center gap-2 font-serif text-2xl font-semibold text-primary">
+        <p className="flex items-center gap-2 font-heading text-2xl font-semibold text-primary">
           <Image
             src="/images/logo-karose.jpg"
             alt=""
@@ -28,7 +28,7 @@ export default async function PanelLayout({ children }: { children: React.ReactN
           <LogoutButton />
         </div>
       </aside>
-      <main className="min-w-0 flex-1 p-4 sm:p-6 lg:p-8">{children}</main>
+      <main className="min-w-0 flex-1 tabular-nums p-4 sm:p-6 lg:p-8">{children}</main>
     </div>
   );
 }

@@ -3,18 +3,19 @@
 
 /*
  * KaRose — Botanical Minimalist design tokens (CLAUDE.md §3)
- * Palette extracted from the Karose logo:
- *   #F5F1E5 cream background | #EDE7D6 surface | #682934 primary (rose burgundy)
- *   #204029 accent (leaf green) | #2A1F22 text | #6B5E5F muted text | #DDD5C0 border
+ * Palette: #FAF8F5 nền | #EDE7D6 surface | #682934 primary (rose burgundy, từ logo)
+ *   #204029 accent (leaf green, từ logo) | #1F2421 chữ | #5C6660 chữ phụ | #DDD5C0 viền
+ * Typography: Editorial Botanical — Cormorant Garamond (heading) + Be Vietnam Pro (sans)
+ *   + JetBrains Mono (mã). Scale: các utility `type-*` ở cuối file.
  */
 :root {
   /* Brand tokens */
-  --kr-background: #f5f1e5;
+  --kr-background: #faf8f5;
   --kr-surface: #ede7d6;
   --kr-primary: #682934;
   --kr-accent: #204029;
-  --kr-text: #2a1f22;
-  --kr-text-muted: #6b5e5f;
+  --kr-text: #1f2421;
+  --kr-text-muted: #5c6660;
   --kr-border: #ddd5c0;
 
   /* shadcn/ui semantic variables mapped to brand tokens */
@@ -80,9 +81,22 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
 
-  --font-sans: var(--font-plus-jakarta), ui-sans-serif, system-ui, sans-serif;
-  --font-serif: var(--font-cormorant), ui-serif, Georgia, serif;
-  --font-display: var(--font-cormorant), ui-serif, Georgia, serif;
+  /*
+   * --font-heading / --font-sans / --font-mono do next/font gắn trên <html>. Nếu khai báo lại
+   * cùng tên ở đây, Tailwind sinh `:root { --font-sans: var(--font-sans) }` (tham chiếu vòng) và
+   * có thể đè mất font. Vì vậy xoá font mặc định của theme và định nghĩa utility font-* ở dưới.
+   */
+  --font-*: initial;
+}
+
+@utility font-heading {
+  font-family: var(--font-heading), ui-serif, Georgia, "Times New Roman", serif;
+}
+@utility font-sans {
+  font-family: var(--font-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@utility font-mono {
+  font-family: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
 @layer base {
@@ -96,10 +110,12 @@
     @apply bg-background text-foreground font-sans antialiased;
   }
   h1,
-  h2,
+  h2 {
+    @apply font-heading;
+  }
   h3,
   h4 {
-    @apply font-serif tracking-tight;
+    @apply font-sans;
   }
 }
 
@@ -110,4 +126,37 @@
 }
 .no-scrollbar::-webkit-scrollbar {
   display: none;
+}
+
+/*
+ * Scale Typography (Editorial Botanical)
+ * Heading hiển thị = Cormorant Garamond; mọi văn bản đọc/nhập liệu/bảng = Be Vietnam Pro.
+ * Số tiền, số lượng: `tabular-nums` để cột số thẳng hàng. Mã (orderCode, batchCode, SKU): `type-code`.
+ */
+@utility type-hero {
+  @apply font-heading text-4xl font-semibold leading-[1.1] tracking-[-0.01em] sm:text-5xl lg:text-6xl;
+}
+@utility type-page-title {
+  @apply font-heading text-3xl font-semibold leading-[1.15] sm:text-4xl;
+}
+@utility type-section {
+  @apply font-heading text-2xl font-semibold leading-[1.2] sm:text-3xl;
+}
+@utility type-card {
+  @apply font-sans text-base font-semibold leading-snug sm:text-lg;
+}
+@utility type-card-editorial {
+  @apply font-heading text-xl font-semibold leading-snug;
+}
+@utility type-body {
+  @apply font-sans text-sm font-normal leading-relaxed text-foreground sm:text-base;
+}
+@utility type-caption {
+  @apply font-sans text-xs font-medium text-muted-foreground sm:text-sm;
+}
+@utility type-price {
+  @apply font-medium tabular-nums;
+}
+@utility type-code {
+  @apply font-mono tabular-nums;
 }

@@ -48,7 +48,7 @@ export default function ReviewForm({ productId }: { productId: string }) {
       onSubmit={onSubmit}
       className="h-fit rounded-xl border border-border bg-surface/60 p-6"
     >
-      <h3 className="font-serif text-xl font-semibold">Viết đánh giá</h3>
+      <h3 className="type-card-editorial">Viết đánh giá</h3>
 
       <fieldset className="mt-4">
         <legend className="mb-1 text-sm">Mức độ hài lòng</legend>

@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default function TrackingPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
-      <h1 className="font-serif text-4xl font-semibold">Theo dõi đơn hàng</h1>
+      <h1 className="type-page-title">Theo dõi đơn hàng</h1>
       <p className="mt-2 text-muted-foreground">
         Nhập mã đơn hàng và số điện thoại đã dùng khi đặt hàng.
       </p>

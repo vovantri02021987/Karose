@@ -54,7 +54,7 @@ export default function ProductManager({ products, categories, variantOptions, c
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="font-serif text-3xl font-semibold">Sản phẩm & Combo</h1>
+        <h1 className="type-page-title">Sản phẩm & Combo</h1>
         {canEdit && (
           <button
             type="button"
@@ -100,7 +100,7 @@ export default function ProductManager({ products, categories, variantOptions, c
                   <ul className="space-y-0.5 text-xs">
                     {p.variants.map((v) => (
                       <li key={v.id}>
-                        <span className="font-medium">{v.sku}</span> · {v.name} · {formatVND(v.price)}
+                        <span className="type-code font-medium">{v.sku}</span> · {v.name} · {formatVND(v.price)}
                       </li>
                     ))}
                   </ul>

@@ -19,7 +19,7 @@ export default function JournalPage() {
       <p className="text-sm uppercase tracking-[0.25em] text-brand-accent">
         Journal
       </p>
-      <h1 className="mt-2 font-serif text-4xl font-semibold md:text-5xl">
+      <h1 className="type-page-title mt-2">
         Kiến thức chăm sóc da thiên nhiên
       </h1>
       <p className="mt-4 leading-relaxed text-muted-foreground">
@@ -45,7 +45,7 @@ export default function JournalPage() {
       </nav>
 
       <article id="doc-inci" className="mt-16 scroll-mt-24">
-        <h2 className="font-serif text-3xl font-semibold">
+        <h2 className="type-section">
           Cách đọc bảng thành phần INCI
         </h2>
         <div className="mt-4 space-y-4 leading-relaxed">
@@ -84,7 +84,7 @@ export default function JournalPage() {
       </article>
 
       <article id="bao-quan" className="mt-16 scroll-mt-24">
-        <h2 className="font-serif text-3xl font-semibold">
+        <h2 className="type-section">
           Bảo quản mỹ phẩm thiên nhiên
         </h2>
         <div className="mt-4 space-y-4 leading-relaxed">
@@ -120,7 +120,7 @@ export default function JournalPage() {
       </article>
 
       <article id="lam-sach-2-buoc" className="mt-16 scroll-mt-24">
-        <h2 className="font-serif text-3xl font-semibold">
+        <h2 className="type-section">
           Chu trình làm sạch 2 bước
         </h2>
         <div className="mt-4 space-y-4 leading-relaxed">
@@ -155,7 +155,7 @@ export default function JournalPage() {
       </article>
 
       <div className="mt-16 rounded-xl bg-primary p-8 text-center text-primary-foreground">
-        <p className="font-serif text-2xl font-semibold">
+        <p className="font-heading text-2xl font-semibold">
           Sẵn sàng chọn sản phẩm phù hợp?
         </p>
         <Link

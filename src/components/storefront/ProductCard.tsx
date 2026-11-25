@@ -45,7 +45,7 @@ export default function ProductCard({
     product.variants.some((v) => v.price !== product.minPrice);
 
   return (
-    <article className="group flex flex-col overflow-hidden rounded-xl border border-border bg-surface/60 transition hover:border-primary/40">
+    <article className="group tabular-nums flex flex-col overflow-hidden rounded-xl border border-border bg-surface/60 transition hover:border-primary/40">
       <Link
         href={`/products/${product.slug}`}
         className="relative block aspect-square overflow-hidden bg-surface"
@@ -78,7 +78,7 @@ export default function ProductCard({
           {product.categoryName}
           {spec && <span className="normal-case"> · {spec}</span>}
         </p>
-        <h3 className="font-serif text-lg font-semibold leading-snug">
+        <h3 className="type-card">
           <Link
             href={`/products/${product.slug}`}
             className="hover:text-primary"

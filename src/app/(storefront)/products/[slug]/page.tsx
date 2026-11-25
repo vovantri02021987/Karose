@@ -84,7 +84,7 @@ export default async function ProductPage({ params }: PageProps) {
         >
           <h2
             id="related-title"
-            className="font-serif text-2xl font-semibold md:text-3xl"
+            className="type-section"
           >
             Có thể bạn cũng thích
           </h2>

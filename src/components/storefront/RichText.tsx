@@ -20,7 +20,7 @@ export default function RichText({ text }: { text: string }) {
           return (
             <div key={i}>
               {hasTitle && (
-                <h3 className="mb-2 font-serif text-xl font-semibold text-foreground">{lines[0]}</h3>
+                <h3 className="type-card mb-2 text-foreground">{lines[0]}</h3>
               )}
               <ul className="space-y-1.5">
                 {items.map((l, j) => (

@@ -52,7 +52,7 @@ export default function Navbar() {
         <Link
           href="/"
           aria-label="KaRose – Trang chủ"
-          className="flex items-center gap-2 font-serif text-2xl font-semibold tracking-wide text-primary"
+          className="flex items-center gap-2 font-heading text-2xl font-semibold tracking-wide text-primary"
         >
           <Image
             src="/images/logo-karose.jpg"

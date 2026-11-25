@@ -11,7 +11,7 @@ export default function Footer({
     <footer className="mt-24 border-t border-border bg-surface">
       <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-4">
         <div className="md:col-span-1">
-          <p className="flex items-center gap-2 font-serif text-2xl font-semibold text-primary">
+          <p className="flex items-center gap-2 font-heading text-2xl font-semibold text-primary">
             <Image
               src="/images/logo-karose.jpg"
               alt=""

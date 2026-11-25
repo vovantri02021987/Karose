@@ -59,12 +59,12 @@ export default function SlideCart() {
         aria-modal="true"
         aria-label="Giỏ hàng"
         aria-hidden={!isOpen}
-        className={`fixed right-0 top-0 z-50 flex h-full w-full max-w-md flex-col bg-background shadow-xl transition-transform duration-300 ${
+        className={`fixed right-0 top-0 z-50 flex h-full tabular-nums w-full max-w-md flex-col bg-background shadow-xl transition-transform duration-300 ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
         <div className="flex items-center justify-between border-b border-border px-5 py-4">
-          <h2 className="font-serif text-xl font-semibold">
+          <h2 className="type-card-editorial">
             Giỏ hàng{count > 0 ? ` (${count})` : ""}
           </h2>
           <button

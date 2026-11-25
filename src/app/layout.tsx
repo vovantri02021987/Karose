@@ -1,17 +1,31 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, Plus_Jakarta_Sans } from "next/font/google";
+import {
+  Be_Vietnam_Pro,
+  Cormorant_Garamond,
+  JetBrains_Mono,
+} from "next/font/google";
 import "./globals.css";
 
-const cormorant = Cormorant_Garamond({
-  variable: "--font-cormorant",
-  subsets: ["latin", "vietnamese"],
-  weight: ["400", "500", "600", "700"],
+// Editorial Botanical: Cormorant Garamond (heading) + Be Vietnam Pro (body/UI) + JetBrains Mono (mã, số).
+const fontHeading = Cormorant_Garamond({
+  subsets: ["vietnamese", "latin"],
+  weight: ["500", "600", "700"],
+  style: ["normal", "italic"],
+  variable: "--font-heading",
   display: "swap",
 });
 
-const plusJakarta = Plus_Jakarta_Sans({
-  variable: "--font-plus-jakarta",
-  subsets: ["latin", "vietnamese"],
+const fontSans = Be_Vietnam_Pro({
+  subsets: ["vietnamese", "latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-sans",
+  display: "swap",
+});
+
+const fontMono = JetBrains_Mono({
+  subsets: ["vietnamese", "latin"],
+  weight: ["400", "500"],
+  variable: "--font-mono",
   display: "swap",
 });
 
@@ -28,9 +42,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="vi"
-      className={`${cormorant.variable} ${plusJakarta.variable} h-full antialiased`}
+      className={`${fontHeading.variable} ${fontSans.variable} ${fontMono.variable} h-full`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col font-sans antialiased bg-[#FAF8F5] text-[#1F2421]">
+        {children}
+      </body>
     </html>
   );
 }

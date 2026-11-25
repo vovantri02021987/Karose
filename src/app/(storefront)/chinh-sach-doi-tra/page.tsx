@@ -36,7 +36,7 @@ const SECTIONS: { title: string; items: string[] }[] = [
 export default function ReturnPolicyPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
-      <h1 className="font-serif text-4xl font-semibold">Chính sách đổi trả</h1>
+      <h1 className="type-page-title">Chính sách đổi trả</h1>
       <p className="mt-3 text-muted-foreground">
         Chính sách áp dụng tương tự gian hàng KaRose trên Shopee. Vui lòng giữ mã
         đơn hàng để được hỗ trợ nhanh nhất; bạn có thể xem tình trạng đơn tại{" "}
@@ -48,7 +48,7 @@ export default function ReturnPolicyPage() {
       <div className="mt-8 space-y-8">
         {SECTIONS.map((s) => (
           <section key={s.title}>
-            <h2 className="font-serif text-2xl font-semibold">{s.title}</h2>
+            <h2 className="type-section">{s.title}</h2>
             <ul className="mt-3 space-y-2">
               {s.items.map((i) => (
                 <li key={i} className="flex gap-2 leading-relaxed">

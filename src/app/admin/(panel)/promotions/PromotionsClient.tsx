@@ -88,7 +88,7 @@ function VoucherForm({ onDone }: { onDone: () => void }) {
 
   return (
     <form onSubmit={submit} className="space-y-3 rounded-2xl border border-border bg-surface p-5">
-      <h3 className="font-serif text-lg font-semibold">Tạo voucher mới</h3>
+      <h3 className="type-card">Tạo voucher mới</h3>
       <div className="grid gap-3 sm:grid-cols-3">
         <label className="text-sm"><span className="mb-1 block font-medium">Mã *</span><input className={inputClass} value={f.code} onChange={(e) => set("code", e.target.value.toUpperCase())} required /></label>
         <label className="text-sm"><span className="mb-1 block font-medium">Loại giảm *</span>
@@ -145,7 +145,7 @@ export default function PromotionsClient({
 
   return (
     <div className="space-y-10">
-      <h1 className="font-serif text-3xl font-semibold">Khuyến mãi & Đánh giá</h1>
+      <h1 className="type-page-title">Khuyến mãi & Đánh giá</h1>
       {!canEdit && (
         <p className="rounded-lg border border-border bg-surface p-3 text-sm text-muted-foreground">
           Tài khoản nhân viên chỉ được xem. Tạo/tắt voucher và duyệt đánh giá do quản trị viên (ADMIN) thực hiện.
@@ -155,7 +155,7 @@ export default function PromotionsClient({
 
       <section className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="font-serif text-xl font-semibold">Voucher</h2>
+          <h2 className="type-card-editorial">Voucher</h2>
           {canEdit && !showForm && (
             <button type="button" onClick={() => setShowForm(true)} className="rounded-full bg-primary px-5 py-2 text-sm font-medium text-primary-foreground">Tạo voucher</button>
           )}
@@ -201,7 +201,7 @@ export default function PromotionsClient({
       </section>
 
       <section className="space-y-4">
-        <h2 className="font-serif text-xl font-semibold">Đánh giá khách hàng</h2>
+        <h2 className="type-card-editorial">Đánh giá khách hàng</h2>
         {reviews.length === 0 ? (
           <p className="text-sm text-muted-foreground">Chưa có đánh giá.</p>
         ) : (

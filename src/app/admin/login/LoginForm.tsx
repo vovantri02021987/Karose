@@ -49,7 +49,7 @@ export default function LoginForm({ isDev }: { isDev: boolean }) {
         height={96}
         className="mx-auto mb-2 h-24 w-24 rounded-full mix-blend-multiply"
       />
-      <h1 className="text-center font-serif text-3xl font-semibold text-primary">KaRose Admin</h1>
+      <h1 className="type-page-title text-center text-primary">KaRose Admin</h1>
       <p className="mt-1 text-center text-sm text-muted-foreground">Đăng nhập dành cho quản trị viên và nhân viên.</p>
 
       <div className="mt-6 space-y-4">

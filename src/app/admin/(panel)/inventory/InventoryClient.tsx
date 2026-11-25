@@ -41,7 +41,7 @@ function Modal({ title, onClose, children }: { title: string; onClose: () => voi
     <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-foreground/40 p-4">
       <div className="my-10 w-full max-w-md rounded-2xl bg-background p-6 shadow-xl">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="font-serif text-xl font-semibold">{title}</h2>
+          <h2 className="type-card-editorial">{title}</h2>
           <button type="button" onClick={onClose} aria-label="Đóng" className="p-1"><X size={20} /></button>
         </div>
         {children}
@@ -155,7 +155,7 @@ function AdjustForm({ batch, onDone }: { batch: BatchRow; onDone: () => void }) 
   return (
     <form onSubmit={submit} className="space-y-3">
       <p className="text-sm text-muted-foreground">
-        Lô <b>{batch.batchCode}</b> · {batch.productName} ({batch.variantName}). Đang giữ cho đơn hàng: <b>{batch.reservedQuantity}</b>.
+        Lô <b className="type-code">{batch.batchCode}</b> · {batch.productName} ({batch.variantName}). Đang giữ cho đơn hàng: <b>{batch.reservedQuantity}</b>.
       </p>
       <label className="block text-sm"><span className="mb-1 block font-medium">Số đếm thực tế trong kho (gồm hàng đang giữ) *</span>
         <input className={inputClass} inputMode="numeric" value={counted} onChange={(e) => setCounted(e.target.value.replace(/\D/g, ""))} required />
@@ -190,7 +190,7 @@ export default function InventoryClient({
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="font-serif text-3xl font-semibold">Nhập kho & Lô FEFO</h1>
+        <h1 className="type-page-title">Nhập kho & Lô FEFO</h1>
         <button type="button" onClick={() => setIntake(true)} className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground">
           <Plus size={16} /> Nhập lô mới
         </button>
@@ -230,12 +230,12 @@ export default function InventoryClient({
             {batches.map((b) => (
               <tr key={b.id} className="align-top">
                 <td className="px-3 py-3">
-                  <span className="whitespace-nowrap text-xs font-medium">{b.batchCode}</span>
+                  <span className="type-code whitespace-nowrap text-xs font-medium">{b.batchCode}</span>
                   <span className="mt-0.5 block text-xs text-muted-foreground">{b.fefoRank ? `FEFO #${b.fefoRank}` : "Không xuất bán"}</span>
                 </td>
                 <td className="px-3 py-3">
                   <span className="block min-w-[11rem] max-w-[16rem] font-medium leading-snug">{b.productName}</span>
-                  <span className="block text-xs text-muted-foreground">{b.variantName} · {b.sku}</span>
+                  <span className="block text-xs text-muted-foreground">{b.variantName} · <span className="type-code">{b.sku}</span></span>
                 </td>
                 <td className="px-3 py-3 whitespace-nowrap">
                   {formatDate(b.expiryDate)}

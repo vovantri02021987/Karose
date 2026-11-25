@@ -150,7 +150,7 @@ export default function ProductForm({
         aria-label={product ? "Chỉnh sửa sản phẩm" : "Tạo sản phẩm"}
       >
         <div className="flex items-center justify-between">
-          <h2 className="font-serif text-2xl font-semibold">{product ? "Chỉnh sửa sản phẩm" : "Tạo sản phẩm mới"}</h2>
+          <h2 className="type-section">{product ? "Chỉnh sửa sản phẩm" : "Tạo sản phẩm mới"}</h2>
           <button type="button" onClick={onClose} aria-label="Đóng" className="p-1"><X size={22} /></button>
         </div>
 

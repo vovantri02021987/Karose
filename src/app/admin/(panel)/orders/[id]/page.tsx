@@ -48,7 +48,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
       <div>
         <Link href="/admin/orders" className="text-sm text-muted-foreground underline">← Danh sách đơn hàng</Link>
         <div className="mt-2 flex flex-wrap items-center gap-3">
-          <h1 className="font-serif text-3xl font-semibold">Đơn {order.orderCode}</h1>
+          <h1 className="type-page-title">Đơn <span className="type-code">{order.orderCode}</span></h1>
           <StatusBadge kind="order" value={order.status} label={ORDER_STATUS_LABEL[order.status]} />
           <StatusBadge kind="payment" value={order.paymentStatus} label={PAYMENT_STATUS_LABEL[order.paymentStatus]} />
         </div>
@@ -60,7 +60,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
       <div className="grid gap-6 xl:grid-cols-[1fr_380px]">
         <div className="space-y-6">
           <section className="rounded-2xl border border-border p-5">
-            <h2 className="font-serif text-xl font-semibold">Sản phẩm & lô xuất kho</h2>
+            <h2 className="type-card-editorial">Sản phẩm & lô xuất kho</h2>
             <ul className="mt-3 divide-y divide-border">
               {order.items.map((i) => {
                 const alloc = readAllocations(i.batchAllocated);
@@ -99,7 +99,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
           </section>
 
           <section className="rounded-2xl border border-border p-5 text-sm">
-            <h2 className="font-serif text-xl font-semibold">Người nhận</h2>
+            <h2 className="type-card-editorial">Người nhận</h2>
             <p className="mt-2 font-medium">{order.customerName} · {order.customerPhone}</p>
             {order.customerEmail && <p className="text-muted-foreground">{order.customerEmail}</p>}
             <p className="mt-1">{order.shippingAddress}, {order.ward}, {order.district}, {order.province}</p>

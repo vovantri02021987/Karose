@@ -97,7 +97,7 @@ export default function ProductDetailClient({
   ];
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
+    <div className="mx-auto max-w-6xl px-4 py-10 tabular-nums sm:px-6">
       <nav
         aria-label="Đường dẫn"
         className="mb-8 text-sm text-muted-foreground"
@@ -161,7 +161,7 @@ export default function ProductDetailClient({
             {product.categoryName}
             {product.isCombo ? " · Combo" : ""}
           </p>
-          <h1 className="mt-2 font-serif text-3xl font-semibold leading-tight md:text-4xl">
+          <h1 className="type-page-title mt-2">
             {product.name}
           </h1>
           {product.ratingCount > 0 && (
@@ -214,7 +214,7 @@ export default function ProductDetailClient({
                 </>
               )}
               <dt className="text-muted-foreground">Mã SKU</dt>
-              <dd>{variant.sku}</dd>
+              <dd className="type-code">{variant.sku}</dd>
               <dt className="text-muted-foreground">Tình trạng</dt>
               <dd>
                 <StockBadge stock={variant.stock} />
@@ -360,7 +360,7 @@ export default function ProductDetailClient({
                 <RichText text={product.description} />
                 {product.isCombo && product.comboComponents.length > 0 && (
                   <div className="mt-8">
-                    <h2 className="font-serif text-2xl font-semibold">
+                    <h2 className="type-section">
                       Sản phẩm trong bộ
                     </h2>
                     <ul className="mt-4 space-y-3">
@@ -433,7 +433,7 @@ export default function ProductDetailClient({
 
           {tab === "inci" && (
             <div className="max-w-2xl">
-              <h2 className="font-serif text-2xl font-semibold">
+              <h2 className="type-section">
                 Bảng thành phần (INCI)
               </h2>
               <p className="mt-4 whitespace-pre-line rounded-lg border border-border bg-surface/60 p-5 leading-relaxed">
@@ -452,7 +452,7 @@ export default function ProductDetailClient({
           {tab === "usage" && (
             <div className="grid max-w-3xl gap-8 md:grid-cols-2">
               <div>
-                <h2 className="font-serif text-2xl font-semibold">
+                <h2 className="type-section">
                   Hướng dẫn sử dụng
                 </h2>
                 <div className="mt-3">
@@ -460,7 +460,7 @@ export default function ProductDetailClient({
                 </div>
               </div>
               <div>
-                <h2 className="font-serif text-2xl font-semibold">
+                <h2 className="type-section">
                   Bảo quản
                 </h2>
                 <div className="mt-3">
@@ -479,7 +479,7 @@ export default function ProductDetailClient({
           {tab === "reviews" && (
             <div className="grid gap-12 md:grid-cols-[3fr_2fr]">
               <div>
-                <h2 className="font-serif text-2xl font-semibold">
+                <h2 className="type-section">
                   Đánh giá từ khách hàng
                 </h2>
                 {product.reviews.length === 0 ? (

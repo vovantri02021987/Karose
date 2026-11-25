@@ -78,7 +78,7 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
 
   return (
     <div className="space-y-6">
-      <h1 className="font-serif text-3xl font-semibold">Đơn hàng</h1>
+      <h1 className="type-page-title">Đơn hàng</h1>
 
       <form className="flex flex-wrap items-end gap-3" action="/admin/orders">
         <input
@@ -135,7 +135,7 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
             {orders.map((o) => (
               <tr key={o.id}>
                 <td className="px-4 py-3">
-                  <Link href={`/admin/orders/${o.id}`} className="font-medium text-primary underline">
+                  <Link href={`/admin/orders/${o.id}`} className="type-code font-medium text-primary underline">
                     {o.orderCode}
                   </Link>
                 </td>

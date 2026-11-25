@@ -20,7 +20,7 @@ interface VietQRPaymentProps {
   startedAt?: number;
 }
 
-function CopyRow({ label, value, display }: { label: string; value: string; display?: string }) {
+function CopyRow({ label, value, display, mono }: { label: string; value: string; display?: string; mono?: boolean }) {
   const [copied, setCopied] = useState(false);
   const copy = async () => {
     try {
@@ -35,7 +35,7 @@ function CopyRow({ label, value, display }: { label: string; value: string; disp
     <div className="flex items-center justify-between gap-3 border-b border-border py-2.5 last:border-b-0">
       <div className="min-w-0">
         <p className="text-xs text-muted-foreground">{label}</p>
-        <p className="truncate text-sm font-medium">{display ?? value}</p>
+        <p className={`truncate text-sm font-medium tabular-nums ${mono ? "font-mono" : ""}`}>{display ?? value}</p>
       </div>
       <button
         type="button"
@@ -170,12 +170,12 @@ export default function VietQRPayment({
             {bankInfo && (
               <>
                 <CopyRow label="Ngân hàng" value={bankInfo.bankName} />
-                <CopyRow label="Số tài khoản" value={bankInfo.accountNo} />
+                <CopyRow label="Số tài khoản" value={bankInfo.accountNo} mono />
                 <CopyRow label="Chủ tài khoản" value={bankInfo.accountName} />
               </>
             )}
             <CopyRow label="Số tiền" value={String(amount)} display={formatVND(amount)} />
-            <CopyRow label="Nội dung chuyển khoản" value={orderCode} />
+            <CopyRow label="Nội dung chuyển khoản" value={orderCode} mono />
           </div>
         </div>
       </div>

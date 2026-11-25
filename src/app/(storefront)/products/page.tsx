@@ -17,7 +17,7 @@ export default async function ProductsPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-      <h1 className="font-serif text-4xl font-semibold">Sản phẩm</h1>
+      <h1 className="type-page-title">Sản phẩm</h1>
       <p className="mt-2 text-muted-foreground">
         Chọn theo danh mục, loại da hoặc công dụng bạn quan tâm.
       </p>

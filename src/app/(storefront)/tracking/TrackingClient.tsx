@@ -198,12 +198,12 @@ export default function TrackingClient() {
       )}
 
       {order && (
-        <div className="mt-8 space-y-6">
+        <div className="mt-8 space-y-6 tabular-nums">
           <section className="rounded-2xl border border-border p-5 sm:p-6">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <p className="text-xs text-muted-foreground">Mã đơn hàng</p>
-                <p className="text-xl font-semibold tracking-wider text-primary">{order.orderCode}</p>
+                <p className="type-code text-xl font-semibold tracking-wider text-primary">{order.orderCode}</p>
                 <p className="text-xs text-muted-foreground">Đặt lúc {formatDateTime(order.createdAt)}</p>
               </div>
               <div className="text-right text-sm">
@@ -255,7 +255,7 @@ export default function TrackingClient() {
           )}
 
           <section className="rounded-2xl border border-border p-5 sm:p-6">
-            <h2 className="font-serif text-xl font-semibold">Sản phẩm</h2>
+            <h2 className="type-card-editorial">Sản phẩm</h2>
             <ul className="mt-3 divide-y divide-border">
               {order.items.map((i) => (
                 <li key={i.id} className="flex gap-3 py-3">
@@ -298,7 +298,7 @@ export default function TrackingClient() {
           </section>
 
           <section className="rounded-2xl border border-border p-5 text-sm sm:p-6">
-            <h2 className="font-serif text-xl font-semibold">Giao đến</h2>
+            <h2 className="type-card-editorial">Giao đến</h2>
             <p className="mt-2 font-medium">
               {order.customerName} · {order.customerPhoneMasked}
             </p>

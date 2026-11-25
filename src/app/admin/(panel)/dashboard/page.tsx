@@ -84,7 +84,7 @@ export default async function DashboardPage({
 
   return (
     <div className="space-y-8">
-      <h1 className="font-serif text-3xl font-semibold">Tổng quan</h1>
+      <h1 className="type-page-title">Tổng quan</h1>
       {denied && (
         <p className="rounded-lg border border-brand-accent/50 bg-surface p-3 text-sm">
           Tính năng này chỉ dành cho quản trị viên (ADMIN).
@@ -118,7 +118,7 @@ export default async function DashboardPage({
       </div>
 
       <section>
-        <h2 className="font-serif text-xl font-semibold">Cảnh báo lô cận hạn / hết hạn</h2>
+        <h2 className="type-card-editorial">Cảnh báo lô cận hạn / hết hạn</h2>
         {nearExpiry.length === 0 ? (
           <p className="mt-3 text-sm text-muted-foreground">Không có lô nào cần xử lý.</p>
         ) : (
@@ -139,7 +139,7 @@ export default async function DashboardPage({
                   const tone = b.isExpired || b.daysLeft < 15 ? "text-destructive" : "text-brand-accent";
                   return (
                     <tr key={b.batchId}>
-                      <td className="px-4 py-3 font-medium">{b.batchCode}</td>
+                      <td className="type-code px-4 py-3 text-xs font-medium">{b.batchCode}</td>
                       <td className="px-4 py-3">
                         {b.productName}
                         <span className="block text-xs text-muted-foreground">{b.variantName}</span>
@@ -166,7 +166,7 @@ export default async function DashboardPage({
 
       <section>
         <div className="flex items-center justify-between">
-          <h2 className="font-serif text-xl font-semibold">Đơn hàng gần nhất</h2>
+          <h2 className="type-card-editorial">Đơn hàng gần nhất</h2>
           <Link href="/admin/orders" className="text-sm text-primary underline">
             Xem tất cả
           </Link>
@@ -194,7 +194,7 @@ export default async function DashboardPage({
               {recent.map((o) => (
                 <tr key={o.id}>
                   <td className="px-4 py-3">
-                    <Link href={`/admin/orders/${o.id}`} className="font-medium text-primary underline">
+                    <Link href={`/admin/orders/${o.id}`} className="type-code font-medium text-primary underline">
                       {o.orderCode}
                     </Link>
                   </td>
@@ -228,7 +228,7 @@ function ChartCard({
 }) {
   return (
     <section className="rounded-2xl border border-border bg-surface/60 p-5">
-      <h2 className="font-serif text-xl font-semibold">{title}</h2>
+      <h2 className="type-card-editorial">{title}</h2>
       {note && <p className="mt-1 text-xs text-muted-foreground">{note}</p>}
       <div className="mt-4">{children}</div>
     </section>

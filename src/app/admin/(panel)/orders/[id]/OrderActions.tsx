@@ -77,7 +77,7 @@ export default function OrderActions(props: Props) {
 
   return (
     <form onSubmit={submit} className="h-fit space-y-4 rounded-2xl border border-border bg-surface p-5">
-      <h2 className="font-serif text-xl font-semibold">Xử lý đơn hàng</h2>
+      <h2 className="type-card-editorial">Xử lý đơn hàng</h2>
 
       <label className="block text-sm">
         <span className="mb-1 block font-medium">Chuyển trạng thái đơn</span>

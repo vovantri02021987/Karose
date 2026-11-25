@@ -44,7 +44,7 @@ export default async function HomePage() {
             <p className="text-sm uppercase tracking-[0.25em] text-primary-foreground/70">
               Mỹ phẩm thiên nhiên
             </p>
-            <h1 className="mt-4 font-serif text-5xl font-semibold leading-tight md:text-6xl">
+            <h1 className="type-hero mt-4">
               Thuần khiết
               <br />
               từ thiên nhiên
@@ -111,7 +111,7 @@ export default async function HomePage() {
       {/* Danh mục */}
       {homeCategories.length > 0 && (
         <section className="mx-auto max-w-6xl px-4 pt-20 sm:px-6">
-          <h2 className="text-center font-serif text-3xl font-semibold md:text-4xl">
+          <h2 className="type-section text-center">
             Danh mục nổi bật
           </h2>
           <div className="mt-10 grid grid-cols-2 gap-4 md:grid-cols-4">
@@ -132,7 +132,7 @@ export default async function HomePage() {
                   aria-hidden="true"
                 />
                 <div className="relative">
-                  <h3 className="font-serif text-xl font-semibold">{c.name}</h3>
+                  <h3 className="type-card-editorial">{c.name}</h3>
                   <p className="mt-1 text-xs text-primary-foreground/80">
                     {c.count} sản phẩm
                   </p>
@@ -146,7 +146,7 @@ export default async function HomePage() {
       {/* Sản phẩm nổi bật */}
       <section className="mx-auto max-w-6xl px-4 pt-24 sm:px-6">
         <div className="flex items-end justify-between gap-4">
-          <h2 className="font-serif text-3xl font-semibold md:text-4xl">
+          <h2 className="type-section">
             Sản phẩm bán chạy
           </h2>
           <Link
@@ -170,7 +170,7 @@ export default async function HomePage() {
             <p className="text-sm uppercase tracking-[0.25em] text-brand-accent">
               Farm to Bottle
             </p>
-            <h2 className="mt-3 font-serif text-3xl font-semibold md:text-4xl">
+            <h2 className="type-section mt-3">
               Từ vườn thảo mộc đến từng giọt tinh chất
             </h2>
             <p className="mt-5 leading-relaxed text-muted-foreground">
@@ -201,7 +201,7 @@ export default async function HomePage() {
                 <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-background text-primary">
                   <Icon size={22} />
                 </span>
-                <h3 className="mt-4 font-serif text-xl font-semibold">
+                <h3 className="type-card-editorial mt-4">
                   {title}
                 </h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
@@ -221,7 +221,7 @@ export default async function HomePage() {
       {/* Đánh giá */}
       {reviews.length > 0 && (
         <section className="mx-auto max-w-6xl px-4 pt-24 sm:px-6">
-          <h2 className="text-center font-serif text-3xl font-semibold md:text-4xl">
+          <h2 className="type-section text-center">
             Khách hàng nói về KaRose
           </h2>
           <div className="mt-10 grid gap-6 md:grid-cols-3">

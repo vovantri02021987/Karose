@@ -259,7 +259,7 @@ export default function CheckoutClient() {
     }
   };
 
-  const wrapper = "mx-auto max-w-6xl px-4 py-12 sm:px-6";
+  const wrapper = "mx-auto max-w-6xl px-4 py-12 tabular-nums sm:px-6";
 
   // ---- Sau khi đặt hàng ----
   if (placed) {
@@ -269,7 +269,7 @@ export default function CheckoutClient() {
       <div className={`${wrapper} max-w-3xl`}>
         <div className="text-center">
           <CheckCircle2 className="mx-auto text-primary" size={48} />
-          <h1 className="mt-3 font-serif text-3xl font-semibold">
+          <h1 className="type-page-title mt-3">
             {placed.paymentMethod === "VIETQR" && !placed.paid
               ? "Đơn hàng đã được tạo"
               : placed.paymentMethod === "VIETQR"
@@ -278,10 +278,10 @@ export default function CheckoutClient() {
           </h1>
           <p className="mt-2 text-muted-foreground">
             Mã đơn hàng của bạn:{" "}
-            <span className="font-semibold tracking-wider text-primary">{placed.orderCode}</span>
+            <span className="type-code font-semibold tracking-wider text-primary">{placed.orderCode}</span>
           </p>
           <p className="text-sm text-muted-foreground">
-            Tổng thanh toán: <span className="font-semibold">{formatVND(placed.totalAmount)}</span>
+            Tổng thanh toán: <span className="type-price font-semibold">{formatVND(placed.totalAmount)}</span>
           </p>
         </div>
 
@@ -343,7 +343,7 @@ export default function CheckoutClient() {
   if (items.length === 0) {
     return (
       <div className={`${wrapper} text-center`}>
-        <h1 className="font-serif text-3xl font-semibold">Giỏ hàng đang trống</h1>
+        <h1 className="type-page-title">Giỏ hàng đang trống</h1>
         <p className="mt-2 text-muted-foreground">
           Hãy chọn vài sản phẩm thiên nhiên trước khi thanh toán.
         </p>
@@ -366,13 +366,13 @@ export default function CheckoutClient() {
 
   return (
     <form onSubmit={submit} noValidate className={wrapper}>
-      <h1 className="font-serif text-4xl font-semibold">Thanh toán</h1>
+      <h1 className="type-page-title">Thanh toán</h1>
 
       <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_400px]">
         {/* Cột trái */}
         <div className="space-y-8">
           <section className="rounded-2xl border border-border p-5 sm:p-6">
-            <h2 className="font-serif text-xl font-semibold">Thông tin giao hàng</h2>
+            <h2 className="type-card-editorial">Thông tin giao hàng</h2>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               <Field label="Họ và tên" required error={errors.customerName}>
                 <input
@@ -454,7 +454,7 @@ export default function CheckoutClient() {
           </section>
 
           <section className="rounded-2xl border border-border p-5 sm:p-6">
-            <h2 className="font-serif text-xl font-semibold">Phương thức thanh toán</h2>
+            <h2 className="type-card-editorial">Phương thức thanh toán</h2>
             <div className="mt-4 space-y-3">
               {(
                 [
@@ -496,7 +496,7 @@ export default function CheckoutClient() {
 
         {/* Cột phải */}
         <aside className="h-fit rounded-2xl border border-border bg-surface p-5 sm:p-6 lg:sticky lg:top-24">
-          <h2 className="font-serif text-xl font-semibold">Đơn hàng của bạn</h2>
+          <h2 className="type-card-editorial">Đơn hàng của bạn</h2>
           <ul className="mt-4 divide-y divide-border">
             {items.map((item) => {
               const line = preview?.lines.find((l) => l.variantId === item.variantId);
