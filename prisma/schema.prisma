@@ -28,6 +28,11 @@ enum VoucherScope {
   PRODUCT
 }
 
+enum ChatRole {
+  USER
+  ASSISTANT
+}
+
 enum PaymentMethod {
   COD
   VIETQR
@@ -216,4 +221,39 @@ model Review {
   images     String[]
   isApproved Boolean  @default(false)
   createdAt  DateTime @default(now())
+}
+
+/// Hội thoại chatbot tư vấn (ẩn danh, không gắn tài khoản).
+model ChatSession {
+  id        String        @id @default(cuid())
+  messages  ChatMessage[]
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+}
+
+model ChatMessage {
+  id        String      @id @default(cuid())
+  sessionId String
+  session   ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  role      ChatRole
+  content   String      @db.Text
+  intent    String?
+  /// ASSISTANT: { productSlugs, sources, usedWebUpdate } để hiểu câu hỏi nối tiếp.
+  meta      Json?
+  createdAt DateTime    @default(now())
+
+  @@index([sessionId, createdAt])
+}
+
+/// Kiến thức tham khảo đồng bộ từ internet. KHÔNG bao giờ chứa/ghi đè giá, tồn kho của KaRose.
+model KnowledgeSource {
+  id        String   @id @default(cuid())
+  title     String
+  sourceUrl String   @unique
+  summary   String   @db.Text
+  category  String   @default("INGREDIENT")
+  syncedAt  DateTime @default(now())
+  isActive  Boolean  @default(true)
+
+  @@index([category, isActive])
 }

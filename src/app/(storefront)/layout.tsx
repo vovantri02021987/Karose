@@ -1,3 +1,4 @@
+import ChatWidget from "@/components/storefront/ChatWidget";
 import Footer from "@/components/storefront/Footer";
 import Navbar from "@/components/storefront/Navbar";
 import SlideCart from "@/components/storefront/SlideCart";
@@ -22,6 +23,7 @@ export default async function StorefrontLayout({
       <main className="flex-1">{children}</main>
       <Footer categories={categories} />
       <SlideCart />
+      <ChatWidget />
     </>
   );
 }

@@ -31,6 +31,18 @@ Website bán mỹ phẩm thiên nhiên KaRose (Storefront + Admin/OMS).
 - Admin: `/admin/promotions` (tạo/sửa/bật-tắt/xoá voucher; voucher đã gắn vào đơn thì chỉ được tắt) và `/admin/products` (ô ngày giao). API: `/api/admin/vouchers` (POST) và `/api/admin/vouchers/[id]` (PATCH bật/tắt, PUT sửa, DELETE).
 - Cập nhật DB: `npx prisma db push` (dev) hoặc, trên DB đang có dữ liệu thật, chạy `prisma/sql/2026-11-voucher-scope-delivery.sql` (chỉ thêm cột/bảng, chạy lại an toàn) rồi mới deploy. `npx prisma db seed` XOÁ toàn bộ dữ liệu — chỉ dùng cho DB trống/dev (seed có sẵn voucher theo sản phẩm `ROSE20K`, `DAUDUONG10`).
 
+### 2.2 Chatbot tư vấn (`src/lib/chatbot/`, `ChatWidget`)
+
+- **Luồng:** `POST /api/chat` (zod: `sessionId?`, `message` 1–1000 ký tự) → lưu USER → `intent.ts` phân loại → `engine.ts` lấy dữ liệu THẬT từ DB (`catalog-context.ts`) → (tuỳ ý) kiến thức internet (`web-knowledge.ts`) → lưu ASSISTANT → trả `{ sessionId, intent, reply, recommendedProducts, sources, usedWebUpdate }`.
+- **5 ý định:** `PRODUCT_USAGE_INCI`, `PRODUCT_RECOMMENDATION`, `ORDER_SHIPPING_PROMO`, `WEB_KNOWLEDGE_UPDATE`, `SAFETY_MEDICAL_BOUNDARY` (từ khoá có trọng số, không dấu; điểm an toàn ≥ 3 luôn thắng; `safetyFlag` kèm lưu ý ở các nhóm khác).
+- **Quy tắc bất di bất dịch:** giá, tồn kho (FEFO), voucher CHỈ lấy từ DB. Internet chỉ ghi bảng `KnowledgeSource`, không bao giờ sửa giá/tồn kho/voucher/đơn. Nội dung web luôn kèm nguồn, chỉ từ domain trong `KNOWLEDGE_ALLOWED_DOMAINS`.
+- **Trung thực:** mục không có dữ liệu → nói "chưa cập nhật"; tính năng sản phẩm không công bố → nói rõ không khẳng định. Không chẩn đoán/điều trị; câu trả lời an toàn y tế là mẫu cố định, không qua LLM.
+- **LLM tuỳ chọn** (`ANTHROPIC_API_KEY`): chỉ chỉnh giọng văn; bản của LLM bị loại nếu làm mất/đổi con số, mã hoặc đường dẫn (`preservesFacts`).
+- **Env:** `TAVILY_API_KEY` (tra cứu web), `KNOWLEDGE_ALLOWED_DOMAINS` (danh sách domain, cách nhau dấu phẩy), `ANTHROPIC_API_KEY`, `CHATBOT_LLM_MODEL`. Không có key → không gọi mạng, bot vẫn trả lời từ DB.
+- **Đồng bộ kiến thức:** `POST /api/admin/knowledge/sync` (ADMIN/STAFF, body `{}` hoặc `{ "topics": ["Glycerin"] }`).
+- **Bảng mới** (`ChatSession`, `ChatMessage`, `KnowledgeSource`): chạy `prisma/sql/2026-11-chatbot.sql` trên Neon TRƯỚC khi deploy. Widget dùng bảng màu riêng `#2C4A3E / #FAF8F5 / #F2EFE9 / #C67D53`.
+- Test: `tests/chatbot.test.ts`.
+
 ## 3. DESIGN SYSTEM
 
 Phong cách Organic & Minimalist: nhiều khoảng trắng, mộc mạc, rõ từng thông số (thành phần, cách dùng, bảo quản).
