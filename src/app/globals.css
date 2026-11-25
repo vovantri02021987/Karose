@@ -171,7 +171,7 @@
   }
 }
 .karose-fade-in {
-  animation: karose-fade-in 450ms ease-out both;
+  animation: karose-fade-in 700ms ease-out both;
 }
 @media (prefers-reduced-motion: reduce) {
   .karose-fade-in {
