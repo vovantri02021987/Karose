@@ -16,7 +16,7 @@ function pickRandomOther(pool: string[], current: string): string {
  * Khung ảnh thẻ sản phẩm (1:1). Rê chuột vào thẻ: ảnh đổi ngẫu nhiên giữa các
  * ảnh liên quan của sản phẩm (hiện mờ chuyển tiếp), đổi tiếp sau mỗi ~8 giây
  * khi chuột còn ở trên thẻ; rời chuột thì về ảnh chính. Sản phẩm chỉ có 1 ảnh
- * thì không đổi. Chế độ "giảm chuyển động": vẫn đổi ảnh nhưng không hiện mờ (CSS).
+ * thì không đổi. Hiệu ứng mờ chậm 2 giây (kể cả khi bật "giảm chuyển động").
  */
 export default function ProductCardMedia({
   href,
