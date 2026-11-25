@@ -234,7 +234,7 @@ export default function InventoryClient({
                   <span className="mt-0.5 block text-xs text-muted-foreground">{b.fefoRank ? `FEFO #${b.fefoRank}` : "Không xuất bán"}</span>
                 </td>
                 <td className="px-3 py-3">
-                  <span className="block max-w-[14rem] font-medium leading-snug">{b.productName}</span>
+                  <span className="block min-w-[11rem] max-w-[16rem] font-medium leading-snug">{b.productName}</span>
                   <span className="block text-xs text-muted-foreground">{b.variantName} · {b.sku}</span>
                 </td>
                 <td className="px-3 py-3 whitespace-nowrap">
