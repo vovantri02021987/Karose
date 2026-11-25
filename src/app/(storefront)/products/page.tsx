@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Sản phẩm",
   description:
-    "Toàn bộ sản phẩm mỹ phẩm thiên nhiên KaRose. Lọc theo danh mục, loại da và công dụng.",
+    "Toàn bộ sản phẩm mỹ phẩm thiên nhiên KAROSE. Lọc theo danh mục, loại da và công dụng.",
 };
 
 export default async function ProductsPage() {

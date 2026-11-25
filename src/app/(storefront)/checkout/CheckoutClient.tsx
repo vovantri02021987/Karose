@@ -331,7 +331,7 @@ export default function CheckoutClient() {
 
         {placed.paymentMethod === "COD" && (
           <p className="mt-6 text-center text-sm text-muted-foreground">
-            Bạn sẽ thanh toán khi nhận hàng. KaRose sẽ sớm liên hệ để xác nhận đơn.
+            Bạn sẽ thanh toán khi nhận hàng. KAROSE sẽ sớm liên hệ để xác nhận đơn.
           </p>
         )}
         {placed.paymentMethod === "VIETQR" && placed.paid && (

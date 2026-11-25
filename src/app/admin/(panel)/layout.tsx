@@ -16,7 +16,7 @@ export default async function PanelLayout({ children }: { children: React.ReactN
             height={40}
             className="h-10 w-10 rounded-full mix-blend-multiply"
           />
-          KaRose Admin
+          KAROSE Admin
         </p>
         <p className="mt-1 truncate text-xs text-muted-foreground">
           {user.name ?? user.email} · {user.role === "ADMIN" ? "Quản trị viên" : "Nhân viên"}

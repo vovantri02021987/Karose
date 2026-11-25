@@ -81,7 +81,7 @@ describe("Chatbot — phân loại ý định", () => {
     ["Sản phẩm này còn hàng không", "ORDER_SHIPPING_PROMO"],
     ["Tìm trên mạng nghiên cứu mới nhất về niacinamide", "WEB_KNOWLEDGE_UPDATE"],
     ["Da mình bị dị ứng, nổi mẩn đỏ có dùng được không?", "SAFETY_MEDICAL_BOUNDARY"],
-    ["Giới thiệu về thương hiệu KaRose", "GENERAL_BRAND"],
+    ["Giới thiệu về thương hiệu KAROSE", "GENERAL_BRAND"],
     ["Cho mình xin hotline liên hệ", "GENERAL_BRAND"],
     ["Tôi đang mang thai có dùng được không", "SAFETY_MEDICAL_BOUNDARY"],
   ];
@@ -259,7 +259,7 @@ describe("Chatbot — /api/chat với dữ liệu thật", () => {
     const unknown = await chat("xin chào", "phien-khong-ton-tai");
     expect(unknown.status).toBe(200);
     expect(unknown.body.sessionId).not.toBe("phien-khong-ton-tai");
-    expect(unknown.body.reply).toMatch(/trợ lý tư vấn của KaRose/);
+    expect(unknown.body.reply).toMatch(/trợ lý tư vấn của KAROSE/);
 
     const session = await prisma.chatSession.create({ data: {} });
     sessionIds.push(session.id);
@@ -302,8 +302,8 @@ describe("Chatbot — internet chỉ ghi KnowledgeSource, không đụng giá/t�
     expect(out.sources).toEqual([{ title: "Glycerin as humectant", url: goodUrl }]);
     expect(out.reply).toContain("humectant");
     expect(out.reply).not.toMatch(/ghi đè giá/);
-    expect(out.reply).toMatch(/lấy từ dữ liệu KaRose, không lấy từ internet/);
-    expect(out.recommendedProducts.map((p) => p.name)).toContain(name); // sản phẩm KaRose có chứa niacinamide
+    expect(out.reply).toMatch(/lấy từ dữ liệu KAROSE, không lấy từ internet/);
+    expect(out.recommendedProducts.map((p) => p.name)).toContain(name); // sản phẩm KAROSE có chứa niacinamide
 
     expect(await prisma.knowledgeSource.count({ where: { sourceUrl: goodUrl } })).toBe(1);
     expect(await prisma.productVariant.findUniqueOrThrow({ where: { id: v.variantId } })).toEqual(variantBefore);
@@ -403,7 +403,7 @@ describe("Chatbot — giới thiệu thương hiệu trung thực", () => {
     const a = await chat("Cho mình xin hotline và địa chỉ cửa hàng");
     expect(a.body.intent).toBe("GENERAL_BRAND");
     expect(a.body.reply).toMatch(/chưa có thông tin liên hệ/);
-    const b = await chat("Sản phẩm KaRose có hữu cơ, thuần chay không?");
+    const b = await chat("Sản phẩm KAROSE có hữu cơ, thuần chay không?");
     expect(b.body.intent).toBe("GENERAL_BRAND");
     expect(b.body.reply).toMatch(/chưa công bố thông tin về chứng nhận/);
   });

@@ -19,7 +19,7 @@ export default function Footer({
               height={56}
               className="h-14 w-14 rounded-full mix-blend-multiply"
             />
-            KaRose
+            KAROSE
           </p>
           <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
             Mỹ phẩm thiên nhiên từ hoa hồng và thảo mộc. Chúng tôi công khai
@@ -48,7 +48,7 @@ export default function Footer({
 
         <div>
           <h2 className="font-sans text-sm font-semibold uppercase tracking-wider">
-            Cam kết của KaRose
+            Cam kết của KAROSE
           </h2>
           <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
             <li>Nguyên liệu thiên nhiên, tôn trọng quy trình chế biến</li>
@@ -90,14 +90,14 @@ export default function Footer({
                 rel="noopener noreferrer"
                 className="inline-block py-1.5 hover:text-primary"
               >
-                KaRose trên Shopee
+                KAROSE trên Shopee
               </a>
             </li>
           </ul>
         </div>
       </div>
       <div className="border-t border-border py-5 text-center text-xs text-muted-foreground">
-        © {new Date().getFullYear()} KaRose. Mỹ phẩm thiên nhiên.
+        © {new Date().getFullYear()} KAROSE. Mỹ phẩm thiên nhiên.
       </div>
     </footer>
   );

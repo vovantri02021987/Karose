@@ -50,7 +50,7 @@ export default async function HomePage() {
               từ thiên nhiên
             </h1>
             <p className="mt-6 max-w-md leading-relaxed text-primary-foreground/80">
-              KaRose chắt lọc hoa hồng và thảo mộc thành những sản phẩm chăm
+              KAROSE chắt lọc hoa hồng và thảo mộc thành những sản phẩm chăm
               sóc da, tóc, cơ thể nhẹ nhàng. Thành phần minh bạch, hướng dẫn
               dùng và bảo quản rõ ràng.
             </p>
@@ -222,7 +222,7 @@ export default async function HomePage() {
       {reviews.length > 0 && (
         <section className="mx-auto max-w-6xl px-4 pt-24 sm:px-6">
           <h2 className="type-section text-center">
-            Khách hàng nói về KaRose
+            Khách hàng nói về KAROSE
           </h2>
           <div className="mt-10 grid gap-6 md:grid-cols-3">
             {reviews.map((r) => (

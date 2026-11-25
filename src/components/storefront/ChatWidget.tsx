@@ -50,7 +50,7 @@ const QUICK_QUESTIONS = [
 ];
 const WEB_HINT = /(mới nhất|internet|trên mạng|trên web|nghiên cứu|cập nhật|nguồn)/i;
 const GREETING =
-  "Chào bạn! Mình là trợ lý tư vấn KaRose. Bạn có thể hỏi về thành phần, công dụng, cách dùng, bảo quản; nhờ gợi ý theo loại da; hoặc hỏi giá, mã giảm giá, giao hàng.";
+  "Chào bạn! Mình là trợ lý tư vấn KAROSE. Bạn có thể hỏi về thành phần, công dụng, cách dùng, bảo quản; nhờ gợi ý theo loại da; hoặc hỏi giá, mã giảm giá, giao hàng.";
 
 // Màu theo bộ nhận diện chatbot.
 const GREEN = "#2C4A3E";
@@ -148,7 +148,7 @@ export default function ChatWidget() {
     setLoading(true);
     setStatus(WEB_HINT.test(message) ? "Đang tìm kiếm thông tin trên internet…" : "Đang phân tích câu hỏi…");
     const timer = window.setTimeout(() => {
-      setStatus((s) => (s.startsWith("Đang tìm kiếm") ? s : "Đang tra cứu dữ liệu sản phẩm KaRose…"));
+      setStatus((s) => (s.startsWith("Đang tìm kiếm") ? s : "Đang tra cứu dữ liệu sản phẩm KAROSE…"));
     }, 1200);
 
     try {
@@ -195,7 +195,7 @@ export default function ChatWidget() {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        aria-label={open ? "Đóng trợ lý tư vấn" : "Mở trợ lý tư vấn KaRose"}
+        aria-label={open ? "Đóng trợ lý tư vấn" : "Mở trợ lý tư vấn KAROSE"}
         aria-expanded={open}
         style={{ backgroundColor: GREEN, color: CREAM }}
         className="fixed bottom-24 right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full shadow-lg transition-transform hover:scale-105 md:bottom-6 md:right-6"
@@ -206,14 +206,14 @@ export default function ChatWidget() {
       {open && (
         <section
           role="dialog"
-          aria-label="Trợ lý tư vấn KaRose"
+          aria-label="Trợ lý tư vấn KAROSE"
           style={{ backgroundColor: CREAM }}
           className="fixed inset-x-3 bottom-40 z-40 flex h-[min(70vh,560px)] flex-col overflow-hidden rounded-2xl border border-[#E2DCCF] shadow-2xl md:inset-x-auto md:bottom-24 md:right-6 md:h-[600px] md:w-[400px]"
         >
           <header style={{ backgroundColor: GREEN, color: CREAM }} className="flex items-center gap-3 px-4 py-3">
             <Leaf size={20} style={{ color: COPPER }} aria-hidden="true" />
             <div className="min-w-0 flex-1">
-              <p className="font-heading text-lg leading-tight">Trợ lý KaRose</p>
+              <p className="font-heading text-lg leading-tight">Trợ lý KAROSE</p>
               <p className="text-xs opacity-80">Tư vấn dựa trên sản phẩm đang bán</p>
             </div>
             <button type="button" onClick={() => setOpen(false)} aria-label="Đóng" className="p-1 opacity-80 hover:opacity-100">

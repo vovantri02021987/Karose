@@ -32,7 +32,7 @@ export default function ReviewForm({ productId }: { productId: string }) {
       setStatus("done");
       setMessage(
         data.message ??
-          "Cảm ơn bạn! Đánh giá sẽ hiển thị sau khi được KaRose duyệt.",
+          "Cảm ơn bạn! Đánh giá sẽ hiển thị sau khi được KAROSE duyệt.",
       );
       setAuthorName("");
       setComment("");

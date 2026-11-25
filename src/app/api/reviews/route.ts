@@ -32,7 +32,7 @@ export async function POST(request: Request) {
   const data = parsed.data;
 
   const okMessage =
-    "Cảm ơn bạn! Đánh giá sẽ hiển thị sau khi được KaRose duyệt.";
+    "Cảm ơn bạn! Đánh giá sẽ hiển thị sau khi được KAROSE duyệt.";
 
   // Bot điền ô ẩn: trả về như thành công nhưng không lưu.
   if (data.website) {

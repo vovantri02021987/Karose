@@ -1,4 +1,4 @@
-/** Locale and timezone used across the KaRose storefront and admin. */
+/** Locale and timezone used across the KAROSE storefront and admin. */
 const LOCALE = "vi-VN";
 const TIME_ZONE = "Asia/Ho_Chi_Minh";
 

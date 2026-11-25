@@ -42,7 +42,7 @@ export default async function ProductPage({ params }: PageProps) {
     description: product.shortDescription,
     image: product.images.map(abs),
     category: product.categoryName,
-    brand: { "@type": "Brand", name: "Karose" },
+    brand: { "@type": "Brand", name: "KAROSE" },
     sku: product.variants[0]?.sku,
     url: abs(`/products/${product.slug}`),
     offers: product.variants.map((v) => ({

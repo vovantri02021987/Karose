@@ -1,5 +1,5 @@
 /**
- * Ngữ cảnh dữ liệu KaRose cho chatbot: sản phẩm đang bán (kèm tồn khả dụng FEFO), voucher còn hiệu lực
+ * Ngữ cảnh dữ liệu KAROSE cho chatbot: sản phẩm đang bán (kèm tồn khả dụng FEFO), voucher còn hiệu lực
  * và kiến thức tham khảo đã đồng bộ. ĐÂY là nguồn sự thật duy nhất về giá/tồn kho — internet không bao giờ ghi đè.
  */
 import type { PrismaClient } from "@prisma/client";
@@ -192,7 +192,7 @@ function productKey(name: string): string {
 }
 
 /**
- * Tìm sản phẩm được nhắc đến trong câu hỏi: khớp tên đầy đủ (bỏ "KaRose") hoặc slug,
+ * Tìm sản phẩm được nhắc đến trong câu hỏi: khớp tên đầy đủ (bỏ "KAROSE") hoặc slug,
  * hoặc ≥ 2 từ khoá đặc trưng của tên. Kết quả sắp theo độ khớp.
  */
 export function matchProductsByText(products: ChatProduct[], message: string): ChatProduct[] {

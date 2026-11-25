@@ -44,12 +44,12 @@ export default function LoginForm({ isDev }: { isDev: boolean }) {
     <form onSubmit={submit} className="w-full max-w-sm rounded-2xl border border-border bg-surface p-6 sm:p-8">
       <Image
         src="/images/logo-karose.jpg"
-        alt="KaRose"
+        alt="KAROSE"
         width={96}
         height={96}
         className="mx-auto mb-2 h-24 w-24 rounded-full mix-blend-multiply"
       />
-      <h1 className="type-page-title text-center text-primary">KaRose Admin</h1>
+      <h1 className="type-page-title text-center text-primary">KAROSE Admin</h1>
       <p className="mt-1 text-center text-sm text-muted-foreground">Đăng nhập dành cho quản trị viên và nhân viên.</p>
 
       <div className="mt-6 space-y-4">

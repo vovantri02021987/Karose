@@ -31,11 +31,11 @@ const fontMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "KaRose — Mỹ phẩm thiên nhiên",
-    template: "%s | KaRose",
+    default: "KAROSE — Mỹ phẩm thiên nhiên",
+    template: "%s | KAROSE",
   },
   description:
-    "KaRose — mỹ phẩm thiên nhiên và hữu cơ với thành phần INCI minh bạch, từ vườn thảo mộc đến từng giọt tinh chất.",
+    "KAROSE — mỹ phẩm thiên nhiên và hữu cơ với thành phần INCI minh bạch, từ vườn thảo mộc đến từng giọt tinh chất.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

@@ -1,5 +1,5 @@
 /**
- * KaRose seed data (Vietnamese content, English identifiers).
+ * KAROSE seed data (Vietnamese content, English identifiers).
  *
  * Idempotent: wipes every table in foreign-key-safe order, then re-creates the
  * dataset. Dates are computed relative to "now", so near-expiry batches stay
@@ -65,7 +65,7 @@ interface ProductSpec {
 /* -------------------------------------------------------------------------- */
 
 /**
- * Nguồn dữ liệu chuẩn: "Danh mục sản phẩm Karose" (docs/danh-muc-san-pham-karose.md).
+ * Nguồn dữ liệu chuẩn: "Danh mục sản phẩm KAROSE" (docs/danh-muc-san-pham-karose.md).
  * Tên, SKU, dung tích, thành phần chính, công dụng, giá và đường dẫn ảnh lấy NGUYÊN VĂN từ tài liệu đó.
  * Không bịa thêm: những trường tài liệu chưa cung cấp (INCI đầy đủ, hướng dẫn sử dụng, bảo quản,
  * loại da, cân nặng) để trống hoặc dùng văn bản "đang cập nhật".
@@ -112,14 +112,14 @@ const CATEGORIES = [
   {
     name: "Bộ sản phẩm & quà tặng",
     slug: "bo-san-pham-qua-tang",
-    description: "Các bộ sản phẩm được phối sẵn từ danh mục Karose.",
+    description: "Các bộ sản phẩm được phối sẵn từ danh mục KAROSE.",
     imageUrl: null,
   },
 ];
 
 const PRODUCTS: ProductSpec[] = [
   {
-    name: "Nước hoa hồng Karose (Karose Toner)",
+    name: "Nước hoa hồng KAROSE (KAROSE Toner)",
     slug: "nuoc-hoa-hong-karose",
     categorySlug: "cham-soc-da-mat",
     shortDescription:
@@ -148,7 +148,7 @@ const PRODUCTS: ProductSpec[] = [
     ],
   },
   {
-    name: "Dầu dưỡng da Karose (Karose Face Oil / Serum)",
+    name: "Dầu dưỡng da KAROSE (KAROSE Face Oil / Serum)",
     slug: "dau-duong-da-karose",
     categorySlug: "cham-soc-da-mat",
     shortDescription:
@@ -176,7 +176,7 @@ const PRODUCTS: ProductSpec[] = [
     ],
   },
   {
-    name: "Sữa rửa mặt thảo mộc Karose",
+    name: "Sữa rửa mặt thảo mộc KAROSE",
     slug: "sua-rua-mat-thao-moc-karose",
     categorySlug: "lam-sach-da",
     shortDescription:
@@ -203,7 +203,7 @@ const PRODUCTS: ProductSpec[] = [
     ],
   },
   {
-    name: "Son dưỡng môi hoa hồng Karose",
+    name: "Son dưỡng môi hoa hồng KAROSE",
     slug: "son-duong-moi-hoa-hong-karose",
     categorySlug: "cham-soc-moi",
     shortDescription: "Dưỡng ẩm môi, giảm thâm, làm mềm môi nứt nẻ.",
@@ -230,7 +230,7 @@ const PRODUCTS: ProductSpec[] = [
     ],
   },
   {
-    name: "Dầu gội thảo dược Karose",
+    name: "Dầu gội thảo dược KAROSE",
     slug: "dau-goi-thao-duoc-karose",
     categorySlug: "cham-soc-toc",
     shortDescription:
@@ -287,7 +287,7 @@ const PRODUCTS: ProductSpec[] = [
     ],
   },
   {
-    name: "Xà phòng tắm thủ công Karose (Handmade Soap)",
+    name: "Xà phòng tắm thủ công KAROSE (Handmade Soap)",
     slug: "xa-phong-tam-thu-cong-karose",
     categorySlug: "cham-soc-co-the",
     shortDescription:
@@ -317,7 +317,7 @@ const PRODUCTS: ProductSpec[] = [
     ],
   },
   {
-    name: "Trà hoa hồng hữu cơ Karose",
+    name: "Trà hoa hồng hữu cơ KAROSE",
     slug: "tra-hoa-hong-huu-co-karose",
     categorySlug: "thuc-pham-tra",
     shortDescription:
@@ -368,15 +368,15 @@ interface ComboSpec {
  */
 const COMBOS: ComboSpec[] = [
   {
-    name: "Bộ chăm sóc da mặt Karose",
+    name: "Bộ chăm sóc da mặt KAROSE",
     slug: "bo-cham-soc-da-mat-karose",
     categorySlug: "bo-san-pham-qua-tang",
     shortDescription:
-      "Bộ gồm nước hoa hồng, dầu dưỡng da và sữa rửa mặt thảo mộc Karose.",
+      "Bộ gồm nước hoa hồng, dầu dưỡng da và sữa rửa mặt thảo mộc KAROSE.",
     description:
-      "Bộ 3 sản phẩm: Nước hoa hồng Karose 100ml, Dầu dưỡng da Karose 30ml và Sữa rửa mặt thảo mộc Karose 100ml.",
+      "Bộ 3 sản phẩm: Nước hoa hồng KAROSE 100ml, Dầu dưỡng da KAROSE 30ml và Sữa rửa mặt thảo mộc KAROSE 100ml.",
     ingredientsInci:
-      "Nước hoa hồng Karose: nước cất hoa hồng nhung cổ hữu cơ 100%.\nDầu dưỡng da Karose: dầu hạt nho, dầu tầm xuân, tinh dầu hoa hồng.\nSữa rửa mặt thảo mộc Karose: chiết xuất bồ hòn, nước hoa hồng, tinh dầu thiên nhiên.",
+      "Nước hoa hồng KAROSE: nước cất hoa hồng nhung cổ hữu cơ 100%.\nDầu dưỡng da KAROSE: dầu hạt nho, dầu tầm xuân, tinh dầu hoa hồng.\nSữa rửa mặt thảo mộc KAROSE: chiết xuất bồ hòn, nước hoa hồng, tinh dầu thiên nhiên.",
     usageGuide: PENDING_TEXT,
     storageGuide: null,
     skinTypes: [],
@@ -438,7 +438,7 @@ const VOUCHERS: VoucherSeed[] = [
   {
     // Đã dùng hết lượt → test validate usageLimit
     code: "SINHNHAT20",
-    description: "Giảm 20% mừng sinh nhật KaRose (đã hết lượt)",
+    description: "Giảm 20% mừng sinh nhật KAROSE (đã hết lượt)",
     discountType: "PERCENT",
     discountValue: 20,
     minOrderAmount: 600000,
@@ -497,7 +497,7 @@ const VOUCHERS: VoucherSeed[] = [
   },
 ];
 
-// Đánh giá mẫu để thử giao diện, gắn với sản phẩm trong danh mục Karose.
+// Đánh giá mẫu để thử giao diện, gắn với sản phẩm trong danh mục KAROSE.
 const REVIEWS: {
   productSlug: string;
   authorName: string;
@@ -633,14 +633,14 @@ async function seedUsers() {
   await prisma.user.createMany({
     data: [
       {
-        name: "Quản trị viên KaRose",
+        name: "Quản trị viên KAROSE",
         email: "admin@karose.vn",
         phone: "0900000001",
         passwordHash: adminHash,
         role: Role.ADMIN,
       },
       {
-        name: "Nhân viên kho KaRose",
+        name: "Nhân viên kho KAROSE",
         email: "staff@karose.vn",
         phone: "0900000002",
         passwordHash: staffHash,
@@ -828,7 +828,7 @@ async function main() {
     );
   }
 
-  console.log("🌿 KaRose seed: đang dọn dữ liệu cũ...");
+  console.log("🌿 KAROSE seed: đang dọn dữ liệu cũ...");
   await resetDatabase();
 
   console.log("👤 Tạo tài khoản ADMIN / STAFF...");

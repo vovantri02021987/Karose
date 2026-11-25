@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: { default: "Quản trị", template: "%s | KaRose Admin" },
+  title: { default: "Quản trị", template: "%s | KAROSE Admin" },
   robots: { index: false, follow: false },
 };
 

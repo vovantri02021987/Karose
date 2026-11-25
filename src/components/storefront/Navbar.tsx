@@ -51,7 +51,7 @@ export default function Navbar() {
 
         <Link
           href="/"
-          aria-label="KaRose – Trang chủ"
+          aria-label="KAROSE – Trang chủ"
           className="flex items-center gap-2 font-heading text-2xl font-semibold tracking-wide text-primary"
         >
           <Image
@@ -62,7 +62,7 @@ export default function Navbar() {
             className="h-11 w-11 rounded-full mix-blend-multiply"
             priority
           />
-          <span className="md:hidden lg:inline">KaRose</span>
+          <span className="md:hidden lg:inline">KAROSE</span>
         </Link>
 
         <nav

@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Chính sách đổi trả",
-  description: "Điều kiện và thời hạn đổi trả sản phẩm KaRose.",
+  description: "Điều kiện và thời hạn đổi trả sản phẩm KAROSE.",
 };
 
 const SECTIONS: { title: string; items: string[] }[] = [
@@ -27,7 +27,7 @@ const SECTIONS: { title: string; items: string[] }[] = [
     title: "Trường hợp không đủ điều kiện",
     items: [
       "Quá 14 ngày kể từ khi quý khách nhận hàng.",
-      "Gửi lại hàng không đúng mẫu mã, không phải hàng của KaRose.",
+      "Gửi lại hàng không đúng mẫu mã, không phải hàng của KAROSE.",
       "Đặt nhầm sản phẩm, chủng loại; không thích hoặc không hợp.",
     ],
   },
@@ -38,7 +38,7 @@ export default function ReturnPolicyPage() {
     <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
       <h1 className="type-page-title">Chính sách đổi trả</h1>
       <p className="mt-3 text-muted-foreground">
-        Chính sách áp dụng tương tự gian hàng KaRose trên Shopee. Vui lòng giữ mã
+        Chính sách áp dụng tương tự gian hàng KAROSE trên Shopee. Vui lòng giữ mã
         đơn hàng để được hỗ trợ nhanh nhất; bạn có thể xem tình trạng đơn tại{" "}
         <Link href="/tracking" className="text-primary underline">
           Tra cứu đơn hàng
