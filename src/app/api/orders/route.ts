@@ -6,6 +6,7 @@ import { reserveStockFEFO, StockError } from "@/lib/fefo";
 import {
   generateOrderCode,
   generateVietQRUrl,
+  getVietQRBankInfo,
   VietQRConfigError,
 } from "@/lib/vietqr";
 
@@ -127,6 +128,7 @@ export async function POST(request: Request) {
           })),
         },
         vietqrUrl: qrUrl,
+        bankInfo: qrUrl ? getVietQRBankInfo() : null,
       },
       { status: 201 },
     );

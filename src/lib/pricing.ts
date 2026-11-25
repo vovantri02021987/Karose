@@ -20,6 +20,14 @@ export class PricingError extends Error {
   }
 }
 
+/** Lỗi riêng của mã giảm giá (để API preview trả thông báo mà vẫn tính được giá không voucher). */
+export class VoucherError extends PricingError {
+  constructor(message: string) {
+    super(message);
+    this.name = "VoucherError";
+  }
+}
+
 export interface PricingItemInput {
   variantId: string;
   quantity: number;
@@ -149,19 +157,19 @@ export async function calculateOrderPricing(
     const v = await db.voucher.findUnique({ where: { code } });
     const now = new Date();
     if (!v || !v.isActive) {
-      throw new PricingError("Mã giảm giá không hợp lệ hoặc đã bị vô hiệu hoá");
+      throw new VoucherError("Mã giảm giá không hợp lệ hoặc đã bị vô hiệu hoá");
     }
     if (now < v.startDate) {
-      throw new PricingError("Mã giảm giá chưa đến thời gian áp dụng");
+      throw new VoucherError("Mã giảm giá chưa đến thời gian áp dụng");
     }
     if (now > v.endDate) {
-      throw new PricingError("Mã giảm giá đã hết hạn");
+      throw new VoucherError("Mã giảm giá đã hết hạn");
     }
     if (v.usageLimit !== null && v.usedCount >= v.usageLimit) {
-      throw new PricingError("Mã giảm giá đã hết lượt sử dụng");
+      throw new VoucherError("Mã giảm giá đã hết lượt sử dụng");
     }
     if (subtotal < v.minOrderAmount) {
-      throw new PricingError(
+      throw new VoucherError(
         `Đơn hàng chưa đạt giá trị tối thiểu ${v.minOrderAmount.toLocaleString("vi-VN")} ₫ để dùng mã này`,
       );
     }
@@ -174,7 +182,7 @@ export async function calculateOrderPricing(
     } else if (v.discountType === "FIXED_AMOUNT" || v.discountType === "FIXED") {
       discountAmount = v.discountValue;
     } else {
-      throw new PricingError("Loại mã giảm giá không được hỗ trợ");
+      throw new VoucherError("Loại mã giảm giá không được hỗ trợ");
     }
     discountAmount = Math.max(0, Math.min(discountAmount, subtotal));
 

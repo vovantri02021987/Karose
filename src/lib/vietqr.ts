@@ -57,3 +57,38 @@ export function generateVietQRUrl(params: {
   });
   return `https://img.vietqr.io/image/${encodeURIComponent(bankId)}-${encodeURIComponent(accountNo)}-compact2.png?${qs.toString()}`;
 }
+
+export interface VietQRBankInfo {
+  bankId: string;
+  bankName: string;
+  accountNo: string;
+  accountName: string;
+}
+
+// Mã BIN Napas của một số ngân hàng phổ biến (để hiển thị tên thay vì chỉ hiện mã).
+const BANK_NAMES: Record<string, string> = {
+  "970436": "Vietcombank",
+  "970415": "VietinBank",
+  "970418": "BIDV",
+  "970405": "Agribank",
+  "970407": "Techcombank",
+  "970422": "MB Bank",
+  "970423": "TPBank",
+  "970432": "VPBank",
+  "970416": "ACB",
+  "970403": "Sacombank",
+};
+
+/** Thông tin tài khoản nhận tiền; trả null nếu chưa cấu hình biến môi trường. */
+export function getVietQRBankInfo(): VietQRBankInfo | null {
+  const bankId = process.env.VIETQR_BANK_ID;
+  const accountNo = process.env.VIETQR_ACCOUNT_NO;
+  const accountName = process.env.VIETQR_ACCOUNT_NAME;
+  if (!bankId || !accountNo || !accountName) return null;
+  return {
+    bankId,
+    bankName: BANK_NAMES[bankId] ?? bankId,
+    accountNo,
+    accountName,
+  };
+}

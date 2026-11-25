@@ -1,6 +1,5 @@
 import { z } from "zod";
-import { prisma } from "@/lib/prisma";
-import { extractOrderCodes } from "@/lib/vietqr";
+import { confirmVietQRPayment } from "@/lib/payments";
 
 /** So sánh chuỗi thời gian hằng định để tránh lộ secret qua timing. */
 function safeEqual(a: string, b: string): boolean {
@@ -57,79 +56,13 @@ export async function POST(request: Request) {
   }
   const p = parsed.data;
 
-  const text = `${p.content ?? ""} ${p.description ?? ""}`;
-  const amount = parseAmount(p.transferAmount ?? p.amount);
-  const ref =
-    p.referenceCode ?? p.reference ?? (p.id !== undefined ? String(p.id) : null);
-
-  const codes = extractOrderCodes(text);
-  if (codes.length === 0) {
-    // 200 để ngân hàng/đối tác không retry vô hạn với giao dịch không liên quan.
-    return Response.json({ success: true, matched: false, reason: "NO_ORDER_CODE" });
-  }
-
-  const order = await prisma.order.findFirst({
-    where: { orderCode: { in: codes } },
-    select: {
-      id: true,
-      orderCode: true,
-      status: true,
-      paymentStatus: true,
-      paymentMethod: true,
-      totalAmount: true,
-    },
-  });
-  if (!order || order.paymentMethod !== "VIETQR") {
-    return Response.json({ success: true, matched: false, reason: "ORDER_NOT_FOUND" });
-  }
-
-  // Idempotent: đã thanh toán thì trả 200 ngay.
-  if (order.paymentStatus === "PAID") {
-    return Response.json({
-      success: true,
-      matched: true,
-      orderCode: order.orderCode,
-      alreadyPaid: true,
-    });
-  }
-
-  if (order.status === "CANCELLED") {
-    return Response.json({
-      success: true,
-      matched: true,
-      orderCode: order.orderCode,
-      updated: false,
-      reason: "ORDER_CANCELLED",
-    });
-  }
-
-  if (amount < order.totalAmount) {
-    return Response.json({
-      success: true,
-      matched: true,
-      orderCode: order.orderCode,
-      updated: false,
-      reason: "INSUFFICIENT_AMOUNT",
-      expected: order.totalAmount,
-      received: amount,
-    });
-  }
-
-  // Chỉ chuyển UNPAID -> PAID một lần (an toàn khi webhook bắn đồng thời).
-  const result = await prisma.order.updateMany({
-    where: { id: order.id, paymentStatus: "UNPAID" },
-    data: {
-      paymentStatus: "PAID",
-      ...(order.status === "PENDING" ? { status: "CONFIRMED" } : {}),
-      paymentRef: ref,
-    },
+  const result = await confirmVietQRPayment({
+    content: `${p.content ?? ""} ${p.description ?? ""}`,
+    amount: parseAmount(p.transferAmount ?? p.amount),
+    reference:
+      p.referenceCode ?? p.reference ?? (p.id !== undefined ? String(p.id) : null),
   });
 
-  return Response.json({
-    success: true,
-    matched: true,
-    orderCode: order.orderCode,
-    updated: result.count === 1,
-    alreadyPaid: result.count === 0,
-  });
+  // Luôn 200 với giao dịch không liên quan để ngân hàng/đối tác không retry vô hạn.
+  return Response.json({ success: true, ...result });
 }
