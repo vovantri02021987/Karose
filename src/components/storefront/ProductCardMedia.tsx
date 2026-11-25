@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import SafeImage from "./SafeImage";
 
-const CYCLE_MS = 8000;
+const CYCLE_MS = 10000;
 
 /** Chọn ngẫu nhiên 1 ảnh khác `current` trong `pool` (pool có ≥ 2 ảnh). */
 function pickRandomOther(pool: string[], current: string): string {
@@ -14,9 +14,9 @@ function pickRandomOther(pool: string[], current: string): string {
 
 /**
  * Khung ảnh thẻ sản phẩm (1:1). Rê chuột vào thẻ: ảnh đổi ngẫu nhiên giữa các
- * ảnh liên quan của sản phẩm (hiện mờ chuyển tiếp), đổi tiếp sau mỗi ~8 giây
+ * ảnh liên quan của sản phẩm (hiện mờ chuyển tiếp), đổi tiếp sau mỗi ~10 giây
  * khi chuột còn ở trên thẻ; rời chuột thì về ảnh chính. Sản phẩm chỉ có 1 ảnh
- * thì không đổi. Hiệu ứng mờ chậm 2 giây (kể cả khi bật "giảm chuyển động").
+ * thì không đổi. Hiệu ứng mờ chậm 3 giây (kể cả khi bật "giảm chuyển động").
  */
 export default function ProductCardMedia({
   href,
