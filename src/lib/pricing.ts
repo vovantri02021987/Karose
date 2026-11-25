@@ -165,12 +165,12 @@ export async function calculateOrderPricing(
       );
     }
 
-    if (v.discountType === "PERCENTAGE") {
+    if (v.discountType === "PERCENTAGE" || v.discountType === "PERCENT") {
       discountAmount = Math.floor((subtotal * v.discountValue) / 100);
       if (v.maxDiscount !== null) {
         discountAmount = Math.min(discountAmount, v.maxDiscount);
       }
-    } else if (v.discountType === "FIXED_AMOUNT") {
+    } else if (v.discountType === "FIXED_AMOUNT" || v.discountType === "FIXED") {
       discountAmount = v.discountValue;
     } else {
       throw new PricingError("Loại mã giảm giá không được hỗ trợ");
