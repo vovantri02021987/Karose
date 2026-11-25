@@ -1,6 +1,10 @@
 name: Seed catalog
 on:
   workflow_dispatch:
+    inputs:
+      file:
+        description: JSON file in prisma/ to run
+        default: catalog-seed.json
 jobs:
   seed:
     runs-on: ubuntu-latest
@@ -13,3 +17,4 @@ jobs:
       - run: node prisma/seed-catalog.mjs
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          SEED_FILE: ${{ inputs.file }}

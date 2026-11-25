@@ -7,7 +7,7 @@ const url = process.env.DATABASE_URL;
 if (!url) throw new Error("DATABASE_URL is required");
 const sql = neon(url);
 const parts = JSON.parse(
-  fs.readFileSync(new URL("./catalog-seed.json", import.meta.url), "utf8"),
+  fs.readFileSync(new URL(`./${process.env.SEED_FILE || "catalog-seed.json"}`, import.meta.url), "utf8"),
 );
 await sql.transaction(parts.map((p) => sql.query(p)));
 const rows = await sql.query(

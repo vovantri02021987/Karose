@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import AddToCartButton from "@/components/storefront/AddToCartButton";
 import RatingStars from "@/components/storefront/RatingStars";
+import RichText from "@/components/storefront/RichText";
 import SafeImage from "@/components/storefront/SafeImage";
 import { StockBadge } from "@/components/storefront/ProductCard";
 import { PENDING_TEXT } from "@/lib/constants";
@@ -319,9 +320,7 @@ export default function ProductDetailClient({
           {tab === "overview" && (
             <div className="grid gap-10 md:grid-cols-[2fr_1fr]">
               <div>
-                <p className="whitespace-pre-line leading-relaxed">
-                  {product.description}
-                </p>
+                <RichText text={product.description} />
                 {product.isCombo && product.comboComponents.length > 0 && (
                   <div className="mt-8">
                     <h2 className="font-serif text-2xl font-semibold">
@@ -417,17 +416,17 @@ export default function ProductDetailClient({
                 <h2 className="font-serif text-2xl font-semibold">
                   Hướng dẫn sử dụng
                 </h2>
-                <p className="mt-3 whitespace-pre-line leading-relaxed">
-                  {product.usageGuide}
-                </p>
+                <div className="mt-3">
+                  <RichText text={product.usageGuide} />
+                </div>
               </div>
               <div>
                 <h2 className="font-serif text-2xl font-semibold">
                   Bảo quản
                 </h2>
-                <p className="mt-3 whitespace-pre-line leading-relaxed">
-                  {product.storageGuide ?? PENDING_TEXT}
-                </p>
+                <div className="mt-3">
+                  <RichText text={product.storageGuide ?? PENDING_TEXT} />
+                </div>
                 <p className="mt-3 text-sm text-muted-foreground">
                   Mỹ phẩm thiên nhiên cần được cất giữ cẩn thận.{" "}
                   <Link href="/journal#bao-quan" className="text-primary underline">
