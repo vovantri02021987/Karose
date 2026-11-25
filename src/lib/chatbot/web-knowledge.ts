@@ -255,3 +255,196 @@ export async function syncKnowledgeSources(
   report.message = `Đã tra cứu ${topics.length} chủ đề, lưu ${report.upserted} nguồn.`;
   return report;
 }
+
+// ---------------------------------------------------------------------------------------------
+// Đọc trực tiếp một trang web tin cậy (dùng cho UPSERT_SOURCE / REFRESH_EXISTING)
+// ---------------------------------------------------------------------------------------------
+const MAX_PAGE_BYTES = 300_000;
+const MAX_REDIRECTS = 3;
+
+export type PageResult =
+  | { ok: true; url: string; title: string; summary: string }
+  | { ok: false; reason: "not_allowed" | "timeout" | "http_error" | "network_error" | "unsupported" | "empty"; message: string };
+
+/** https, không kèm tài khoản/cổng tuỳ ý, không phải địa chỉ IP, và thuộc domain được phép. */
+export function isSafeFetchUrl(rawUrl: string, allowedDomains: string[]): boolean {
+  if (!isAllowedUrl(rawUrl, allowedDomains)) return false;
+  const u = new URL(rawUrl);
+  if (u.username || u.password) return false;
+  if (u.port && u.port !== "443") return false;
+  if (/^[\d.]+$/.test(u.hostname) || u.hostname.includes(":")) return false; // IPv4 / IPv6
+  return true;
+}
+
+function decodeEntities(input: string): string {
+  return input
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;|&apos;/gi, "'")
+    .replace(/&#(\d+);/g, (_, n: string) => {
+      const code = Number(n);
+      return code > 31 && code < 0x10ffff ? String.fromCodePoint(code) : " ";
+    });
+}
+
+function metaContent(html: string, key: string): string {
+  const re = new RegExp(`<meta[^>]+(?:name|property)=["']${key}["'][^>]*>`, "i");
+  const tag = html.match(re)?.[0];
+  const content = tag?.match(/content=["']([^"']*)["']/i)?.[1];
+  return content ? decodeEntities(content) : "";
+}
+
+/** Trích tiêu đề + tóm tắt an toàn từ HTML (bỏ script/style/điều hướng, không thực thi gì). */
+export function extractPageSummary(html: string): { title: string; summary: string } {
+  const title = cleanSnippet(
+    metaContent(html, "og:title") || decodeEntities(html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] ?? ""),
+    MAX_TITLE_CHARS,
+  );
+  const description = cleanSnippet(metaContent(html, "description") || metaContent(html, "og:description"), MAX_SUMMARY_CHARS);
+  const body = decodeEntities(
+    html
+      .replace(/<(script|style|noscript|nav|header|footer|aside|svg|form)[\s\S]*?<\/\1>/gi, " ")
+      .replace(/<!--[\s\S]*?-->/g, " "),
+  );
+  const text = cleanSnippet(body, MAX_SUMMARY_CHARS);
+  const summary = description.length >= 80 ? description : cleanSnippet(`${description} ${text}`, MAX_SUMMARY_CHARS);
+  return { title, summary };
+}
+
+async function readLimited(res: Response, maxBytes: number): Promise<string> {
+  if (!res.body) return (await res.text()).slice(0, maxBytes);
+  const reader = res.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  while (total < maxBytes) {
+    const { done, value } = await reader.read();
+    if (done || !value) break;
+    chunks.push(value);
+    total += value.byteLength;
+  }
+  await reader.cancel().catch(() => undefined);
+  const merged = new Uint8Array(Math.min(total, maxBytes));
+  let offset = 0;
+  for (const c of chunks) {
+    const slice = c.subarray(0, merged.length - offset);
+    merged.set(slice, offset);
+    offset += slice.byteLength;
+    if (offset >= merged.length) break;
+  }
+  return new TextDecoder("utf-8", { fatal: false }).decode(merged);
+}
+
+/**
+ * Tải một trang từ domain tin cậy và rút tiêu đề/tóm tắt. Chuyển hướng được kiểm tra lại từng bước;
+ * có timeout và giới hạn dung lượng; lỗi trả về { ok:false } chứ không ném.
+ */
+export async function fetchPageSummary(
+  rawUrl: string,
+  opts: { env?: EnvLike; fetcher?: Fetcher; timeoutMs?: number } = {},
+): Promise<PageResult> {
+  const { allowedDomains } = readWebEnv(opts.env);
+  const fetcher: Fetcher = opts.fetcher ?? ((i, init) => fetch(i, init));
+  let current = rawUrl.trim();
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), opts.timeoutMs ?? DEFAULT_TIMEOUT_MS);
+  try {
+    for (let hop = 0; hop <= MAX_REDIRECTS; hop += 1) {
+      if (!isSafeFetchUrl(current, allowedDomains)) {
+        return { ok: false, reason: "not_allowed", message: "Địa chỉ không thuộc nguồn tin cậy được phép (chỉ https, đúng domain trong danh sách)." };
+      }
+      const res = await fetcher(current, {
+        method: "GET",
+        redirect: "manual",
+        headers: { accept: "text/html,text/plain;q=0.9", "user-agent": "KaRoseKnowledgeBot/1.0" },
+        signal: controller.signal,
+      });
+      if (res.status >= 300 && res.status < 400) {
+        const location = res.headers.get("location");
+        if (!location) return { ok: false, reason: "http_error", message: "Trang chuyển hướng không hợp lệ." };
+        current = new URL(location, current).toString();
+        continue;
+      }
+      if (!res.ok) return { ok: false, reason: "http_error", message: `Trang trả về HTTP ${res.status}.` };
+      const type = res.headers.get("content-type") ?? "";
+      if (!/text\/(html|plain)|application\/xhtml/i.test(type)) {
+        return { ok: false, reason: "unsupported", message: "Chỉ hỗ trợ trang HTML hoặc văn bản thuần." };
+      }
+      const raw = await readLimited(res, MAX_PAGE_BYTES);
+      const { title, summary } = /text\/plain/i.test(type)
+        ? { title: "", summary: cleanSnippet(raw, MAX_SUMMARY_CHARS) }
+        : extractPageSummary(raw);
+      if (!summary) return { ok: false, reason: "empty", message: "Không rút được nội dung từ trang." };
+      return { ok: true, url: current, title: title || new URL(current).hostname, summary };
+    }
+    return { ok: false, reason: "http_error", message: "Quá nhiều lần chuyển hướng." };
+  } catch (err) {
+    const aborted = err instanceof Error && err.name === "AbortError";
+    return aborted
+      ? { ok: false, reason: "timeout", message: "Tải trang quá thời gian chờ." }
+      : { ok: false, reason: "network_error", message: "Không tải được trang." };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+export interface SourceSyncReport {
+  mode: "REFRESH_EXISTING" | "UPSERT_SOURCE";
+  checked: number;
+  updated: number;
+  failed: number;
+  errors: string[];
+  message: string;
+}
+
+/** Thêm/cập nhật một nguồn theo URL (tải nội dung thật). */
+export async function upsertKnowledgeSource(
+  input: { url: string; title?: string; category?: string },
+  opts: { db?: KnowledgeDb; env?: EnvLike; fetcher?: Fetcher } = {},
+): Promise<SourceSyncReport> {
+  const db = opts.db ?? prisma;
+  const page = await fetchPageSummary(input.url, opts);
+  if (!page.ok) {
+    return { mode: "UPSERT_SOURCE", checked: 1, updated: 0, failed: 1, errors: [page.message], message: page.message };
+  }
+  const title = input.title?.trim() ? cleanSnippet(input.title, MAX_TITLE_CHARS) : page.title;
+  const category = input.category?.trim() || "GENERAL";
+  const now = new Date();
+  await db.knowledgeSource.upsert({
+    where: { sourceUrl: page.url },
+    create: { title, sourceUrl: page.url, summary: page.summary, category, syncedAt: now, isActive: true },
+    update: { title, summary: page.summary, category, syncedAt: now },
+  });
+  return { mode: "UPSERT_SOURCE", checked: 1, updated: 1, failed: 0, errors: [], message: `Đã lưu nguồn: ${title}` };
+}
+
+/** Làm mới nội dung các nguồn đang bật (hoặc theo `ids`). Nguồn lỗi giữ nguyên nội dung cũ. */
+export async function refreshKnowledgeSources(
+  opts: { db?: KnowledgeDb; ids?: string[]; limit?: number; env?: EnvLike; fetcher?: Fetcher } = {},
+): Promise<SourceSyncReport> {
+  const db = opts.db ?? prisma;
+  const sources = await db.knowledgeSource.findMany({
+    where: { isActive: true, ...(opts.ids?.length ? { id: { in: opts.ids } } : {}) },
+    orderBy: { syncedAt: "asc" },
+    take: opts.limit ?? 30,
+    select: { id: true, title: true, sourceUrl: true },
+  });
+  const report: SourceSyncReport = { mode: "REFRESH_EXISTING", checked: sources.length, updated: 0, failed: 0, errors: [], message: "" };
+  for (const s of sources) {
+    const page = await fetchPageSummary(s.sourceUrl, opts);
+    if (!page.ok) {
+      report.failed += 1;
+      report.errors.push(`${s.title}: ${page.message}`);
+      continue;
+    }
+    await db.knowledgeSource.update({
+      where: { id: s.id },
+      data: { summary: page.summary, syncedAt: new Date() },
+    });
+    report.updated += 1;
+  }
+  report.message = `Đã làm mới ${report.updated}/${report.checked} nguồn${report.failed ? `, ${report.failed} nguồn lỗi` : ""}.`;
+  return report;
+}

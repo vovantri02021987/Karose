@@ -521,6 +521,31 @@ async function webDraft(
 }
 
 // ---------------------------------------------------------------------------------------------
+// Giới thiệu thương hiệu — chỉ nói những gì có trong dữ liệu, không bịa thông tin liên hệ/chứng nhận
+// ---------------------------------------------------------------------------------------------
+function brandDraft(ctx: CatalogContext, text: string): Draft {
+  const draft: Draft = { paragraphs: [], products: [], sources: [], usedWeb: false };
+  const categories = [...new Set(ctx.products.map((p) => p.category))];
+  draft.paragraphs.push(
+    ctx.products.length
+      ? `KaRose là cửa hàng mỹ phẩm thiên nhiên. Hiện đang bán ${ctx.products.length} sản phẩm/combo${categories.length ? ` thuộc các nhóm: ${categories.join(", ")}` : ""}.`
+      : "KaRose là cửa hàng mỹ phẩm thiên nhiên.",
+  );
+  if (has(text, "dia chi", "lien he", "hotline", "so dien thoai", "shop o dau", "cua hang")) {
+    draft.paragraphs.push(
+      "Mình chưa có thông tin liên hệ hay địa chỉ chính thức của cửa hàng để cung cấp chính xác. Bạn có thể đặt hàng và tra cứu đơn ngay trên website: /tracking",
+    );
+  }
+  if (has(text, "huu co", "thuan chay", "cruelty free", "xuat xu", "ai san xuat")) {
+    draft.paragraphs.push(
+      "KaRose chưa công bố thông tin về chứng nhận (hữu cơ, thuần chay, không thử nghiệm trên động vật) hay nhà sản xuất trong dữ liệu mà mình có, nên mình không khẳng định các điều này. Bạn có thể xem thành phần từng sản phẩm để tự đối chiếu.",
+    );
+  }
+  draft.products = ctx.products.filter((p) => p.isFeatured).concat(ctx.products).slice(0, 3);
+  return draft;
+}
+
+// ---------------------------------------------------------------------------------------------
 // An toàn / ranh giới y tế
 // ---------------------------------------------------------------------------------------------
 function safetyDraft(text: string, mentioned: ChatProduct[]): Draft {
@@ -660,6 +685,9 @@ export async function answerQuestion(input: EngineInput): Promise<EngineOutput> 
       case "SAFETY_MEDICAL_BOUNDARY":
         draft = safetyDraft(text, mentioned);
         break;
+      case "GENERAL_BRAND":
+        draft = brandDraft(ctx, text);
+        break;
       case "PRODUCT_RECOMMENDATION":
       default:
         if (explicitMentioned.length) {
@@ -702,3 +730,8 @@ export async function answerQuestion(input: EngineInput): Promise<EngineOutput> 
     usedLlm,
   };
 }
+
+/** Tên gọi chuẩn của các thành phần engine (alias, cùng một hàm). */
+export { classifyIntent as classifyChatIntent } from "./intent";
+export { loadCatalogContext as loadGroundedCatalog } from "./catalog-context";
+export const runChatbotEngine = answerQuestion;

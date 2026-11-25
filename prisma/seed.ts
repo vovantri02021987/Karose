@@ -605,6 +605,9 @@ const REVIEWS: {
 async function resetDatabase() {
   // Children first, then parents (foreign-key safe).
   await prisma.$transaction([
+    prisma.chatMessage.deleteMany(),
+    prisma.chatSession.deleteMany(),
+    prisma.knowledgeSource.deleteMany(),
     prisma.orderItem.deleteMany(),
     prisma.order.deleteMany(),
     prisma.review.deleteMany(),
@@ -798,6 +801,23 @@ async function seedReviews(productIdBySlug: Map<string, string>) {
   }
 }
 
+/**
+ * Nguồn kiến thức MẪU: chỉ là trang gốc của các tổ chức tham khảo, tắt sẵn (isActive=false) để chatbot
+ * không trích dẫn nội dung chưa kiểm chứng. Vào /admin/knowledge → "Thêm nguồn thủ công" để tải nội dung thật.
+ */
+async function seedKnowledgeSources() {
+  const samples = [
+    { title: "DermNet — thông tin về da liễu", sourceUrl: "https://dermnetnz.org/", category: "SAFETY" },
+    { title: "American Academy of Dermatology", sourceUrl: "https://www.aad.org/", category: "GENERAL" },
+    { title: "National Library of Medicine (NIH)", sourceUrl: "https://www.ncbi.nlm.nih.gov/", category: "INGREDIENT" },
+  ];
+  for (const s of samples) {
+    await prisma.knowledgeSource.create({
+      data: { ...s, summary: "Nguồn mẫu — chưa tải nội dung. Dùng Admin → Kiến thức chatbot để thêm/làm mới trang cụ thể.", isActive: false },
+    });
+  }
+}
+
 async function main() {
   if (
     process.env.NODE_ENV === "production" &&
@@ -819,6 +839,9 @@ async function main() {
 
   console.log("🎟️  Tạo voucher...");
   await seedVouchers(productIdBySlug);
+
+  console.log("📚 Tạo nguồn kiến thức mẫu...");
+  await seedKnowledgeSources();
 
   console.log("⭐ Tạo đánh giá...");
   await seedReviews(productIdBySlug);

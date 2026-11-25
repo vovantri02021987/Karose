@@ -10,6 +10,7 @@ export const CHAT_INTENTS = [
   "ORDER_SHIPPING_PROMO",
   "WEB_KNOWLEDGE_UPDATE",
   "SAFETY_MEDICAL_BOUNDARY",
+  "GENERAL_BRAND",
 ] as const;
 
 export type ChatIntent = (typeof CHAT_INTENTS)[number];
@@ -160,6 +161,25 @@ const KEYWORDS: Record<ChatIntent, Keyword[]> = {
     k("la gi", 1),
     k("review", 1),
   ],
+  GENERAL_BRAND: [
+    k("karose la gi", 3),
+    k("karose la ai", 3),
+    k("gioi thieu", 3),
+    k("ve karose", 3),
+    k("thuong hieu", 3),
+    k("cua hang", 2),
+    k("dia chi", 2),
+    k("lien he", 3),
+    k("hotline", 3),
+    k("so dien thoai", 3),
+    k("shop o dau", 3),
+    k("huu co", 2),
+    k("thuan chay", 2),
+    k("cruelty free", 2),
+    k("thien nhien", 1),
+    k("xuat xu", 2),
+    k("ai san xuat", 3),
+  ],
   SAFETY_MEDICAL_BOUNDARY: [
     k("di ung", 3),
     k("kich ung", 3),
@@ -218,6 +238,7 @@ const TIE_BREAK: ChatIntent[] = [
   "ORDER_SHIPPING_PROMO",
   "PRODUCT_USAGE_INCI",
   "WEB_KNOWLEDGE_UPDATE",
+  "GENERAL_BRAND",
   "PRODUCT_RECOMMENDATION",
 ];
 const DEFAULT_INTENT: ChatIntent = "PRODUCT_RECOMMENDATION";
@@ -235,6 +256,7 @@ function emptyScores(): Record<ChatIntent, number> {
     ORDER_SHIPPING_PROMO: 0,
     WEB_KNOWLEDGE_UPDATE: 0,
     SAFETY_MEDICAL_BOUNDARY: 0,
+    GENERAL_BRAND: 0,
   };
 }
 
@@ -248,6 +270,7 @@ export function classifyIntent(message: string): IntentResult {
     ORDER_SHIPPING_PROMO: [],
     WEB_KNOWLEDGE_UPDATE: [],
     SAFETY_MEDICAL_BOUNDARY: [],
+    GENERAL_BRAND: [],
   };
 
   for (const intent of CHAT_INTENTS) {

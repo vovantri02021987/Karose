@@ -4,6 +4,9 @@ import { answerQuestion, preservesFacts } from "@/lib/chatbot/engine";
 import {
   cleanSnippet,
   extractIngredientNames,
+  extractPageSummary,
+  fetchPageSummary,
+  isSafeFetchUrl,
   isAllowedUrl,
   searchWeb,
   syncKnowledgeSources,
@@ -11,6 +14,7 @@ import {
 } from "@/lib/chatbot/web-knowledge";
 import { POST as chatRoute } from "@/app/api/chat/route";
 import { POST as syncRoute } from "@/app/api/admin/knowledge/sync/route";
+import { DELETE as sourceDelete, PATCH as sourcePatch } from "@/app/api/admin/knowledge/[id]/route";
 import { formatVND } from "@/lib/format";
 import { cleanup, makeBatch, makeUser, makeVariant, makeVoucher, RUN } from "./helpers/factory";
 import { loginAs, logout } from "./helpers/admin";
@@ -31,6 +35,7 @@ beforeEach(() => {
   fetchSpy.mockClear();
   delete process.env.TAVILY_API_KEY;
   delete process.env.ANTHROPIC_API_KEY;
+  delete process.env.KNOWLEDGE_SYNC_SECRET;
 });
 
 async function chat(message: string, sessionId?: string) {
@@ -76,6 +81,8 @@ describe("Chatbot — phân loại ý định", () => {
     ["Sản phẩm này còn hàng không", "ORDER_SHIPPING_PROMO"],
     ["Tìm trên mạng nghiên cứu mới nhất về niacinamide", "WEB_KNOWLEDGE_UPDATE"],
     ["Da mình bị dị ứng, nổi mẩn đỏ có dùng được không?", "SAFETY_MEDICAL_BOUNDARY"],
+    ["Giới thiệu về thương hiệu KaRose", "GENERAL_BRAND"],
+    ["Cho mình xin hotline liên hệ", "GENERAL_BRAND"],
     ["Tôi đang mang thai có dùng được không", "SAFETY_MEDICAL_BOUNDARY"],
   ];
   for (const [text, expected] of cases) {
@@ -388,5 +395,116 @@ describe("Chatbot — LLM chỉ chỉnh giọng văn, không được đổi d�
     expect(out.intent.intent).toBe("SAFETY_MEDICAL_BOUNDARY");
     expect(out.usedLlm).toBe(false);
     expect(spy).not.toHaveBeenCalled();
+  });
+});
+
+describe("Chatbot — giới thiệu thương hiệu trung thực", () => {
+  it("không bịa liên hệ/chứng nhận khi dữ liệu không có", async () => {
+    const a = await chat("Cho mình xin hotline và địa chỉ cửa hàng");
+    expect(a.body.intent).toBe("GENERAL_BRAND");
+    expect(a.body.reply).toMatch(/chưa có thông tin liên hệ/);
+    const b = await chat("Sản phẩm KaRose có hữu cơ, thuần chay không?");
+    expect(b.body.intent).toBe("GENERAL_BRAND");
+    expect(b.body.reply).toMatch(/chưa công bố thông tin về chứng nhận/);
+  });
+});
+
+describe("Chatbot — tải trang web an toàn", () => {
+  const page = `https://pubmed.ncbi.nlm.nih.gov/${RUN.toLowerCase()}-page`;
+  const html = (extra = "") =>
+    `<html><head><title>Aloe &amp; skin</title><meta name="description" content="Aloe vera gel is widely studied as a topical moisturiser and soothing agent for dry skin in several small trials."></head><body><script>alert(1)</script><nav>menu</nav><p>Body text ${extra}</p></body></html>`;
+  const okHtml = (body: string): Fetcher => async () => new Response(body, { status: 200, headers: { "content-type": "text/html; charset=utf-8" } });
+
+  it("isSafeFetchUrl chặn IP, cổng lạ, tài khoản nhúng, http, domain lạ", () => {
+    const allow = ["ncbi.nlm.nih.gov"];
+    expect(isSafeFetchUrl("https://pubmed.ncbi.nlm.nih.gov/1", allow)).toBe(true);
+    expect(isSafeFetchUrl("https://ncbi.nlm.nih.gov:8443/1", allow)).toBe(false);
+    expect(isSafeFetchUrl("https://user:pw@ncbi.nlm.nih.gov/1", allow)).toBe(false);
+    expect(isSafeFetchUrl("https://127.0.0.1/", allow)).toBe(false);
+    expect(isSafeFetchUrl("http://ncbi.nlm.nih.gov/1", allow)).toBe(false);
+    expect(isSafeFetchUrl("https://169.254.169.254/latest", ["169.254.169.254"])).toBe(false);
+  });
+
+  it("extractPageSummary bỏ script/nav, giải mã thực thể, lấy mô tả", () => {
+    const r = extractPageSummary(html());
+    expect(r.title).toBe("Aloe & skin");
+    expect(r.summary).toContain("Aloe vera gel");
+    expect(r.summary).not.toMatch(/alert|menu/);
+  });
+
+  it("tải trang hợp lệ; từ chối domain lạ, chuyển hướng ra ngoài, loại nội dung lạ", async () => {
+    const ok = await fetchPageSummary(page, { fetcher: okHtml(html()) });
+    expect(ok).toMatchObject({ ok: true, title: "Aloe & skin" });
+
+    const denied = vi.fn(okHtml(html()));
+    expect(await fetchPageSummary("https://evil.example.com/x", { fetcher: denied })).toMatchObject({ ok: false, reason: "not_allowed" });
+    expect(denied).not.toHaveBeenCalled();
+
+    const redirect: Fetcher = async () => new Response(null, { status: 302, headers: { location: "https://evil.example.com/steal" } });
+    const spy = vi.fn(redirect);
+    expect(await fetchPageSummary(page, { fetcher: spy })).toMatchObject({ ok: false, reason: "not_allowed" });
+    expect(spy).toHaveBeenCalledTimes(1);
+
+    const pdf: Fetcher = async () => new Response("%PDF", { status: 200, headers: { "content-type": "application/pdf" } });
+    expect(await fetchPageSummary(page, { fetcher: pdf })).toMatchObject({ ok: false, reason: "unsupported" });
+    expect(await fetchPageSummary(page, { fetcher: async () => new Response("x", { status: 404 }) })).toMatchObject({ ok: false, reason: "http_error" });
+  });
+
+  it("route sync: UPSERT_SOURCE & REFRESH_EXISTING ghi KnowledgeSource, giá/tồn kho không đổi", async () => {
+    const v = await makeCosmetic({ name: `Sp Sync ${RUN}`, price: 150_000, stock: 5 });
+    const before = await prisma.productVariant.findUniqueOrThrow({ where: { id: v.variantId } });
+    const call = (body: unknown, headers: Record<string, string> = {}) =>
+      syncRoute(new Request("http://localhost/api/admin/knowledge/sync", { method: "POST", headers: { "content-type": "application/json", ...headers }, body: JSON.stringify(body) }));
+    const reply = (extra: string) => fetchSpy.mockImplementationOnce(async () => new Response(html(extra), { status: 200, headers: { "content-type": "text/html" } }));
+
+    await loginAs(await makeUser("STAFF"));
+    expect((await call({ mode: "UPSERT_SOURCE" })).status).toBe(400); // thiếu url
+    reply("1");
+    const added = await call({ mode: "UPSERT_SOURCE", url: page, category: "INGREDIENT" });
+    expect(added.status).toBe(200);
+    const row = await prisma.knowledgeSource.findUniqueOrThrow({ where: { sourceUrl: page } });
+    expect(row).toMatchObject({ isActive: true, category: "INGREDIENT" });
+    expect(row.summary).toContain("Aloe vera gel");
+
+    const bad = await call({ mode: "UPSERT_SOURCE", url: "https://evil.example.com/x" });
+    expect(bad.status).toBe(422);
+
+    reply("2");
+    const refreshed = await call({ mode: "REFRESH_EXISTING", ids: [row.id] });
+    expect(await refreshed.json()).toMatchObject({ mode: "REFRESH_EXISTING", checked: 1, updated: 1, failed: 0 });
+
+    expect(await prisma.productVariant.findUniqueOrThrow({ where: { id: v.variantId } })).toEqual(before);
+  });
+
+  it("Bearer KNOWLEDGE_SYNC_SECRET: đúng → vào được không cần phiên; sai/chưa cấu hình → 401", async () => {
+    const call = (token: string) =>
+      syncRoute(new Request("http://localhost/api/admin/knowledge/sync", { method: "POST", headers: { "content-type": "application/json", authorization: `Bearer ${token}` }, body: JSON.stringify({ mode: "REFRESH_EXISTING", ids: ["khong-ton-tai"] }) }));
+    expect((await call("whatever")).status).toBe(401); // chưa cấu hình secret
+    process.env.KNOWLEDGE_SYNC_SECRET = "s3cret-value-for-test";
+    expect((await call("sai")).status).toBe(401);
+    await loginAs(await makeUser("ADMIN"));
+    expect((await call("sai")).status).toBe(401); // có phiên nhưng Bearer sai vẫn từ chối
+    logout();
+    expect((await call("s3cret-value-for-test")).status).toBe(200);
+  });
+
+  it("bật/tắt & xoá nguồn: STAFF bật/tắt được, chỉ ADMIN xoá", async () => {
+    const src = await prisma.knowledgeSource.create({
+      data: { title: "t", sourceUrl: `https://pubmed.ncbi.nlm.nih.gov/${RUN.toLowerCase()}-toggle`, summary: "s" },
+    });
+    const ctx = { params: Promise.resolve({ id: src.id }) };
+    const patch = (isActive: unknown) =>
+      sourcePatch(new Request("http://localhost/x", { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ isActive }) }), ctx);
+    const del = () => sourceDelete(new Request("http://localhost/x", { method: "DELETE" }), ctx);
+
+    expect((await patch(false)).status).toBe(401);
+    await loginAs(await makeUser("STAFF"));
+    expect((await patch("x")).status).toBe(400);
+    expect((await patch(false)).status).toBe(200);
+    expect((await prisma.knowledgeSource.findUniqueOrThrow({ where: { id: src.id } })).isActive).toBe(false);
+    expect((await del()).status).toBe(403);
+    await loginAs(await makeUser("ADMIN"));
+    expect((await del()).status).toBe(200);
+    expect(await prisma.knowledgeSource.count({ where: { id: src.id } })).toBe(0);
   });
 });

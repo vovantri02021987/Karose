@@ -34,12 +34,13 @@ Website bán mỹ phẩm thiên nhiên KaRose (Storefront + Admin/OMS).
 ### 2.2 Chatbot tư vấn (`src/lib/chatbot/`, `ChatWidget`)
 
 - **Luồng:** `POST /api/chat` (zod: `sessionId?`, `message` 1–1000 ký tự) → lưu USER → `intent.ts` phân loại → `engine.ts` lấy dữ liệu THẬT từ DB (`catalog-context.ts`) → (tuỳ ý) kiến thức internet (`web-knowledge.ts`) → lưu ASSISTANT → trả `{ sessionId, intent, reply, recommendedProducts, sources, usedWebUpdate }`.
-- **5 ý định:** `PRODUCT_USAGE_INCI`, `PRODUCT_RECOMMENDATION`, `ORDER_SHIPPING_PROMO`, `WEB_KNOWLEDGE_UPDATE`, `SAFETY_MEDICAL_BOUNDARY` (từ khoá có trọng số, không dấu; điểm an toàn ≥ 3 luôn thắng; `safetyFlag` kèm lưu ý ở các nhóm khác).
+- **6 ý định:** `PRODUCT_USAGE_INCI`, `PRODUCT_RECOMMENDATION`, `ORDER_SHIPPING_PROMO`, `WEB_KNOWLEDGE_UPDATE`, `SAFETY_MEDICAL_BOUNDARY`, `GENERAL_BRAND` (không bịa liên hệ/chứng nhận) (từ khoá có trọng số, không dấu; điểm an toàn ≥ 3 luôn thắng; `safetyFlag` kèm lưu ý ở các nhóm khác).
 - **Quy tắc bất di bất dịch:** giá, tồn kho (FEFO), voucher CHỈ lấy từ DB. Internet chỉ ghi bảng `KnowledgeSource`, không bao giờ sửa giá/tồn kho/voucher/đơn. Nội dung web luôn kèm nguồn, chỉ từ domain trong `KNOWLEDGE_ALLOWED_DOMAINS`.
 - **Trung thực:** mục không có dữ liệu → nói "chưa cập nhật"; tính năng sản phẩm không công bố → nói rõ không khẳng định. Không chẩn đoán/điều trị; câu trả lời an toàn y tế là mẫu cố định, không qua LLM.
 - **LLM tuỳ chọn** (`ANTHROPIC_API_KEY`): chỉ chỉnh giọng văn; bản của LLM bị loại nếu làm mất/đổi con số, mã hoặc đường dẫn (`preservesFacts`).
 - **Env:** `TAVILY_API_KEY` (tra cứu web), `KNOWLEDGE_ALLOWED_DOMAINS` (danh sách domain, cách nhau dấu phẩy), `ANTHROPIC_API_KEY`, `CHATBOT_LLM_MODEL`. Không có key → không gọi mạng, bot vẫn trả lời từ DB.
-- **Đồng bộ kiến thức:** `POST /api/admin/knowledge/sync` (ADMIN/STAFF, body `{}` hoặc `{ "topics": ["Glycerin"] }`).
+- **Đồng bộ kiến thức:** `POST /api/admin/knowledge/sync` (ADMIN/STAFF hoặc `Authorization: Bearer $KNOWLEDGE_SYNC_SECRET`). `mode`: `REFRESH_EXISTING` (tải lại nguồn đang bật), `UPSERT_SOURCE` (`url`, `title?`, `category?`), `SEARCH` (mặc định, cần `TAVILY_API_KEY`). Chỉ tải https từ domain cho phép, chặn IP/cổng lạ, kiểm tra lại mỗi lần chuyển hướng. UI: `/admin/knowledge`; `PATCH/DELETE /api/admin/knowledge/[id]` (xoá chỉ ADMIN).
+- Alias tên gọi trong `engine.ts`: `classifyChatIntent`, `loadGroundedCatalog`, `runChatbotEngine`.
 - **Bảng mới** (`ChatSession`, `ChatMessage`, `KnowledgeSource`): chạy `prisma/sql/2026-11-chatbot.sql` trên Neon TRƯỚC khi deploy. Widget dùng bảng màu riêng `#2C4A3E / #FAF8F5 / #F2EFE9 / #C67D53`.
 - Test: `tests/chatbot.test.ts`.
 
