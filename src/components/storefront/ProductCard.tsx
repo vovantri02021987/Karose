@@ -2,7 +2,7 @@ import Link from "next/link";
 import { formatVND } from "@/lib/format";
 import type { CatalogProduct } from "@/types/product";
 import AddToCartButton from "./AddToCartButton";
-import SafeImage from "./SafeImage";
+import ProductCardMedia from "./ProductCardMedia";
 
 export function StockBadge({ stock }: { stock: number }) {
   if (stock <= 0) {
@@ -46,16 +46,12 @@ export default function ProductCard({
 
   return (
     <article className="group tabular-nums flex flex-col overflow-hidden rounded-xl border border-border bg-surface/60 transition hover:border-primary/40">
-      <Link
+      <ProductCardMedia
         href={`/products/${product.slug}`}
-        className="relative block aspect-square overflow-hidden bg-surface"
+        images={product.images}
+        alt={product.name}
+        priority={priority}
       >
-        <SafeImage
-          src={product.images[0]}
-          alt={product.name}
-          priority={priority}
-          className="object-cover transition duration-500 group-hover:scale-[1.03]"
-        />
         {soldOut && (
           <span className="absolute left-3 top-3 rounded-full bg-foreground/80 px-3 py-1 text-xs font-medium text-background">
             Hết hàng
@@ -71,7 +67,7 @@ export default function ProductCard({
             Combo
           </span>
         )}
-      </Link>
+      </ProductCardMedia>
 
       <div className="flex flex-1 flex-col gap-1.5 p-3 sm:p-4">
         <p className="text-xs uppercase tracking-wider text-muted-foreground">
