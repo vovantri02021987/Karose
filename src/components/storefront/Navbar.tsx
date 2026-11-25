@@ -63,7 +63,7 @@ export default function Navbar() {
             <Link
               key={l.href}
               href={l.href}
-              className={`text-sm transition hover:text-primary ${
+              className={`whitespace-nowrap text-sm transition hover:text-primary ${
                 isActive(l.href)
                   ? "font-semibold text-primary"
                   : "text-muted-foreground"
