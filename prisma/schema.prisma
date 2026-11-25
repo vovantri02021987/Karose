@@ -1,0 +1,193 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  STAFF
+  CUSTOMER
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPING
+  DELIVERED
+  CANCELLED
+  RETURNED
+}
+
+enum PaymentMethod {
+  COD
+  VIETQR
+}
+
+enum PaymentStatus {
+  UNPAID
+  PAID
+  REFUNDED
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String?
+  email        String   @unique
+  phone        String?  @unique
+  passwordHash String?
+  role         Role     @default(CUSTOMER)
+  orders       Order[]
+  reviews      Review[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String?
+  imageUrl    String?
+  products    Product[]
+  createdAt   DateTime  @default(now())
+}
+
+model Product {
+  id               String           @id @default(cuid())
+  name             String
+  slug             String           @unique
+  shortDescription String
+  description      String           @db.Text
+  ingredientsInci  String           @db.Text
+  usageGuide       String           @db.Text
+  storageGuide     String?
+  skinTypes        String[]
+  benefits         String[]
+  images           String[]
+  isFeatured       Boolean          @default(false)
+  isActive         Boolean          @default(true)
+  isCombo          Boolean          @default(false)
+  categoryId       String
+  category         Category         @relation(fields: [categoryId], references: [id])
+  variants         ProductVariant[]
+  comboItems       ComboItem[]      @relation("ComboParent")
+  reviews          Review[]
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+}
+
+model ProductVariant {
+  id             String           @id @default(cuid())
+  productId      String
+  product        Product          @relation(fields: [productId], references: [id], onDelete: Cascade)
+  sku            String           @unique
+  name           String
+  price          Int
+  compareAtPrice Int?
+  weightGram     Int              @default(200)
+  batches        InventoryBatch[]
+  orderItems     OrderItem[]
+  includedIn     ComboItem[]      @relation("ComboChild")
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+}
+
+model ComboItem {
+  id             String         @id @default(cuid())
+  comboProductId String
+  comboProduct   Product        @relation("ComboParent", fields: [comboProductId], references: [id], onDelete: Cascade)
+  childVariantId String
+  childVariant   ProductVariant @relation("ComboChild", fields: [childVariantId], references: [id])
+  quantity       Int            @default(1)
+}
+
+model InventoryBatch {
+  id                String         @id @default(cuid())
+  variantId         String
+  variant           ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  batchCode         String
+  manufacturedDate  DateTime
+  expiryDate        DateTime
+  initialQuantity   Int
+  availableQuantity Int
+  reservedQuantity  Int            @default(0)
+  createdAt         DateTime       @default(now())
+
+  @@index([variantId, expiryDate])
+}
+
+model Voucher {
+  id             String   @id @default(cuid())
+  code           String   @unique
+  description    String?
+  discountType   String
+  discountValue  Int
+  minOrderAmount Int      @default(0)
+  maxDiscount    Int?
+  usageLimit     Int?
+  usedCount      Int      @default(0)
+  startDate      DateTime
+  endDate        DateTime
+  isActive       Boolean  @default(true)
+  orders         Order[]
+}
+
+model Order {
+  id              String        @id @default(cuid())
+  orderCode       String        @unique
+  userId          String?
+  user            User?         @relation(fields: [userId], references: [id])
+  customerName    String
+  customerPhone   String
+  customerEmail   String?
+  shippingAddress String
+  province        String
+  district        String
+  ward            String
+  note            String?
+  subtotal        Int
+  shippingFee     Int
+  discountAmount  Int           @default(0)
+  totalAmount     Int
+  voucherId       String?
+  voucher         Voucher?      @relation(fields: [voucherId], references: [id])
+  status          OrderStatus   @default(PENDING)
+  paymentMethod   PaymentMethod @default(COD)
+  paymentStatus   PaymentStatus @default(UNPAID)
+  paymentRef      String?
+  trackingCode    String?
+  shippingPartner String?
+  items           OrderItem[]
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+model OrderItem {
+  id             String         @id @default(cuid())
+  orderId        String
+  order          Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  variantId      String
+  variant        ProductVariant @relation(fields: [variantId], references: [id])
+  quantity       Int
+  unitPrice      Int
+  batchAllocated Json?
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  productId  String
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id])
+  authorName String
+  rating     Int
+  comment    String   @db.Text
+  images     String[]
+  isApproved Boolean  @default(false)
+  createdAt  DateTime @default(now())
+}

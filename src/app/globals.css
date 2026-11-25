@@ -1,0 +1,103 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/*
+ * KaRose — Botanical Minimalist design tokens (CLAUDE.md §3)
+ *   #FAF8F5 background  | #F2EFE9 surface   | #2C4A3E primary (botanical green)
+ *   #C67D53 accent      | #1F2421 text      | #5C6660 muted text | #E2DDD5 border
+ */
+:root {
+  /* Brand tokens */
+  --kr-background: #faf8f5;
+  --kr-surface: #f2efe9;
+  --kr-primary: #2c4a3e;
+  --kr-accent: #c67d53;
+  --kr-text: #1f2421;
+  --kr-text-muted: #5c6660;
+  --kr-border: #e2ddd5;
+
+  /* shadcn/ui semantic variables mapped to brand tokens */
+  --radius: 0.5rem;
+  --background: var(--kr-background);
+  --foreground: var(--kr-text);
+  --card: var(--kr-surface);
+  --card-foreground: var(--kr-text);
+  --popover: var(--kr-background);
+  --popover-foreground: var(--kr-text);
+  --primary: var(--kr-primary);
+  --primary-foreground: #faf8f5;
+  --secondary: var(--kr-surface);
+  --secondary-foreground: var(--kr-primary);
+  --muted: var(--kr-surface);
+  --muted-foreground: var(--kr-text-muted);
+  /* shadcn "accent" = hover/selected surface; the terracotta brand accent is --kr-accent */
+  --accent: var(--kr-surface);
+  --accent-foreground: var(--kr-primary);
+  --destructive: #b3402f;
+  --border: var(--kr-border);
+  --input: var(--kr-border);
+  --ring: var(--kr-primary);
+  --chart-1: var(--kr-primary);
+  --chart-2: var(--kr-accent);
+  --chart-3: #7a9a8a;
+  --chart-4: #d9a98a;
+  --chart-5: var(--kr-text-muted);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  /* Brand utilities: bg-brand-accent, text-brand-accent, bg-surface ... */
+  --color-brand-accent: var(--kr-accent);
+  --color-brand-green: var(--kr-primary);
+  --color-surface: var(--kr-surface);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --font-sans: var(--font-plus-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-cormorant), ui-serif, Georgia, serif;
+  --font-display: var(--font-cormorant), ui-serif, Georgia, serif;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-serif tracking-tight;
+  }
+}
