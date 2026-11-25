@@ -15,14 +15,14 @@ const ARTICLES = [
 
 export default function JournalPage() {
   return (
-    <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
+    <div className="mx-auto max-w-[96rem] px-4 py-12 sm:px-6 lg:px-8">
       <p className="text-sm uppercase tracking-[0.25em] text-brand-accent">
         Journal
       </p>
       <h1 className="type-page-title mt-2">
         Kiến thức chăm sóc da thiên nhiên
       </h1>
-      <p className="mt-4 leading-relaxed text-muted-foreground">
+      <p className="mt-4 max-w-3xl leading-relaxed text-muted-foreground">
         Những điều cơ bản giúp bạn chọn, dùng và cất giữ mỹ phẩm thiên nhiên
         đúng cách. Nội dung mang tính tham khảo chung, không thay thế tư vấn của
         bác sĩ da liễu.
@@ -30,7 +30,7 @@ export default function JournalPage() {
 
       <nav
         aria-label="Mục lục"
-        className="mt-8 rounded-xl border border-border bg-surface p-5"
+        className="mt-8 max-w-3xl rounded-xl border border-border bg-surface p-5"
       >
         <p className="text-sm font-semibold">Trong bài viết</p>
         <ol className="mt-2 list-decimal space-y-1 pl-5 text-sm">
@@ -44,7 +44,8 @@ export default function JournalPage() {
         </ol>
       </nav>
 
-      <article id="doc-inci" className="mt-16 scroll-mt-24">
+      <div className="mt-12 grid gap-6 lg:grid-cols-3 lg:gap-8">
+      <article id="doc-inci" className="scroll-mt-24 rounded-xl border border-border bg-white p-6 sm:p-8">
         <h2 className="type-section">
           Cách đọc bảng thành phần INCI
         </h2>
@@ -83,7 +84,7 @@ export default function JournalPage() {
         </div>
       </article>
 
-      <article id="bao-quan" className="mt-16 scroll-mt-24">
+      <article id="bao-quan" className="scroll-mt-24 rounded-xl border border-border bg-white p-6 sm:p-8">
         <h2 className="type-section">
           Bảo quản mỹ phẩm thiên nhiên
         </h2>
@@ -119,7 +120,7 @@ export default function JournalPage() {
         </div>
       </article>
 
-      <article id="lam-sach-2-buoc" className="mt-16 scroll-mt-24">
+      <article id="lam-sach-2-buoc" className="scroll-mt-24 rounded-xl border border-border bg-white p-6 sm:p-8">
         <h2 className="type-section">
           Chu trình làm sạch 2 bước
         </h2>
@@ -153,6 +154,8 @@ export default function JournalPage() {
           </ul>
         </div>
       </article>
+
+      </div>
 
       <div className="mt-16 rounded-xl bg-primary p-8 text-center text-primary-foreground">
         <p className="font-heading text-2xl font-semibold">
