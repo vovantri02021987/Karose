@@ -5,6 +5,7 @@ import SafeImage from "@/components/storefront/SafeImage";
 import ProductCard from "@/components/storefront/ProductCard";
 import RatingStars from "@/components/storefront/RatingStars";
 import { SITE_NAME, getSiteOrigin, jsonLdString, pageMetadata } from "@/lib/seo";
+import { SHOP_EMAIL, SHOP_PHONE_E164 } from "@/lib/site-info";
 import {
   getCatalogProducts,
   getCategorySummaries,
@@ -67,6 +68,15 @@ export default async function HomePage() {
     url: origin,
     logo: `${origin}/images/logo-karose.jpg`,
     sameAs: ["https://shopee.vn/karose.01"],
+    email: SHOP_EMAIL,
+    telephone: SHOP_PHONE_E164,
+    contactPoint: {
+      "@type": "ContactPoint",
+      contactType: "customer service",
+      telephone: SHOP_PHONE_E164,
+      email: SHOP_EMAIL,
+      availableLanguage: "vi",
+    },
   };
   // Ô tìm kiếm trên header dẫn tới /products?q=..., nên khai báo SearchAction là đúng thực tế.
   const websiteJsonLd = {
@@ -207,11 +217,11 @@ export default async function HomePage() {
       <section className="mx-auto max-w-[96rem] px-4 pt-24 sm:px-6 lg:px-8">
         <div className="flex items-end justify-between gap-4">
           <h2 className="type-section">
-            Sản phẩm bán chạy
+            Sản phẩm nổi bật
           </h2>
           <Link
             href="/products"
-            className="text-sm font-medium text-primary hover:underline"
+            className="inline-flex min-h-11 items-center text-sm font-medium text-primary hover:underline"
           >
             Xem tất cả
           </Link>

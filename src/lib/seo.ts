@@ -43,9 +43,11 @@ export function pageMetadata({
   path,
   image = DEFAULT_OG_IMAGE,
 }: PageSeo): Metadata {
-  const socialTitle = `${title} | ${SITE_NAME}`;
+  // Tên sản phẩm đã có "KAROSE" thì không thêm hậu tố thương hiệu nữa (tránh "KAROSE | KAROSE").
+  const hasBrand = title.toUpperCase().includes(SITE_NAME);
+  const socialTitle = hasBrand ? title : `${title} | ${SITE_NAME}`;
   return {
-    title,
+    title: hasBrand ? { absolute: title } : title,
     description,
     alternates: { canonical: path },
     openGraph: {

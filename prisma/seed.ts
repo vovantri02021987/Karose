@@ -137,7 +137,7 @@ const PRODUCTS: ProductSpec[] = [
       {
         sku: "KR-TN-01",
         name: "Chai thủy tinh 100ml",
-        price: 250000,
+        price: 175000,
         batches: [
           // Cận hạn: còn ~20 ngày → loại khỏi tồn bán lẻ, cảnh báo ở Admin
           { manufacturedDaysAgo: 345, initialQuantity: 30, availableQuantity: 24 },
@@ -166,7 +166,7 @@ const PRODUCTS: ProductSpec[] = [
       {
         sku: "KR-SR-01",
         name: "Chai thủy tinh 30ml",
-        price: 380000,
+        price: 325000,
         batches: [
           // Còn ~60 ngày: hợp lệ bán lẻ, được xuất trước (FEFO)
           { manufacturedDaysAgo: 480, initialQuantity: 40, availableQuantity: 28 },
@@ -249,7 +249,7 @@ const PRODUCTS: ProductSpec[] = [
         // Tài liệu chỉ có một mức giá cho "Chai 250ml / 500ml" nên giữ một biến thể.
         sku: "KR-HC-01",
         name: "Chai 250ml / 500ml",
-        price: 240000,
+        price: 135000,
         batches: [
           // Cận hạn: còn ~20 ngày
           { manufacturedDaysAgo: 710, initialQuantity: 30, availableQuantity: 18 },
@@ -306,7 +306,7 @@ const PRODUCTS: ProductSpec[] = [
       {
         sku: "KR-BD-01",
         name: "Bánh 100g",
-        price: 110000,
+        price: 125000,
         batches: [
           // Lô đã bán hết (availableQuantity = 0) → không xuất hiện ở storefront
           { manufacturedDaysAgo: 300, initialQuantity: 50, availableQuantity: 0 },
@@ -336,7 +336,7 @@ const PRODUCTS: ProductSpec[] = [
         // Tài liệu chỉ có một mức giá cho "Hộp / Lọ 30g - 50g" nên giữ một biến thể.
         sku: "KR-TR-01",
         name: "Hộp / Lọ 30g - 50g",
-        price: 190000,
+        price: 175000,
         batches: [
           { manufacturedDaysAgo: 100, initialQuantity: 120, availableQuantity: 120 },
           { manufacturedDaysAgo: 20, initialQuantity: 90, availableQuantity: 90 },

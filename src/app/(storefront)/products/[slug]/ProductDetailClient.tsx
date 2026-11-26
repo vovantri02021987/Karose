@@ -93,11 +93,20 @@ export default function ProductDetailClient({
     !product.description.includes("Công dụng nổi bật");
   const hasSide = product.skinTypes.length > 0 || showBenefitTags;
 
+  // Chưa có đánh giá thì không hiện tab "Đánh giá (0)"; khách vẫn gửi được qua liên kết bên dưới.
+  const hasReviews = product.ratingCount > 0 || product.reviews.length > 0;
   const tabs: { key: TabKey; label: string }[] = [
     { key: "overview", label: "Mô tả & Công dụng" },
     { key: "inci", label: "Thành phần (INCI)" },
     { key: "usage", label: "Sử dụng & Bảo quản" },
-    { key: "reviews", label: `Đánh giá (${product.ratingCount})` },
+    ...(hasReviews || tab === "reviews"
+      ? [
+          {
+            key: "reviews" as const,
+            label: hasReviews ? `Đánh giá (${product.ratingCount})` : "Viết đánh giá",
+          },
+        ]
+      : []),
   ];
 
   return (
@@ -221,7 +230,7 @@ export default function ProductDetailClient({
               <dd className="type-code">{variant.sku}</dd>
               <dt className="text-muted-foreground">Tình trạng</dt>
               <dd>
-                <StockBadge stock={variant.stock} />
+                <StockBadge stock={variant.stock} showAvailable />
               </dd>
               <dt className="text-muted-foreground">Giao hàng</dt>
               <dd>
@@ -357,6 +366,16 @@ export default function ProductDetailClient({
             </button>
           ))}
         </div>
+
+        {!hasReviews && tab !== "reviews" && (
+          <button
+            type="button"
+            onClick={() => setTab("reviews")}
+            className="mt-3 inline-flex min-h-11 items-center text-sm text-primary underline"
+          >
+            Viết đánh giá đầu tiên
+          </button>
+        )}
 
         <div
           role="tabpanel"
