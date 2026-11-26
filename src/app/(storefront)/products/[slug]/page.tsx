@@ -77,6 +77,10 @@ export default async function ProductPage({ params }: PageProps) {
         }}
       />
       <ProductDetailClient product={product} />
+      {related.length === 0 && (
+        // Chừa chỗ cho thanh "Thêm vào giỏ hàng" cố định trên mobile.
+        <div className="h-24 md:hidden" aria-hidden="true" />
+      )}
       {related.length > 0 && (
         <section
           aria-labelledby="related-title"
