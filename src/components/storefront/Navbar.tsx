@@ -41,7 +41,7 @@ export default function Navbar() {
       <div className="mx-auto flex h-16 max-w-[96rem] items-center gap-4 px-4 sm:px-6 lg:px-8">
         <button
           type="button"
-          className="-ml-2 p-2 md:hidden"
+          className="-ml-3 inline-flex h-11 w-11 items-center justify-center md:hidden"
           aria-label={menuOpen ? "Đóng menu" : "Mở menu"}
           aria-expanded={menuOpen}
           onClick={() => setMenuOpen((v) => !v)}
@@ -104,7 +104,7 @@ export default function Navbar() {
           type="button"
           onClick={openCart}
           aria-label={`Mở giỏ hàng, ${badge} sản phẩm`}
-          className="relative ml-auto p-2 sm:ml-0"
+          className="relative ml-auto inline-flex h-11 w-11 items-center justify-center sm:ml-0"
         >
           <ShoppingBag size={22} />
           {badge > 0 && (

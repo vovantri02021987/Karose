@@ -4,7 +4,14 @@ import type { CatalogProduct } from "@/types/product";
 import AddToCartButton from "./AddToCartButton";
 import ProductCardMedia from "./ProductCardMedia";
 
-export function StockBadge({ stock }: { stock: number }) {
+export function StockBadge({
+  stock,
+  showAvailable = false,
+}: {
+  stock: number;
+  /** Trang chi tiết: hiện "Còn hàng" rõ ràng; thẻ danh sách thì ẩn. */
+  showAvailable?: boolean;
+}) {
   if (stock <= 0) {
     return (
       <span className="text-[13px] font-medium text-destructive">Hết hàng</span>
@@ -17,6 +24,8 @@ export function StockBadge({ stock }: { stock: number }) {
       </span>
     );
   }
+  // Còn hàng bình thường thì thẻ danh sách không cần nhãn; chỉ báo khi hết hoặc sắp hết.
+  if (!showAvailable) return null;
   return <span className="text-[13px] font-medium text-brand-accent">Còn hàng</span>;
 }
 
@@ -59,7 +68,7 @@ export default function ProductCard({
         )}
         {product.isFeatured && !product.isCombo && !soldOut && (
           <span className="absolute left-3 top-3 rounded-full bg-brand-accent px-3 py-1 text-xs font-medium text-white">
-            Bán chạy
+            Nổi bật
           </span>
         )}
         {product.isCombo && !soldOut && (
