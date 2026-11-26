@@ -1,8 +1,10 @@
 import { ArrowRight, Droplets, FlaskConical, Leaf } from "lucide-react";
 import Link from "next/link";
+import type { Metadata } from "next";
 import SafeImage from "@/components/storefront/SafeImage";
 import ProductCard from "@/components/storefront/ProductCard";
 import RatingStars from "@/components/storefront/RatingStars";
+import { SITE_NAME, getSiteOrigin, jsonLdString, pageMetadata } from "@/lib/seo";
 import {
   getCatalogProducts,
   getCategorySummaries,
@@ -10,6 +12,24 @@ import {
 } from "@/lib/storefront";
 
 export const dynamic = "force-dynamic";
+
+const HOME_TITLE = "KAROSE — Mỹ phẩm thiên nhiên";
+const HOME_DESCRIPTION =
+  "KAROSE — mỹ phẩm thiên nhiên và hữu cơ với thành phần INCI minh bạch, từ vườn thảo mộc đến từng giọt tinh chất.";
+
+const homeSeo = pageMetadata({
+  title: HOME_TITLE,
+  description: HOME_DESCRIPTION,
+  path: "/",
+});
+
+export const metadata: Metadata = {
+  ...homeSeo,
+  // Tiêu đề trang chủ là nguyên văn, không thêm hậu tố "| KAROSE".
+  title: { absolute: HOME_TITLE },
+  openGraph: { ...homeSeo.openGraph, title: HOME_TITLE },
+  twitter: { ...homeSeo.twitter, title: HOME_TITLE },
+};
 
 const HOME_CATEGORY_SLUGS = [
   "cham-soc-da-mat",
@@ -38,8 +58,40 @@ export default async function HomePage() {
   const heroSub = featuredList[1];
   const combo = products.find((p) => p.isCombo);
 
+  const origin = await getSiteOrigin();
+  // Chỉ dùng thông tin đã có: tên, logo, link gian hàng Shopee chính thức. Không bịa liên hệ/địa chỉ.
+  const organizationJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: SITE_NAME,
+    url: origin,
+    logo: `${origin}/images/logo-karose.jpg`,
+    sameAs: ["https://shopee.vn/karose.01"],
+  };
+  // Ô tìm kiếm trên header dẫn tới /products?q=..., nên khai báo SearchAction là đúng thực tế.
+  const websiteJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: SITE_NAME,
+    url: origin,
+    inLanguage: "vi-VN",
+    potentialAction: {
+      "@type": "SearchAction",
+      target: `${origin}/products?q={search_term_string}`,
+      "query-input": "required name=search_term_string",
+    },
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLdString(organizationJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLdString(websiteJsonLd) }}
+      />
       {/* Hero */}
       <section className="bg-primary text-primary-foreground">
         <div className="mx-auto grid max-w-[96rem] items-center gap-10 px-4 py-20 sm:px-6 lg:px-8 md:grid-cols-2 md:py-28">

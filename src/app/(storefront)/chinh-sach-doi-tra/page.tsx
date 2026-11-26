@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Chính sách đổi trả",
   description: "Điều kiện và thời hạn đổi trả sản phẩm KAROSE.",
-};
+  path: "/chinh-sach-doi-tra",
+});
 
 const SECTIONS: { title: string; items: string[] }[] = [
   {

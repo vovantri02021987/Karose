@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Journal",
   description:
     "Kiến thức chăm sóc da thiên nhiên cơ bản: cách đọc bảng thành phần INCI, bảo quản mỹ phẩm thiên nhiên và chu trình làm sạch 2 bước.",
-};
+  path: "/journal",
+});
 
 const ARTICLES = [
   { id: "doc-inci", title: "Cách đọc bảng thành phần INCI" },

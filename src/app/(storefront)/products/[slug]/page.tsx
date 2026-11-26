@@ -1,7 +1,12 @@
 import type { Metadata } from "next";
-import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import ProductCard from "@/components/storefront/ProductCard";
+import {
+  breadcrumbJsonLd,
+  getSiteOrigin,
+  jsonLdString,
+  pageMetadata,
+} from "@/lib/seo";
 import { getProductDetail, getRelatedProducts } from "@/lib/storefront";
 import ProductDetailClient from "./ProductDetailClient";
 
@@ -15,24 +20,33 @@ export async function generateMetadata({
   const { slug } = await params;
   const product = await getProductDetail(slug);
   if (!product) return { title: "Không tìm thấy sản phẩm" };
-  return {
+  return pageMetadata({
     title: product.name,
     description: product.shortDescription,
-  };
+    path: `/products/${product.slug}`,
+    // Ảnh OG = ảnh chính của sản phẩm (ảnh chuẩn 1000x1000); chưa có ảnh thì dùng ảnh thương hiệu.
+    ...(product.images[0]
+      ? {
+          image: {
+            url: product.images[0],
+            width: 1000,
+            height: 1000,
+            alt: product.name,
+          },
+        }
+      : {}),
+  });
 }
 
 export default async function ProductPage({ params }: PageProps) {
   const { slug } = await params;
-  const [product, related, h] = await Promise.all([
+  const [product, related, origin] = await Promise.all([
     getProductDetail(slug),
     getRelatedProducts(slug),
-    headers(),
+    getSiteOrigin(),
   ]);
   if (!product) notFound();
 
-  const host = h.get("x-forwarded-host") ?? h.get("host") ?? "";
-  const proto = h.get("x-forwarded-proto") ?? "https";
-  const origin = host ? `${proto}://${host}` : "";
   const abs = (path: string) => (path.startsWith("http") ? path : `${origin}${path}`);
 
   const jsonLd = {
@@ -40,7 +54,7 @@ export default async function ProductPage({ params }: PageProps) {
     "@type": "Product",
     name: product.name,
     description: product.shortDescription,
-    image: product.images.map(abs),
+    ...(product.images.length > 0 ? { image: product.images.map(abs) } : {}),
     category: product.categoryName,
     brand: { "@type": "Brand", name: "KAROSE" },
     sku: product.variants[0]?.sku,
@@ -67,14 +81,22 @@ export default async function ProductPage({ params }: PageProps) {
       : {}),
   };
 
+  const breadcrumb = breadcrumbJsonLd(origin, [
+    { name: "Trang chủ", path: "/" },
+    { name: "Sản phẩm", path: "/products" },
+    { name: product.name, path: `/products/${product.slug}` },
+  ]);
+
   return (
     <>
+      {/* Dữ liệu do hệ thống tạo (không chứa HTML người dùng); jsonLdString thoát "<" để an toàn. */}
       <script
         type="application/ld+json"
-        // Dữ liệu do hệ thống tạo (không chứa HTML người dùng); thoát "<" để an toàn.
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
-        }}
+        dangerouslySetInnerHTML={{ __html: jsonLdString(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLdString(breadcrumb) }}
       />
       <ProductDetailClient product={product} />
       {related.length === 0 && (
