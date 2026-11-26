@@ -96,11 +96,27 @@ export default function ChatWidget() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState("");
+  // Mobile: ẩn nút khi cuộn xuống, hiện lại khi cuộn lên để không che chữ.
+  const [scrolledDown, setScrolledDown] = useState(false);
+  const lastScrollY = useRef(0);
 
   const sessionRef = useRef<string | null>(null);
   const idRef = useRef(1);
   const endRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    lastScrollY.current = window.scrollY;
+    const onScroll = () => {
+      const y = window.scrollY;
+      const delta = y - lastScrollY.current;
+      if (Math.abs(delta) < 8) return; // bỏ qua rung nhẹ
+      setScrolledDown(delta > 0 && y > 120);
+      lastScrollY.current = y;
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
@@ -198,7 +214,11 @@ export default function ChatWidget() {
         aria-label={open ? "Đóng trợ lý tư vấn" : "Mở trợ lý tư vấn KAROSE"}
         aria-expanded={open}
         style={{ backgroundColor: GREEN, color: CREAM }}
-        className="fixed bottom-24 right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full shadow-lg transition-transform hover:scale-105 md:bottom-6 md:right-6"
+        className={`fixed right-4 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-40 flex h-14 w-14 min-h-11 min-w-11 items-center justify-center rounded-full shadow-lg transition duration-300 hover:scale-105 focus-visible:translate-y-0 focus-visible:opacity-100 md:bottom-6 md:right-6 md:translate-y-0 md:opacity-100 ${
+          scrolledDown && !open
+            ? "pointer-events-none translate-y-24 opacity-0"
+            : "translate-y-0 opacity-100"
+        }`}
       >
         {open ? <X size={24} /> : <MessageCircle size={24} />}
       </button>
@@ -208,7 +228,7 @@ export default function ChatWidget() {
           role="dialog"
           aria-label="Trợ lý tư vấn KAROSE"
           style={{ backgroundColor: CREAM }}
-          className="fixed inset-x-3 bottom-40 z-40 flex h-[min(70vh,560px)] flex-col overflow-hidden rounded-2xl border border-[#E2DCCF] shadow-2xl md:inset-x-auto md:bottom-24 md:right-6 md:h-[600px] md:w-[400px]"
+          className="fixed inset-x-3 bottom-[calc(8.75rem+env(safe-area-inset-bottom))] z-40 flex h-[min(70vh,560px)] flex-col overflow-hidden rounded-2xl border border-[#E2DCCF] shadow-2xl md:inset-x-auto md:bottom-24 md:right-6 md:h-[600px] md:w-[400px]"
         >
           <header style={{ backgroundColor: GREEN, color: CREAM }} className="flex items-center gap-3 px-4 py-3">
             <Leaf size={20} style={{ color: COPPER }} aria-hidden="true" />

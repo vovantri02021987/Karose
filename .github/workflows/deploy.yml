@@ -46,6 +46,8 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          # Domain production (GitHub repo variable). Để trống thì metadata dùng host của request.
+          NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
       - name: Set DATABASE_URL secret on the Worker
         run: printf '%s' "$DATABASE_URL" | npx wrangler secret put DATABASE_URL
         env:

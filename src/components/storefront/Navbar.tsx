@@ -87,7 +87,7 @@ export default function Navbar() {
         <form
           onSubmit={submitSearch}
           role="search"
-          className="ml-auto hidden items-center rounded-full border border-border bg-surface px-3 sm:flex"
+          className="ml-auto hidden items-center rounded-full border border-border bg-surface px-3 focus-within:border-primary focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-primary sm:flex"
         >
           <Search size={16} className="text-muted-foreground" aria-hidden="true" />
           <input
@@ -120,7 +120,7 @@ export default function Navbar() {
           <form
             onSubmit={submitSearch}
             role="search"
-            className="my-3 flex items-center rounded-full border border-border bg-surface px-3"
+            className="my-3 flex items-center rounded-full border border-border bg-surface px-3 focus-within:border-primary focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-primary"
           >
             <Search size={16} className="text-muted-foreground" aria-hidden="true" />
             <input

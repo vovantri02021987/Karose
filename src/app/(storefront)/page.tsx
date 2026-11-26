@@ -1,8 +1,10 @@
 import { ArrowRight, Droplets, FlaskConical, Leaf } from "lucide-react";
 import Link from "next/link";
+import type { Metadata } from "next";
 import SafeImage from "@/components/storefront/SafeImage";
 import ProductCard from "@/components/storefront/ProductCard";
 import RatingStars from "@/components/storefront/RatingStars";
+import { SITE_NAME, getSiteOrigin, jsonLdString, pageMetadata } from "@/lib/seo";
 import {
   getCatalogProducts,
   getCategorySummaries,
@@ -10,6 +12,24 @@ import {
 } from "@/lib/storefront";
 
 export const dynamic = "force-dynamic";
+
+const HOME_TITLE = "KAROSE — Mỹ phẩm thiên nhiên";
+const HOME_DESCRIPTION =
+  "KAROSE — mỹ phẩm thiên nhiên và hữu cơ với thành phần INCI minh bạch, từ vườn thảo mộc đến từng giọt tinh chất.";
+
+const homeSeo = pageMetadata({
+  title: HOME_TITLE,
+  description: HOME_DESCRIPTION,
+  path: "/",
+});
+
+export const metadata: Metadata = {
+  ...homeSeo,
+  // Tiêu đề trang chủ là nguyên văn, không thêm hậu tố "| KAROSE".
+  title: { absolute: HOME_TITLE },
+  openGraph: { ...homeSeo.openGraph, title: HOME_TITLE },
+  twitter: { ...homeSeo.twitter, title: HOME_TITLE },
+};
 
 const HOME_CATEGORY_SLUGS = [
   "cham-soc-da-mat",
@@ -25,9 +45,12 @@ export default async function HomePage() {
     getHomeReviews(6),
   ]);
 
+  // Thẻ danh mục chỉ hiện khi có ảnh thật của sản phẩm trong danh mục (không dùng placeholder).
   const homeCategories = HOME_CATEGORY_SLUGS.map((slug) =>
     categories.find((c) => c.slug === slug),
-  ).filter((c): c is NonNullable<typeof c> => Boolean(c));
+  ).filter(
+    (c): c is NonNullable<typeof c> & { image: string } => Boolean(c?.image),
+  );
 
   const featured = products.filter((p) => p.isFeatured).slice(0, 8);
   const featuredList = featured.length > 0 ? featured : products.slice(0, 8);
@@ -35,10 +58,42 @@ export default async function HomePage() {
   const heroSub = featuredList[1];
   const combo = products.find((p) => p.isCombo);
 
+  const origin = await getSiteOrigin();
+  // Chỉ dùng thông tin đã có: tên, logo, link gian hàng Shopee chính thức. Không bịa liên hệ/địa chỉ.
+  const organizationJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: SITE_NAME,
+    url: origin,
+    logo: `${origin}/images/logo-karose.jpg`,
+    sameAs: ["https://shopee.vn/karose.01"],
+  };
+  // Ô tìm kiếm trên header dẫn tới /products?q=..., nên khai báo SearchAction là đúng thực tế.
+  const websiteJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: SITE_NAME,
+    url: origin,
+    inLanguage: "vi-VN",
+    potentialAction: {
+      "@type": "SearchAction",
+      target: `${origin}/products?q={search_term_string}`,
+      "query-input": "required name=search_term_string",
+    },
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLdString(organizationJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLdString(websiteJsonLd) }}
+      />
       {/* Hero */}
-      <section className="bg-primary text-primary-foreground">
+      <section data-surface="dark" className="bg-primary text-primary-foreground">
         <div className="mx-auto grid max-w-[96rem] items-center gap-10 px-4 py-20 sm:px-6 lg:px-8 md:grid-cols-2 md:py-28">
           <div>
             <p className="text-sm uppercase tracking-[0.25em] text-primary-foreground/70">
@@ -114,7 +169,11 @@ export default async function HomePage() {
           <h2 className="type-section text-center">
             Danh mục nổi bật
           </h2>
-          <div className="mt-10 grid grid-cols-2 gap-4 md:grid-cols-4">
+          <div
+            className={`mt-10 grid grid-cols-2 gap-4 ${
+              homeCategories.length === 3 ? "md:grid-cols-3" : "md:grid-cols-4"
+            }`}
+          >
             {homeCategories.map((c) => (
               <Link
                 key={c.slug}
@@ -127,13 +186,14 @@ export default async function HomePage() {
                   sizes="(min-width: 768px) 25vw, 50vw"
                   className="object-cover transition duration-500 group-hover:scale-105"
                 />
+                {/* Gradient mận ở nửa dưới thẻ: chữ trắng luôn đạt tương phản ≥ 4.5:1 kể cả trên vùng ảnh sáng nhất. */}
                 <span
-                  className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/40 to-transparent"
+                  className="absolute inset-x-0 bottom-0 h-[55%] bg-[linear-gradient(to_top,rgb(42_15_21/0.8)_0%,rgb(42_15_21/0.7)_80%,rgb(42_15_21/0)_100%)]"
                   aria-hidden="true"
                 />
                 <div className="relative">
                   <h3 className="type-card-editorial">{c.name}</h3>
-                  <p className="mt-1 text-xs text-primary-foreground/80">
+                  <p className="mt-1 text-xs text-primary-foreground">
                     {c.count} sản phẩm
                   </p>
                 </div>

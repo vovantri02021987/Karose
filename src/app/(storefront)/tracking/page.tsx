@@ -1,9 +1,15 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import { Suspense } from "react";
 import TrackingClient from "./TrackingClient";
 
 export const metadata: Metadata = {
-  title: "Theo dõi đơn hàng",
+  ...pageMetadata({
+    title: "Theo dõi đơn hàng",
+    description:
+      "Tra cứu tình trạng đơn hàng KAROSE bằng mã đơn và số điện thoại.",
+    path: "/tracking",
+  }),
   robots: { index: false, follow: false },
 };
 
