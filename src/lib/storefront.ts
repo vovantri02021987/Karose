@@ -1,3 +1,4 @@
+import { PLACEHOLDER_IMAGE } from "@/lib/constants";
 import { prisma } from "@/lib/prisma";
 import { sellableExpiryCutoff } from "@/lib/format";
 import { getSellableStockForVariants } from "@/lib/fefo";
@@ -104,9 +105,12 @@ export async function getCategorySummaries(
   });
   return categories.map((c) => {
     const inCategory = products.filter((p) => p.categoryId === c.id);
+    // Ảnh bìa = ảnh đầu của sản phẩm trong danh mục (ưu tiên còn hàng); không bao giờ dùng placeholder.
+    const hasRealImage = (p: CatalogProduct) =>
+      Boolean(p.images[0]) && p.images[0] !== PLACEHOLDER_IMAGE;
     const cover =
-      inCategory.find((p) => p.stock > 0 && p.images[0]) ??
-      inCategory.find((p) => p.images[0]);
+      inCategory.find((p) => p.stock > 0 && hasRealImage(p)) ??
+      inCategory.find(hasRealImage);
     return {
       ...c,
       count: inCategory.length,
