@@ -10,6 +10,7 @@ import { FREE_SHIPPING_THRESHOLD } from "@/lib/constants";
 import { deliverySummaryText } from "@/lib/delivery";
 import { formatDate, formatVND } from "@/lib/format";
 import { normalizeText } from "@/lib/text";
+import { SHOP_EMAIL, SHOP_PHONE_DISPLAY } from "@/lib/site-info";
 import { SHIPPING_FEE_BIG_CITY, SHIPPING_FEE_OTHER } from "@/lib/pricing";
 import {
   findProductsByIngredient,
@@ -413,7 +414,7 @@ function orderDraft(ctx: CatalogContext, text: string, mentioned: ChatProduct[])
 
   if (has(text, "huy don")) {
     answered = true;
-    draft.paragraphs.push("Mình chưa có chính sách huỷ đơn chi tiết để trả lời chính xác. Bạn vui lòng liên hệ cửa hàng càng sớm càng tốt, kèm mã đơn hàng.");
+    draft.paragraphs.push(`Mình chưa có chính sách huỷ đơn chi tiết để trả lời chính xác. Bạn vui lòng liên hệ cửa hàng càng sớm càng tốt (${SHOP_PHONE_DISPLAY} hoặc ${SHOP_EMAIL}), kèm mã đơn hàng.`);
   }
 
   if (has(text, "gia bao nhieu", "bao nhieu tien", "gia tien", "con hang", "het hang", "ton kho")) {
@@ -533,7 +534,7 @@ function brandDraft(ctx: CatalogContext, text: string): Draft {
   );
   if (has(text, "dia chi", "lien he", "hotline", "so dien thoai", "shop o dau", "cua hang")) {
     draft.paragraphs.push(
-      "Mình chưa có thông tin liên hệ hay địa chỉ chính thức của cửa hàng để cung cấp chính xác. Bạn có thể đặt hàng và tra cứu đơn ngay trên website: /tracking",
+      `Bạn có thể liên hệ KAROSE qua số điện thoại ${SHOP_PHONE_DISPLAY} hoặc email ${SHOP_EMAIL}. Mình chưa có địa chỉ cửa hàng chính thức để cung cấp. Bạn có thể tra cứu đơn ngay trên website: /tracking`,
     );
   }
   if (has(text, "huu co", "thuan chay", "cruelty free", "xuat xu", "ai san xuat")) {

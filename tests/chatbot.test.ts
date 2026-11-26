@@ -399,10 +399,12 @@ describe("Chatbot — LLM chỉ chỉnh giọng văn, không được đổi d�
 });
 
 describe("Chatbot — giới thiệu thương hiệu trung thực", () => {
-  it("không bịa liên hệ/chứng nhận khi dữ liệu không có", async () => {
+  it("trả liên hệ thật, không bịa địa chỉ/chứng nhận", async () => {
     const a = await chat("Cho mình xin hotline và địa chỉ cửa hàng");
     expect(a.body.intent).toBe("GENERAL_BRAND");
-    expect(a.body.reply).toMatch(/chưa có thông tin liên hệ/);
+    expect(a.body.reply).toContain("0868 353 595");
+    expect(a.body.reply).toContain("karosehcm@gmail.com");
+    expect(a.body.reply).toMatch(/chưa có địa chỉ cửa hàng/);
     const b = await chat("Sản phẩm KAROSE có hữu cơ, thuần chay không?");
     expect(b.body.intent).toBe("GENERAL_BRAND");
     expect(b.body.reply).toMatch(/chưa công bố thông tin về chứng nhận/);

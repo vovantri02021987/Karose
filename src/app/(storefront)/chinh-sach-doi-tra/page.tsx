@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
+import { SHOP_EMAIL, SHOP_PHONE, SHOP_PHONE_DISPLAY } from "@/lib/site-info";
 
 export const metadata: Metadata = pageMetadata({
   title: "Chính sách đổi trả",
@@ -61,6 +62,26 @@ export default function ReturnPolicyPage() {
             </ul>
           </section>
         ))}
+        <section>
+          <h2 className="type-section">Liên hệ đổi trả</h2>
+          <p className="mt-3 leading-relaxed">
+            Vui lòng liên hệ KAROSE kèm mã đơn hàng và hình ảnh sản phẩm:
+          </p>
+          <ul className="mt-3 space-y-1">
+            <li>
+              Điện thoại:{" "}
+              <a href={`tel:${SHOP_PHONE}`} className="text-primary underline">
+                {SHOP_PHONE_DISPLAY}
+              </a>
+            </li>
+            <li>
+              Email:{" "}
+              <a href={`mailto:${SHOP_EMAIL}`} className="text-primary underline">
+                {SHOP_EMAIL}
+              </a>
+            </li>
+          </ul>
+        </section>
       </div>
     </div>
   );

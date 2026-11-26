@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { CategorySummary } from "@/types/product";
+import { SHOP_EMAIL, SHOP_PHONE, SHOP_PHONE_DISPLAY } from "@/lib/site-info";
 
 export default function Footer({
   categories,
@@ -91,6 +92,16 @@ export default function Footer({
                 className="inline-block py-1.5 hover:text-primary"
               >
                 KAROSE trên Shopee
+              </a>
+            </li>
+            <li>
+              <a href={`tel:${SHOP_PHONE}`} className="inline-flex min-h-11 items-center hover:text-primary">
+                Hotline: {SHOP_PHONE_DISPLAY}
+              </a>
+            </li>
+            <li>
+              <a href={`mailto:${SHOP_EMAIL}`} className="inline-flex min-h-11 items-center break-all hover:text-primary">
+                {SHOP_EMAIL}
               </a>
             </li>
           </ul>
