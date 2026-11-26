@@ -20,7 +20,7 @@ function shuffle(items: string[]): string[] {
  * Khung ảnh thẻ sản phẩm (1:1). Rê chuột vào thẻ: ảnh đổi ngẫu nhiên giữa các
  * ảnh liên quan của sản phẩm (hiện mờ chuyển tiếp), đổi tiếp sau mỗi ~10 giây
  * khi chuột còn ở trên thẻ; rời chuột thì về ảnh chính. Sản phẩm chỉ có 1 ảnh
- * thì không đổi. Hiệu ứng mờ chậm 3 giây (kể cả khi bật "giảm chuyển động").
+ * thì không đổi. Hiệu ứng mờ chậm 3 giây. Bật "giảm chuyển động": đổi ảnh tức thì và không tự đổi tiếp.
  */
 export default function ProductCardMedia({
   href,
@@ -68,6 +68,8 @@ export default function ProductCardMedia({
   const start = () => {
     if (!canSwap) return;
     advance();
+    // Người dùng chọn giảm chuyển động: chỉ đổi ảnh 1 lần khi rê chuột, không tự đổi tiếp.
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     if (timer.current) clearInterval(timer.current);
     timer.current = setInterval(advance, CYCLE_MS);
   };

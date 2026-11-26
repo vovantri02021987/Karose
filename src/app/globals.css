@@ -183,3 +183,27 @@
 .karose-fade-in {
   animation: karose-fade-in 3000ms cubic-bezier(0.4, 0, 0.2, 1) both;
 }
+
+/*
+ * Giảm chuyển động (WCAG 2.3.3 / 2.2.2): tắt cuộn mượt, hiệu ứng mờ khi đổi ảnh,
+ * phóng to khi rê chuột và rút mọi transition về gần 0. Không đụng tới animation
+ * chỉ báo tải (spinner, pulse) vì đó không phải chuyển động trang trí.
+ */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .karose-fade-in {
+    animation: none;
+  }
+  *,
+  ::before,
+  ::after {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+  [class*="hover:scale-"],
+  [class*="group-hover:scale-"] {
+    scale: none !important;
+  }
+}
