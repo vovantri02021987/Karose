@@ -93,7 +93,7 @@ export default async function HomePage() {
         dangerouslySetInnerHTML={{ __html: jsonLdString(websiteJsonLd) }}
       />
       {/* Hero */}
-      <section className="bg-primary text-primary-foreground">
+      <section data-surface="dark" className="bg-primary text-primary-foreground">
         <div className="mx-auto grid max-w-[96rem] items-center gap-10 px-4 py-20 sm:px-6 lg:px-8 md:grid-cols-2 md:py-28">
           <div>
             <p className="text-sm uppercase tracking-[0.25em] text-primary-foreground/70">

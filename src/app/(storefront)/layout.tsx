@@ -35,8 +35,16 @@ export default async function StorefrontLayout({
 
   return (
     <>
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-primary focus:px-5 focus:py-2.5 focus:text-sm focus:font-medium focus:text-primary-foreground"
+      >
+        Bỏ qua đến nội dung chính
+      </a>
       <Navbar />
-      <main className="flex-1">{children}</main>
+      <main id="main-content" tabIndex={-1} className="flex-1 focus:outline-none">
+        {children}
+      </main>
       <Footer categories={categories} />
       <SlideCart />
       <ChatWidget />

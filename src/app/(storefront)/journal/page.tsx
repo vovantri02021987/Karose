@@ -159,7 +159,10 @@ export default function JournalPage() {
 
       </div>
 
-      <div className="mt-16 rounded-xl bg-primary p-8 text-center text-primary-foreground">
+      <div
+        data-surface="dark"
+        className="mt-16 rounded-xl bg-primary p-8 text-center text-primary-foreground"
+      >
         <p className="font-heading text-2xl font-semibold">
           Sẵn sàng chọn sản phẩm phù hợp?
         </p>
